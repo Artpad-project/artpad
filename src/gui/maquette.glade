@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkTextBuffer" id="Effectts">
+    <property name="text" translatable="yes">Effects</property>
+  </object>
+  <object class="GtkTextBuffer" id="cursor_positio">
+    <property name="text" translatable="yes">X - ....  ; Y - ...</property>
+  </object>
+  <object class="GtkWindow" id="MainWidow">
+    <property name="width_request">1274</property>
+    <property name="height_request">1080</property>
+    <property name="can_focus">False</property>
+    <property name="default_width">1500</property>
+    <property name="default_height">1080</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkFixed" id="everything">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkDrawingArea" id="Draw">
+            <property name="width_request">1760</property>
+            <property name="height_request">835</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="x">80</property>
+            <property name="y">140</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkExpander" id="toolbar">
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="expanded">True</property>
+            <child>
+              <object class="GtkFixed" id="expand_tools">
+                <property name="width_request">32</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkStackSwitcher" id="type_of_tool">
+                    <property name="width_request">243</property>
+                    <property name="height_request">80</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="stack">stack1</property>
+                  </object>
+                  <packing>
+                    <property name="x">5</property>
+                    <property name="y">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkStack" id="stack1">
+                    <property name="width_request">255</property>
+                    <property name="height_request">91</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkFixed" id="Image_tools">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkGrid" id="all_image_tools">
+                            <property name="width_request">244</property>
+                            <property name="height_request">118</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="margin_left">5</property>
+                            <property name="column_homogeneous">True</property>
+                            <child>
+                              <object class="GtkTextView" id="Effects">
+                                <property name="height_request">39</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="editable">False</property>
+                                <property name="justification">center</property>
+                                <property name="top_margin">13</property>
+                                <property name="buffer">Effectts</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
+                                <property name="width">6</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="label">gtk-cut</property>
+                                <property name="height_request">65</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="relief">none</property>
+                                <property name="use_stock">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="label">gtk-copy</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="relief">none</property>
+                                <property name="use_stock">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="label">gtk-edit</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="relief">none</property>
+                                <property name="use_stock">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">4</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="y">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSeparator">
+                            <property name="width_request">255</property>
+                            <property name="height_request">117</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">page0</property>
+                        <property name="title" translatable="yes">Image tools</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFixed" id="Video_tools">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="name">page1</property>
+                        <property name="title" translatable="yes">Video tools</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="y">155</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkTextView" id="name_of_tool">
+                    <property name="width_request">244</property>
+                    <property name="height_request">55</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="x">5</property>
+                    <property name="y">93</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="fond">
+                    <property name="width_request">255</property>
+                    <property name="height_request">272</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="Barre d'outils">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">tool bar</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="y">140</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFileChooserButton">
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="title" translatable="yes"/>
+          </object>
+          <packing>
+            <property name="y">50</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="barredubas">
+            <property name="width_request">1920</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLevelBar">
+                <property name="width_request">203</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="max_value">50</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkTextView" id="cursor_position">
+                <property name="width_request">193</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="editable">False</property>
+                <property name="justification">center</property>
+                <property name="top_margin">32</property>
+                <property name="buffer">cursor_positio</property>
+                <property name="accepts_tab">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="y">975</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkExpander" id="brushbar">
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="expanded">True</property>
+            <child>
+              <object class="GtkFixed" id="expand_brush">
+                <property name="width_request">32</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkStackSwitcher" id="type_of_brush">
+                    <property name="width_request">124</property>
+                    <property name="height_request">82</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="stack">stack_brush</property>
+                  </object>
+                  <packing>
+                    <property name="x">5</property>
+                    <property name="y">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkStack" id="stack_brush">
+                    <property name="width_request">255</property>
+                    <property name="height_request">91</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkFixed" id="Image_brush">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkGrid" id="all_image_tools1">
+                            <property name="width_request">244</property>
+                            <property name="height_request">118</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="margin_left">5</property>
+                            <property name="column_homogeneous">True</property>
+                            <child>
+                              <object class="GtkTextView" id="Effects1">
+                                <property name="height_request">39</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="editable">False</property>
+                                <property name="justification">center</property>
+                                <property name="top_margin">13</property>
+                                <property name="buffer">Effectts</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
+                                <property name="width">6</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="label">gtk-cut</property>
+                                <property name="height_request">65</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="use_stock">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="label">gtk-copy</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="use_stock">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="label">gtk-edit</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="use_stock">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">4</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="y">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSeparator">
+                            <property name="width_request">255</property>
+                            <property name="height_request">117</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">page0</property>
+                        <property name="title" translatable="yes">all pencils</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="y">155</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="fond1">
+                    <property name="width_request">255</property>
+                    <property name="height_request">272</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="barre_de_pinceau">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">brushbar</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x">1660</property>
+            <property name="y">140</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
