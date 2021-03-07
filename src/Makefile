@@ -1,9 +1,9 @@
 OUT			= artpad
 
 CC			= gcc
-CFLAGS  	= -g -Wall -Wextra
+CFLAGS  	= -g -Wall -Wextra $(shell pkg-config --cflags gtk+-3.0)
 CPPFLAGS	= -MMD
-LDLIBS		=
+LDLIBS		= $(shell pkg-config --libs gtk+-3.0)
 
 SOURCE		= main.c
 OBJ			= $(SOURCE:.c=.o)
