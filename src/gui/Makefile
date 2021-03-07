@@ -1,0 +1,22 @@
+OUT            = gui
+
+CC            = gcc
+CFLAGS      =  -g -Wall -Wextra $(shell pkg-config --cflags gtk+-3.0 sdl2)
+CPPFLAGS    = -MMD
+LDLIBS        = $(shell pkg-config --libs gtk+-3.0 sdl2) -lm -lSDL2_image
+
+SOURCE        = gui.c
+OBJ            = $(SOURCE:.c=.o)
+DEP            = $(SOURCE:.c=.d)
+
+all: $(OUT)
+
+gui: $(OBJ)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+.PHONY: clean
+
+clean:
+	rm -rf $(OUT) $(DEP) $(OBJ)
+
+-include $(DEP)
