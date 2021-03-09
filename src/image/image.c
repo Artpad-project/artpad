@@ -41,9 +41,8 @@ load_image(char *path) {
     width = gdk_pixbuf_get_width(pb);
     height = gdk_pixbuf_get_height(pb);
 
-    //  FIXME : switch
     file_type = parse_image_path(path);
-    *image = (struct Image) {path, "jpeg", width, height, pb, NULL};
+    *image = (struct Image) {path, file_type, width, height, pb, NULL};
 
     save_image_pixels(image);
 
@@ -52,8 +51,12 @@ load_image(char *path) {
 
 static char *
 parse_image_path(char *path) {
-    char *tmp = strpbrk(path, ".");
-    return tmp + 1;
+    char *filetype = strpbrk(path, ".") + 1;
+
+    if (!strcmp(filetype, "jpg"))
+        filetype = "jpeg";
+
+    return filetype;
 }
 
 static void
