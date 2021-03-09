@@ -11,6 +11,7 @@
 #include "image.h"
 
 static void save_image_pixels(struct Image *im);
+static void set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, const int y);
 
 /*!
  * Load an image from path, and stores it into a structure. 
@@ -35,11 +36,10 @@ load_image(const char *path) {
     if (pb == NULL)
         errx(err->code, "ERROR: image.c: couldn't load pixbuf (%s)", err->message);
 
-    im = (GtkImage *)gtk_image_new_from_pixbuf(pb);
     width = gdk_pixbuf_get_width(pb);
     height = gdk_pixbuf_get_height(pb);
 
-    *image = (struct Image) {width, height, im, NULL};
+    *image = (struct Image) {path, width, height, pb, NULL};
 
     save_image_pixels(image);
     print_pixel(image);
@@ -52,10 +52,8 @@ save_image_pixels(struct Image *im) {
     int row_len, bpp;
     guint len;
 
-    GdkPixbuf *pb = gtk_image_get_pixbuf(im->image);
-    guchar *pb_pixels = gdk_pixbuf_get_pixels_with_length(pb, &len);
-
-    row_len = gdk_pixbuf_get_rowstride(pb);
+    guchar *pb_pixels = gdk_pixbuf_get_pixels_with_length(im->pb, &len);
+    row_len = gdk_pixbuf_get_rowstride(im->pb);
 
     // Alloacte memory for image's pixel data : height * width * sizeof(pixel)
     // pixel(x,y) = array[x][y]
@@ -64,7 +62,7 @@ save_image_pixels(struct Image *im) {
         im_pixels[i] = (struct Pixel *)malloc(im->height * sizeof(struct Pixel));
 
     // FIXME: RGBA
-    if(gdk_pixbuf_get_bits_per_sample(pb)!=8)
+    if(gdk_pixbuf_get_bits_per_sample(im->pb)!=8)
         return;
 
     bpp = 3;
@@ -91,4 +89,27 @@ free_image(struct Image *image) {
         free(image->pixels[x]);
     free(image->pixels);
     free(image);
+}
+
+
+void
+save_image(struct Image *im) {
+    guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
+    int rowstride = gdk_pixbuf_get_rowstride(im->pb);
+    for (int x = 0; x < im->width; ++x) {
+        for (int y = 0; y < im->height; ++y) {
+            struct Pixel px = im->pixels[x][y];
+            set_pixel(pixels, rowstride, px, x, y);
+        }
+    }
+
+    // TODO: save image to its original path
+}
+
+static void
+set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, const int y) {
+    int bpp = 3;
+    pixels[y * rowstride + x * bpp + 0] = px.red;
+    pixels[y * rowstride + x * bpp + 1] = px.green;
+    pixels[y * rowstride + x * bpp + 2] = px.blue;
 }

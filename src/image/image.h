@@ -23,10 +23,14 @@ struct Pixel {
 };
 
 struct Image {
+    char *path;
     int width, height;
-    GtkImage *image;
+    GdkPixbuf *pb;
     struct Pixel **pixels;
 };
+
+typedef struct Image Image;
+typedef struct Pixel Pixel;
 
 struct Image *load_image(const char *path);
 void free_image(struct Image *im);
