@@ -103,6 +103,13 @@ free_image(struct Image *image) {
     free(image);
 }
 
+/*!
+ * Save image into a file. 
+ * 
+ * @param im the image to save
+ * @param out the file to save into. If NULL the image's own file will be edited.
+ * @param ftype the file format. If NULL the image's own file format will be used instead.
+ */
 void
 save_image(struct Image *im, char *out, char *ftype) {
     GError *err = NULL;
