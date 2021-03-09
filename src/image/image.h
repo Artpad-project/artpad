@@ -23,7 +23,8 @@ struct Pixel {
 };
 
 struct Image {
-    char *path;
+    char *file;
+    char *file_type;
     int width, height;
     GdkPixbuf *pb;
     struct Pixel **pixels;
@@ -32,7 +33,8 @@ struct Image {
 typedef struct Image Image;
 typedef struct Pixel Pixel;
 
-struct Image *load_image(const char *path);
+struct Image *load_image(char *path);
+void save_image(struct Image *im);
 void free_image(struct Image *im);
 
 #endif // IMAGE_H_

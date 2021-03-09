@@ -8,7 +8,8 @@ int main() {
     gchar *filename = "test.jpg";    
 
     struct Image *im = load_image(filename);
-    free_image(im);
+    save_image(im);
 
+    free_image(im);
     return 0;
 }

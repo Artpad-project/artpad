@@ -9,7 +9,9 @@
  */
 
 #include "image.h"
+#include <string.h>
 
+static char * parse_image_path(char *path);
 static void save_image_pixels(struct Image *im);
 static void set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, const int y);
 
@@ -20,11 +22,11 @@ static void set_pixel(guchar *pixels, int rowstride, const struct Pixel px, cons
  * @param path relative path to the image to load
  */
 struct Image *
-load_image(const char *path) {
-    GtkImage *im;
+load_image(char *path) {
     GdkPixbuf *pb;
     GError *err = NULL;
     int width, height;
+    char *file_type;
 
     struct Image *image = malloc(sizeof(struct Image));
 
@@ -39,12 +41,19 @@ load_image(const char *path) {
     width = gdk_pixbuf_get_width(pb);
     height = gdk_pixbuf_get_height(pb);
 
-    *image = (struct Image) {path, width, height, pb, NULL};
+    //  FIXME : switch
+    file_type = parse_image_path(path);
+    *image = (struct Image) {path, "jpeg", width, height, pb, NULL};
 
     save_image_pixels(image);
-    print_pixel(image);
 
     return image;
+}
+
+static char *
+parse_image_path(char *path) {
+    char *tmp = strpbrk(path, ".");
+    return tmp + 1;
 }
 
 static void
@@ -91,10 +100,11 @@ free_image(struct Image *image) {
     free(image);
 }
 
-
 void
 save_image(struct Image *im) {
+    GError *err = NULL;
     guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
+
     int rowstride = gdk_pixbuf_get_rowstride(im->pb);
     for (int x = 0; x < im->width; ++x) {
         for (int y = 0; y < im->height; ++y) {
@@ -103,7 +113,8 @@ save_image(struct Image *im) {
         }
     }
 
-    // TODO: save image to its original path
+    if (gdk_pixbuf_save(im->pb, im->file, im->file_type, &err) == FALSE)
+        errx(err->code, "Error: couldn't save image (%s)", err->message);
 }
 
 static void
