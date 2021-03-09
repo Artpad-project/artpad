@@ -1,21 +1,22 @@
-# Makefile
+OUT           = gui
 
-CC = gcc -fsanitize=address
-CPPFLAGS = -MMD
-CFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --cflags sdl` -Wall -O3
-LDFLAGS =
-LDLIBS = `pkg-config --libs gtk+-3.0` `pkg-config --libs sdl` -lm -lSDL_image
+CC            = gcc
+CFLAGS        = -g -Wall -Wextra $(shell pkg-config --cflags gtk+-3.0)
+CPPFLAGS      = -MMD
+LDLIBS        = $(shell pkg-config --libs gtk+-3.0)
 
-OBJ =  gui.o
-DEP = ${OBJ:.o=.d}
+SOURCE        = gui.c
+OBJ           = $(SOURCE:.c=.o)
+DEP           = $(SOURCE:.c=.d)
 
-all: gui
+all: $(OUT)
 
-main: ${OBJ}
+gui: $(OBJ)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+.PHONY: clean
 
 clean:
-	${RM} ${OBJ} ${DEP} main
+	rm -rf $(OUT) $(DEP) $(OBJ)
 
--include ${DEP}
-
-# END
+-include $(DEP)
