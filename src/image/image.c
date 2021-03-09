@@ -104,9 +104,14 @@ free_image(struct Image *image) {
 }
 
 void
-save_image(struct Image *im) {
+save_image(struct Image *im, char *out, char *ftype) {
     GError *err = NULL;
     guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
+
+    if (!out)
+        out = im->file;
+    if (!ftype)
+        ftype = im->file_type;
 
     int rowstride = gdk_pixbuf_get_rowstride(im->pb);
     for (int x = 0; x < im->width; ++x) {
@@ -116,7 +121,7 @@ save_image(struct Image *im) {
         }
     }
 
-    if (gdk_pixbuf_save(im->pb, im->file, im->file_type, &err) == FALSE)
+    if (gdk_pixbuf_save(im->pb, out, ftype, &err) == FALSE)
         errx(err->code, "Error: couldn't save image (%s)", err->message);
 }
 

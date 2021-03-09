@@ -15,7 +15,7 @@ int main() {
         for (int y = 0; y < im->height; ++y)
             im->pixels[x][y] = black;
 
-    save_image(im);
+    save_image(im, NULL, NULL);
     free_image(im);
 
     return 0;

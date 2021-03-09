@@ -34,7 +34,7 @@ typedef struct Image Image;
 typedef struct Pixel Pixel;
 
 struct Image *load_image(char *path);
-void save_image(struct Image *im);
+void save_image(struct Image *im, char *out, char *ftype);
 void free_image(struct Image *im);
 
 #endif // IMAGE_H_
