@@ -9,7 +9,7 @@ int main() {
     Pixel black = {0, 0, 0};
 
     Image *im = load_image(filename);
-    Image *copy = image_copy(im);
+    Image *copy = copy_image(im);
 
     // Fill the image with black
     for (int x = 0; x < im->width; ++x)

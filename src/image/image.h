@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include <err.h>
 
+#define BLACK (Pixel){0, 0, 0};
+#define WHITE (Pixel){255, 255, 255};
+
 // FIXME: RGBA for more control
 struct Pixel {
     // 0 to 255 : 8bits
@@ -35,7 +38,7 @@ typedef struct Pixel Pixel;
 
 struct Image * load_image(char *path);
 void save_image(struct Image *im, char *out, char *ftype);
-struct Image * copy_copy(struct Image *im);
+struct Image * copy_image(struct Image *im);
 void free_image(struct Image *im);
 
 #endif // IMAGE_H_

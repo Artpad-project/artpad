@@ -42,7 +42,7 @@ load_image(char *path) {
     height = gdk_pixbuf_get_height(pb);
 
     file_type = parse_image_path(path);
-    *image = (struct Image) {path, file_type, width, height, pb, NULL};
+    *image = (struct Image) {strdup(path), file_type, width, height, pb, NULL};
 
     save_image_pixels(image);
 
@@ -56,7 +56,7 @@ parse_image_path(char *path) {
     if (!strcmp(filetype, "jpg"))
         filetype = "jpeg";
 
-    return filetype;
+    return strdup(filetype);
 }
 
 static void
@@ -100,6 +100,8 @@ free_image(struct Image *image) {
     for (int x = 0; x < image->width; ++x)
         free(image->pixels[x]);
     free(image->pixels);
+    free(image->file);
+    free(image->file_type);
     free(image);
 }
 
