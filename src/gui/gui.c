@@ -1,60 +1,48 @@
 #include <gtk/gtk.h>
-
-
-
-#define PADDLE_STEP 5               // Step of a paddle in pixels
-
-#define PADDLE_PERIOD 5             // Period of a paddle in milliseconds
-
-#define DISC_PERIOD 4               // Period of the disc in milliseconds
-
-#define END_GAME_SCORE 5            // Maximum number of points for a player
-
-
-
-// State of the game.
-
-
+#include "../image/image.c"
 
 // Structure of the graphical user interface.
 
+Image* im ;
+
 typedef struct UserInterface
-
 {
-
     GtkWindow* window;              // Main window
-
     GtkDrawingArea* area;           // Drawing area
-
     GtkButton* start_button;        // Start button
-
-
+    GdkRectangle selectzone;
 } UserInterface;
-
-
-
-
 
 // Event handler for the "draw" signal of the drawing area.
 
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
-
 {
-
     // Gets the 'Game' structure.
 
     //UserInterface *ui = user_data;
 
-
-
     // Sets the background to white.
 
     cairo_set_source_rgb(cr, 1, 1, 1);
-
     cairo_paint(cr);
 
+    if (im){
+         Pixel pixel;
+        int nbLine = im->height;
+        int nbCol = im->width;
+        int draw_width=1000;
+        int draw_height = 600;
+        for(int i = 0;i< nbLine;i++){
+            for (int j = 0;j< nbCol;j++){
+                pixel = im->pixels[i][j];
+                cairo_set_source_rgb(cr,pixel.red/255, pixel.green/255,pixel.blue/255);
+                cairo_rectangle(cr, j+(draw_width/2 - nbCol/2), (draw_height/2 -nbLine/2) + i,1,1);
+        	    cairo_fill(cr);
+            }
+        }
 
-
+    }
+   
     // Draws the disc in red.
 /*
     cairo_set_source_rgb(cr, 1, 0, 0);
@@ -65,99 +53,78 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 
     cairo_fill(cr);
 */
-
-
     // Propagates the signal.
 
     return FALSE;
 
 }
 
+void on_load(GtkFileChooser *fc,gpointer user_data){
+    //g_print("load\n");
+    UserInterface* ui = user_data;
+    im = load_image((char *)gtk_file_chooser_get_filename (fc));
+    
+}
 
 
 // Event handler for the "clicked" signal of the start button.
 
 void on_start(GtkButton *button, gpointer user_data)
-
 {
-
-    g_print("on_start()\n");
+    UserInterface *ui = user_data;
+    ui->selectzone.x += 100;
+    g_print("%i\n",ui->selectzone.x);
 
 }
 
 
 
 int main (int argc, char *argv[])
-
 {
 
     // Initializes GTK.
 
     gtk_init(NULL, NULL);
 
-
-
     // Constructs a GtkBuilder instance.
 
     GtkBuilder* builder = gtk_builder_new ();
 
-
-
     // Loads the UI description.
-
     // (Exits if an error occurs.)
-
     GError* error = NULL;
-
     if (gtk_builder_add_from_file(builder, "prototype.glade", &error) == 0)
-
     {
-
         g_printerr("Error loading file: %s\n", error->message);
-
         g_clear_error(&error);
-
         return 1;
-
     }
-
-
 
     // Gets the widgets.
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkDrawingArea* area = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "Draw"));
-    GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "cut"));
-   
-
-
+    GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
+    GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
     // Creates the "Game" structure.
 
-  
-
     UserInterface ui ={
-
                 .window = window,
-
                 .area = area,
-
                 .start_button = start_button,
-
+                .selectzone = {0,0,0,0},
     };
-
-
     // Connects event handlers.
-
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
     g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
-
     g_signal_connect(start_button, "clicked", G_CALLBACK(on_start), &ui);
-
+    if (loader != NULL){ 
+        g_print("yesay");
+        g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
+    }
+    
     gtk_main();
-
-
 
     // Exits.
 
