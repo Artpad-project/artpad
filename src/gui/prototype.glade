@@ -73,7 +73,7 @@
                 <property name="can-focus">True</property>
                 <property name="editable">False</property>
                 <property name="justification">center</property>
-                <property name="top-margin">32</property>
+                <property name="top-margin">23</property>
                 <property name="buffer">cursor_positio</property>
                 <property name="accepts-tab">False</property>
               </object>
@@ -98,6 +98,7 @@
             <property name="wide-handle">True</property>
             <child>
               <object class="GtkExpander" id="toolbar">
+                <property name="width-request">257</property>
                 <property name="height-request">298</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -219,6 +220,7 @@
                                 </child>
                               </object>
                               <packing>
+                                <property name="x">5</property>
                                 <property name="y">65</property>
                               </packing>
                             </child>
@@ -237,6 +239,9 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                               </object>
+                              <packing>
+                                <property name="x">5</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>
@@ -414,11 +419,20 @@
               </packing>
             </child>
             <child>
-              <object class="GtkDrawingArea" id="Draw">
-                <property name="width-request">1760</property>
-                <property name="height-request">785</property>
+              <object class="GtkEventBox" id="pepa_humain">
+                <property name="width-request">100</property>
+                <property name="height-request">80</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="above-child">True</property>
+                <child>
+                  <object class="GtkDrawingArea" id="Draw">
+                    <property name="width-request">1760</property>
+                    <property name="height-request">785</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="resize">True</property>

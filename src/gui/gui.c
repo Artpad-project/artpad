@@ -10,6 +10,8 @@ typedef struct UserInterface
     GtkWindow* window;              // Main window
     GtkDrawingArea* area;           // Drawing area
     GtkButton* start_button;        // Start button
+    GtkTextBuffer *buffer;
+    GdkRectangle drawzone;
     GdkRectangle selectzone;
 } UserInterface;
 
@@ -19,7 +21,7 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
     // Gets the 'Game' structure.
 
-    //UserInterface *ui = user_data;
+    UserInterface *ui = user_data;
 
     // Sets the background to white.
 
@@ -28,10 +30,10 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 
     if (im){
         Pixel pixel;
-        int draw_width=1000;
-        int draw_height = 600;
+        int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+        int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
         float r, g, b;
-
+        
         for (int x = 0; x < im->width; x++) {
             for (int y = 0; y < im->height; y++) {
                 pixel = im->pixels[x][y];
@@ -39,25 +41,19 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
                 g = (float) pixel.green / 255;
                 b = (float) pixel.blue / 255;
                 cairo_set_source_rgb(cr, r, g, b);
-                cairo_rectangle(cr, x+(draw_width/2 - im->width/2), (draw_height/2 - im->height/2) + y,1,1);
+                cairo_rectangle(cr, x+ui->drawzone.x, ui->drawzone.y + y,1,1);
         	    cairo_fill(cr);
             }
         }
-
     }
-   
     // Draws the disc in red.
 /*
     cairo_set_source_rgb(cr, 1, 0, 0);
-
     cairo_rectangle(cr, game->disc.rect.x, game->disc.rect.y,
-
         game->disc.rect.width, game->disc.rect.height);
-
     cairo_fill(cr);
 */
     // Propagates the signal.
-
     return FALSE;
 
 }
@@ -67,7 +63,21 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     UserInterface* ui = user_data;
     im = load_image((char *)gtk_file_chooser_get_filename (fc));
     
+    int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+    int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
+
+
+   
+    ui->drawzone.x = draw_width/2 - im->width/2;
+    ui->drawzone.y = draw_height/2 - im->height/2;
+    ui->drawzone.width = im->width;
+    ui->drawzone.height = im->height;
+    
+    gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
+                ui->drawzone.x,ui->drawzone.y,ui->drawzone.width,ui->drawzone.height);   
 }
+
+
 
 
 // Event handler for the "clicked" signal of the start button.
@@ -80,7 +90,40 @@ void on_start(GtkButton *button, gpointer user_data)
 
 }
 
+void on_key_press(GtkWidget *widget,GdkEventKey *event,gpointer user_data){
+    UserInterface *ui = user_data;
+    if(event->keyval == GDK_KEY_p){
+        GdkRectangle old = ui->drawzone;
 
+        ui->drawzone.x += 50;
+
+
+        g_print("%i,%i,%i,%i\n", old.x,old.y,old.width,old.height);
+        gdk_rectangle_union(&old,&ui->drawzone,&old);
+        gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
+                old.x,old.y,old.width,old.height);
+
+    }
+}
+
+
+
+
+void scroll_callback(){
+    g_print("c'est la merguez\n");
+}
+
+
+void mouse_moved(GtkWidget *w,GdkEventMotion *event,gpointer user_data){
+    UserInterface *ui = user_data;
+  
+    GdkRectangle old = ui->drawzone;
+
+    g_print("%f,%f\n", event->x,event->y);
+    gdk_rectangle_union(&old,&ui->drawzone,&old);
+    gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
+                old.x,old.y,old.width,old.height);   
+}
 
 int main (int argc, char *argv[])
 {
@@ -109,12 +152,15 @@ int main (int argc, char *argv[])
     GtkDrawingArea* area = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "Draw"));
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
+    GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
+    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );
     // Creates the "Game" structure.
 
     UserInterface ui ={
                 .window = window,
                 .area = area,
                 .start_button = start_button,
+                .drawzone = {0,0,0,0},
                 .selectzone = {0,0,0,0},
     };
     // Connects event handlers.
@@ -122,13 +168,13 @@ int main (int argc, char *argv[])
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
     g_signal_connect(start_button, "clicked", G_CALLBACK(on_start), &ui);
-    if (loader != NULL){ 
-        g_print("yesay");
-        g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
-    }
-    
-    gtk_main();
+    g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
+    g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
+    g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
+    g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
 
+    gtk_main();
+    
     // Exits.
 
     return 0;
