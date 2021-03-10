@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include <err.h>
 
-// FIXME: RGBA for more control
 struct Pixel {
     // 0 to 255 : 8bits
     unsigned char red;
     unsigned char green;
     unsigned char blue;
+    unsigned char alpha;
 };
 
 struct Image {
