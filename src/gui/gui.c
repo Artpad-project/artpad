@@ -27,16 +27,19 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
     cairo_paint(cr);
 
     if (im){
-         Pixel pixel;
-        int nbLine = im->height;
-        int nbCol = im->width;
+        Pixel pixel;
         int draw_width=1000;
         int draw_height = 600;
-        for(int i = 0;i< nbLine;i++){
-            for (int j = 0;j< nbCol;j++){
-                pixel = im->pixels[i][j];
-                cairo_set_source_rgb(cr,pixel.red/255, pixel.green/255,pixel.blue/255);
-                cairo_rectangle(cr, j+(draw_width/2 - nbCol/2), (draw_height/2 -nbLine/2) + i,1,1);
+        float r, g, b;
+
+        for (int x = 0; x < im->width; x++) {
+            for (int y = 0; y < im->height; y++) {
+                pixel = im->pixels[x][y];
+                r = (float) pixel.red / 255;
+                g = (float) pixel.green / 255;
+                b = (float) pixel.blue / 255;
+                cairo_set_source_rgb(cr, r, g, b);
+                cairo_rectangle(cr, x+(draw_width/2 - im->width/2), (draw_height/2 - im->height/2) + y,1,1);
         	    cairo_fill(cr);
             }
         }
