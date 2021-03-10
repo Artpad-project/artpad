@@ -1,6 +1,10 @@
-#include <stdio.h>
+#include "PuissanceN.h"
 
-int main() {
-    printf("Hello, World!\n");
-    return 0;
+int main()
+{
+  Image* Bitmap = load_image("possion.jpg");
+  BalanceAbsolue(Bitmap,0.01);
+  save_image(Bitmap,"result","jpeg");
+  free_image(Bitmap);
+  return 0;
 }

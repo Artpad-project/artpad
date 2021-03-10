@@ -18,14 +18,14 @@ void BalanceAbsolue(Image* Bitmap, double coeflum)
 
     double amplification = 0.8;
 
-    double* HistoRed = malloc(255 * sizeof(double));
-    memset(HistoRed, 0, 255);
+    double* HistoRed = malloc(256 * sizeof(double));
+    memset(HistoRed, 0, 256);
 
-    double* HistoVert = malloc(255 * sizeof(double));
-    memset(HistoVert, 0, 255);
+    double* HistoVert = malloc(256 * sizeof(double));
+    memset(HistoVert, 0, 256);
 
-    double* HistoBleu = malloc(255 * sizeof(double));
-    memset(HistoBleu, 0, 255);
+    double* HistoBleu = malloc(256 * sizeof(double));
+    memset(HistoBleu, 0, 256);
 
     /* -------------------------- Histogramme ----------------------------- */
 
@@ -101,15 +101,20 @@ void BalanceAbsolue(Image* Bitmap, double coeflum)
 
     /* -------------------------- Transformation --------------------------- */
 
-    double* TableauRed = malloc(255 * sizeof(double));
-    double* TableauGreen = malloc(255 * sizeof(double));
-    double* TableauBlue = malloc(255 * sizeof(double));
+    double* TableauRed = malloc(256 * sizeof(double));
+    memset(TableauRed,0,256);
+    
+    double* TableauGreen = malloc(256 * sizeof(double));
+    memset(TableauGreen,0,256);
+    
+    double* TableauBlue = malloc(256 * sizeof(double));
+    memset(TableauBlue,0,256);
 
-    for (int i = 0; i < 255; ++i)
+    for (int i = 0; i < 256; ++i)
     {
-        TableauCanal(HistoRed, i, ExposantRed);
-        TableauCanal(HistoVert, i, ExposantGreen);
-        TableauCanal(HistoBleu, i, ExposantBlue);
+        TableauCanal(TableauRed, i, ExposantRed);
+        TableauCanal(TableauGreen, i, ExposantGreen);
+        TableauCanal(TableauBlue, i, ExposantBlue);
     }
 
     /* ---------------------------- Application ---------------------------- */
@@ -138,17 +143,25 @@ void BalanceAbsolue(Image* Bitmap, double coeflum)
             Bitmap->pixels[x][y].red = (unsigned char)TableauRed[IndexRouge];
             Bitmap->pixels[x][y].green = (unsigned char)TableauGreen[IndexVert];
             Bitmap->pixels[x][y].blue = (unsigned char)TableauBlue[IndexBleu];
+	   
         }
     }
 
+    free(HistoRed);
+    free(HistoVert);
+    free(HistoBleu);
+    free(TableauRed);
+    free(TableauGreen);
+    free(TableauBlue);
+    
 }
 
 
 double Encadrement(double inconnue, const double* HistoColor)
 {
     double search = 0.0;
-    for (int i = 0; i < 255; ++i) {
-        search += HistoColor[i]*pow((1.0/i*255),inconnue);
+    for (int i = 0; i < 256; ++i) {
+        search += HistoColor[i]*pow((1.0*i/255),inconnue);
     }
     return search;
 }
@@ -156,7 +169,7 @@ double Encadrement(double inconnue, const double* HistoColor)
 double Exposant(double* HistoColor, double CoefCible, double precision)
 {
     double xinf = 0.0;
-    double xsup;
+    double xsup = 0.0;
     double x = 1.0;
     int flag = 0;
 
@@ -191,7 +204,7 @@ double Exposant(double* HistoColor, double CoefCible, double precision)
 
 void TableauCanal(double* HistoColor, int Index, double Exposant)
 {
-    int Value = (int)(round(pow(255 * (1.0 * Index/255 ),Exposant)));
+  int Value = (int)(round(255 * pow((1.0 * Index/255 ),Exposant)));
     Value = Value > 255 ? 255 : Value;
     Value = Value < 0 ? 0 : Value;
     HistoColor[Index] = Value;

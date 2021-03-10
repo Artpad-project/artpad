@@ -5,19 +5,7 @@
 #ifndef ARTPAD_PUISSANCEN_H
 #define ARTPAD_PUISSANCEN_H
 
-struct Pixel{
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
-};
-
-struct Image{
-    int width, height;
-    struct Pixel** pixels;
-};
-
-typedef struct Pixel Pixel;
-typedef struct Image Image;
+#include "../image/image.h"
 
 void BalanceAbsolue(Image* Bitmap, double coeflum);
 
