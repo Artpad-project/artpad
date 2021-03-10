@@ -14,15 +14,15 @@
 #include <stdlib.h>
 #include <err.h>
 
-#define BLACK (Pixel){0, 0, 0};
-#define WHITE (Pixel){255, 255, 255};
+#define BLACK (Pixel){0, 0, 0, 255};
+#define WHITE (Pixel){255, 255, 255, 255};
 
-// FIXME: RGBA for more control
 struct Pixel {
     // 0 to 255 : 8bits
     unsigned char red;
     unsigned char green;
     unsigned char blue;
+    unsigned char alpha;
 };
 
 struct Image {
