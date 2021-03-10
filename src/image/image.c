@@ -139,3 +139,26 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
     pixels[y * rowstride + x * bpp + 1] = px.green;
     pixels[y * rowstride + x * bpp + 2] = px.blue;
 }
+
+/*!
+ * Copy an image
+ * 
+ * @return A copy of the image
+ */
+struct Image *
+copy_image(struct Image *im) {
+    struct Image *new_image = malloc(sizeof(struct Image));
+
+    *new_image = (struct Image) {
+        strdup(im->file),
+        strdup(im->file_type),
+        im->width, im->height,
+        NULL,
+        NULL
+    };
+
+    new_image->pb = gdk_pixbuf_copy(im->pb);
+    save_image_pixels(new_image);
+
+    return new_image;
+}

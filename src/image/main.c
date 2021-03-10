@@ -8,15 +8,18 @@ int main() {
     gchar *filename = "test.jpg";    
     Pixel black = {0, 0, 0};
 
-    struct Image *im = load_image(filename);
+    Image *im = load_image(filename);
+    Image *copy = image_copy(im);
 
     // Fill the image with black
     for (int x = 0; x < im->width; ++x)
         for (int y = 0; y < im->height; ++y)
             im->pixels[x][y] = black;
 
-    save_image(im, NULL, NULL);
+    save_image(copy, "test_save.jpg", NULL);
+
     free_image(im);
+    free_image(copy);
 
     return 0;
 }
