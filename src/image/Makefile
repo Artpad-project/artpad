@@ -17,6 +17,6 @@ test: $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -rf $(OUT) $(DEP) $(OBJ)
+	rm -rf $(OUT) $(DEP) $(OBJ) "output.png"
 
 -include $(DEP) 

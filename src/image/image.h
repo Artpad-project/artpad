@@ -14,21 +14,27 @@
 #include <stdlib.h>
 #include <err.h>
 
-// FIXME: RGBA for more control
 struct Pixel {
     // 0 to 255 : 8bits
     unsigned char red;
     unsigned char green;
     unsigned char blue;
+    unsigned char alpha;
 };
 
 struct Image {
+    char *file;
+    char *file_type;
     int width, height;
-    GtkImage *image;
+    GdkPixbuf *pb;
     struct Pixel **pixels;
 };
 
-struct Image *load_image(const char *path);
+typedef struct Image Image;
+typedef struct Pixel Pixel;
+
+struct Image *load_image(char *path);
+void save_image(struct Image *im, char *out, char *ftype);
 void free_image(struct Image *im);
 
 #endif // IMAGE_H_
