@@ -97,7 +97,6 @@ void on_key_press(GtkWidget *widget,GdkEventKey *event,gpointer user_data){
 
         ui->drawzone.x += 50;
 
-
         g_print("%i,%i,%i,%i\n", old.x,old.y,old.width,old.height);
         gdk_rectangle_union(&old,&ui->drawzone,&old);
         gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
