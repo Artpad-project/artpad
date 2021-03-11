@@ -29,9 +29,8 @@ static void * magic_wand_rec(void *arg);
 static void magic_wand_async(thread_info t_info);
 static int check_pixel(Pixel origin, Pixel pixel);
 
-Image *
+ImageArea 
 magic_wand(Image *im, int x, int y) {
-    Image *res;
     ImageArea mask;
     Pixel base;
     uint8_t *buf;
@@ -46,8 +45,6 @@ magic_wand(Image *im, int x, int y) {
 
     struct args args = (struct args){mask, base, buf, x, y};
 
-    printf("nprocs: %d", nprocs);
-
     if (nprocs < 4 || 1)
         magic_wand_rec(&args);
     else {
@@ -59,10 +56,9 @@ magic_wand(Image *im, int x, int y) {
             pthread_join(threads[i], NULL);
     }
 
-    res = copy_image(mask.mask);
     free(buf);
 
-    return res;
+    return mask;
 }
 
 static void *
@@ -84,7 +80,7 @@ magic_wand_rec(void *arg) {
 
     // Add pixel to mask and reccursively launch the verification to its neighbours
     if (check_pixel(args.origin, pixel)) {
-        edit_area(mask, x, y, FALSE);
+        edit_area(mask, x, y, TRUE);
         for (int i = -1; i <= 1; ++i) {
             for (int j = -1; j <= 1; ++j) {
                 if (x != 0 && y != 0) {
@@ -101,10 +97,12 @@ magic_wand_rec(void *arg) {
 
 static int
 check_pixel(Pixel origin, Pixel pixel) {
-    int sum_origin = origin.red + origin.green + origin.blue;
-    int sum_pixel = pixel.red + pixel.green + pixel.blue;
+    float sum_origin = origin.red + origin.green + origin.blue;
+    float sum_pixel = pixel.red + pixel.green + pixel.blue;
+    float difference = ABS(sum_origin - sum_pixel) / (3*255);
+    int check = difference <= MAGIC_WAND_THRESHOLD;
 
-    return (sum_pixel / sum_origin > 1.0 - MAGIC_WAND_THRESHOLD);
+    return check;
 }
 
 /*

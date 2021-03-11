@@ -9,6 +9,8 @@
  *  3/10/2021 - init_area, edit_area, free_area
  */
 
+// TODO: rename to ImageMask and change struct elements accordingly
+
 #include "image.h"
 
 /*!

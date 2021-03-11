@@ -6,8 +6,9 @@
 #include <pthread.h>
 #include <err.h>
 
+#define ABS(a) (((a) < 0) ? -(a) : (a))
 #define MAGIC_WAND_THRESHOLD 0.125
 
-Image * magic_wand(Image *im, int x, int y);
+ImageArea magic_wand(Image *im, int x, int y);
 
 #endif // ROTOSCOPIE_H_
