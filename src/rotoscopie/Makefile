@@ -1,11 +1,11 @@
 OUT			= test
 
 CC			= gcc -fsanitize=address
-CFLAGS  	= -g -Wall -Wextra  `pkg-config --cflags gtk+-3.0 gmodule-2.0`
+CFLAGS  	= -g -Wall -Wextra `pkg-config --cflags gtk+-3.0 gmodule-2.0` -Wno-unknown-pragmas
 CPPFLAGS	= -MMD
-LDLIBS		= `pkg-config --libs gtk+-3.0 gmodule-2.0`
+LDLIBS		= `pkg-config --libs gtk+-3.0 gmodule-2.0` -pthread
 
-SOURCE		= main.c image.c area.c
+SOURCE		= main.c ../image/image.c ../image/area.c rotoscopie.c
 OBJ			= $(SOURCE:.c=.o)
 DEP			= $(SOURCE:.c=.d)
 

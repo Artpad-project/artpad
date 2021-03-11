@@ -118,7 +118,7 @@ free_image(struct Image *image) {
  * @param ftype the file format. If NULL the image's own file format will be used instead.
  */
 void
-save_image(struct Image *im, char *out, char *ftype) {
+save_image(const struct Image *im, char *out, char *ftype) {
     guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
 
     if (!out)
@@ -154,7 +154,7 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
  * @return A copy of the image
  */
 struct Image *
-copy_image(struct Image *im) {
+copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
 
     *new_image = (struct Image) {
