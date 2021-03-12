@@ -13,7 +13,7 @@
 #include "rotoscopie.h"
 
 struct args {
-    ImageArea mask;
+    ImageMask mask;
     Pixel origin;
     uint8_t *buf;
     int x, y;
@@ -29,16 +29,16 @@ static void * magic_wand_rec(void *arg);
 static void magic_wand_async(thread_info t_info);
 static int check_pixel(Pixel origin, Pixel pixel);
 
-ImageArea 
+ImageMask 
 magic_wand(Image *im, int x, int y) {
-    ImageArea mask;
+    ImageMask mask;
     Pixel base;
     uint8_t *buf;
     pthread_t *threads;
     thread_info t_info;
     int nprocs;
 
-    mask = init_area(im);
+    mask = init_mask(im);
     base = im->pixels[x][y];
     buf = malloc(im->width * im->height * sizeof(uint8_t));
     nprocs = get_nprocs();
@@ -66,7 +66,7 @@ magic_wand_rec(void *arg) {
     Pixel pixel;
     struct args args = *(struct args *)arg;
 
-    ImageArea mask = args.mask;
+    ImageMask mask = args.mask;
     int x = args.x, y = args.y;
 
     // Check for valid coordinates and infinite reccursion
@@ -80,7 +80,7 @@ magic_wand_rec(void *arg) {
 
     // Add pixel to mask and reccursively launch the verification to its neighbours
     if (check_pixel(args.origin, pixel)) {
-        edit_area(mask, x, y, TRUE);
+        edit_mask(mask, x, y, TRUE);
         for (int i = -1; i <= 1; ++i) {
             for (int j = -1; j <= 1; ++j) {
                 if (x != 0 && y != 0) {

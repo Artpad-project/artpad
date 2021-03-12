@@ -3,13 +3,12 @@
  *  File created on 3/10/2021 (MM/DD/YYYY) by leo.duboin
  *  Contributors : leo.duboin
  *
- *  Source code for all area related functions.
+ *  Source code for all functions related to image masks
  *  
  *  Added:
  *  3/10/2021 - init_area, edit_area, free_area
+ *  3/12/2021 - renamed ImageArea to ImageMask
  */
-
-// TODO: rename to ImageMask and change struct elements accordingly
 
 #include "image.h"
 
@@ -19,25 +18,25 @@
  * @param im The base image
  * @return An empty area
  */
-ImageArea 
-init_area(Image *im) {
+ImageMask 
+init_mask(Image *im) {
     uint8_t **area;
     Image *mask;
-    ImageArea im_area;
+    ImageMask im_mask;
     
     area = malloc(im->width * sizeof(uint8_t*));
     mask = copy_image(im);
-    im_area = (ImageArea){im->width, im->height, area, im, mask};
+    im_mask = (ImageMask){im->width, im->height, area, im, mask};
 
     // Init an empty area and an empty mask (transparent black)
-    for (int i = 0; i < im_area.width; i++) {
-        area[i] = malloc(im_area.height * sizeof(uint8_t));
-        memset(area[i], FALSE, im_area.height);
-        for (int y = 0; y < im_area.height; ++y)
+    for (int i = 0; i < im_mask.width; i++) {
+        area[i] = malloc(im_mask.height * sizeof(uint8_t));
+        memset(area[i], FALSE, im_mask.height);
+        for (int y = 0; y < im_mask.height; ++y)
             mask->pixels[i][y] = EMPTY;
     }
 
-    return im_area;  
+    return im_mask;  
 }
 
 /*!
@@ -50,11 +49,11 @@ init_area(Image *im) {
  * @return The new value of the pixel in the mask
  */
 Pixel
-edit_area(ImageArea area, int x, int y, int value) {
-    area.area[x][y] = value;
-    area.mask->pixels[x][y] = value ? area.image->pixels[x][y] : EMPTY;
+edit_mask(ImageMask mask, int x, int y, int value) {
+    mask.area[x][y] = value;
+    mask.mask->pixels[x][y] = value ? mask.image->pixels[x][y] : EMPTY;
 
-    return area.mask->pixels[x][y];
+    return mask.mask->pixels[x][y];
 }
 
 /*!
@@ -63,9 +62,9 @@ edit_area(ImageArea area, int x, int y, int value) {
  * @param area The area to free
  */
 void
-free_area(ImageArea area) {
-    free_image(area.mask);
-    for (int i = 0; i < area.width; ++i)
-        free(area.area[i]);
-    free(area.area);
+free_mask(ImageMask mask) {
+    free_image(mask.mask);
+    for (int i = 0; i < mask.width; ++i)
+        free(mask.area[i]);
+    free(mask.area);
 }

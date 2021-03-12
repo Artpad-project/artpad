@@ -9,6 +9,6 @@
 #define ABS(a) (((a) < 0) ? -(a) : (a))
 #define MAGIC_WAND_THRESHOLD 0.125
 
-ImageArea magic_wand(Image *im, int x, int y);
+ImageMask magic_wand(Image *im, int x, int y);
 
 #endif // ROTOSCOPIE_H_

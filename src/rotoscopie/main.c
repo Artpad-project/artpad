@@ -10,12 +10,12 @@ int main(int argc, char *argv[]) {
     gtk_init(0, NULL);
 
     struct Image *im = load_image(argv[1]);
-    struct ImageArea mask = magic_wand(im, atoi(argv[2]), atoi(argv[3]));
+    struct ImageMask mask = magic_wand(im, atoi(argv[2]), atoi(argv[3]));
 
     save_image(mask.mask, "output.png", NULL);
 
     free_image(im);
-    free_area(mask);
+    free_mask(mask);
 
     return 0;
 }

@@ -44,19 +44,19 @@ void save_image(const struct Image *im, char *out, char *ftype);
 struct Image * copy_image(const struct Image *im);
 void free_image(struct Image *im);
 
-// area.c
+// mask.c
 
-struct ImageArea {
+struct ImageMask {
     int width, height;
     uint8_t **area;
     Image *image;
     Image *mask;
 };
 
-typedef struct ImageArea ImageArea;
+typedef struct ImageMask ImageMask;
 
-ImageArea init_area(Image *im);
-Pixel edit_area(ImageArea area, int x, int y, int value);
-void free_area(ImageArea area);
+ImageMask init_mask(Image *im);
+Pixel edit_mask(ImageMask mask, int x, int y, int value);
+void free_mask(ImageMask mask);
 
 #endif // IMAGE_H_
