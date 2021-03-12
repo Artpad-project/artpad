@@ -11,7 +11,7 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkTextBuffer" id="cursor_positio">
+  <object class="GtkTextBuffer" id="cursor_pos">
     <property name="text" translatable="yes">X - ....  ; Y - ...</property>
   </object>
   <object class="GtkTextBuffer" id="size">
@@ -74,7 +74,7 @@
                 <property name="editable">False</property>
                 <property name="justification">center</property>
                 <property name="top-margin">23</property>
-                <property name="buffer">cursor_positio</property>
+                <property name="buffer">cursor_pos</property>
                 <property name="accepts-tab">False</property>
               </object>
               <packing>
@@ -424,7 +424,6 @@
                 <property name="height-request">80</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="above-child">True</property>
                 <child>
                   <object class="GtkDrawingArea" id="Draw">
                     <property name="width-request">1760</property>

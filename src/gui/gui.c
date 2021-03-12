@@ -1,5 +1,9 @@
+
+#define _GNU_SOURCE
+#include <stdio.h>
 #include <gtk/gtk.h>
 #include "../image/image.c"
+
 
 // Structure of the graphical user interface.
 
@@ -10,9 +14,11 @@ typedef struct UserInterface
     GtkWindow* window;              // Main window
     GtkDrawingArea* area;           // Drawing area
     GtkButton* start_button;        // Start button
-    GtkTextBuffer *buffer;
+    GtkTextBuffer *curserpos;
     GdkRectangle drawzone;
     GdkRectangle selectzone;
+    gdouble xmouse;
+    gdouble ymouse;
 } UserInterface;
 
 // Event handler for the "draw" signal of the drawing area.
@@ -25,8 +31,8 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 
     // Sets the background to white.
 
-    cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_paint(cr);
+    // cairo_set_source_rgb(cr, 1, 1, 1);
+    // cairo_paint(cr);
 
     if (im){
         Pixel pixel;
@@ -55,7 +61,6 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 */
     // Propagates the signal.
     return FALSE;
-
 }
 
 void on_load(GtkFileChooser *fc,gpointer user_data){
@@ -115,13 +120,42 @@ void scroll_callback(){
 
 void mouse_moved(GtkWidget *w,GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
-  
-    GdkRectangle old = ui->drawzone;
+    
+    char *my_string;
+    int val = asprintf(&my_string,"X: %i,Y: %i",(int)event->x,(int)event->y);
+    if(val <0)
+        errx(1,"cannot create the query");
 
-    g_print("%f,%f\n", event->x,event->y);
-    gdk_rectangle_union(&old,&ui->drawzone,&old);
-    gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
-                old.x,old.y,old.width,old.height);   
+    // g_print("%s\n", my_string);
+    gtk_text_buffer_set_text(ui->curserpos,my_string,val);
+
+    if(event->state & GDK_BUTTON2_MASK){
+       
+        GdkRectangle old = ui->drawzone;
+        gdouble depx = event->x - ui->xmouse;
+        gdouble depy = event->y - ui->ymouse;
+        g_print("%f,%f\n",depx,depy);
+        ui->drawzone.x += (int)depx;
+        ui->drawzone.y += (int)depy;
+    
+
+        gdk_rectangle_union(&old,&ui->drawzone,&old);
+        gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
+                old.x,old.y,old.width,old.height); 
+    
+    }
+    ui->xmouse =event->x;
+    ui->ymouse = event->y;
+
+}
+
+void on_key_up(GtkWidget *w,GdkEventButton *event,gpointer user_data){
+    UserInterface *ui = user_data;
+    if(event->type == GDK_2BUTTON_PRESS && event->state == GDK_BUTTON2_MASK){
+        ui->xmouse = event->x;
+        ui->ymouse = event->y;
+        g_print("couscous");
+    }
 }
 
 int main (int argc, char *argv[])
@@ -151,16 +185,23 @@ int main (int argc, char *argv[])
     GtkDrawingArea* area = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "Draw"));
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
+    
     GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
-    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );
-    // Creates the "Game" structure.
+    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
+    gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
+
+    GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
 
     UserInterface ui ={
                 .window = window,
                 .area = area,
                 .start_button = start_button,
+                .curserpos = curser_position,
                 .drawzone = {0,0,0,0},
                 .selectzone = {0,0,0,0},
+                .xmouse = 0,
+                .ymouse = 0,
+
     };
     // Connects event handlers.
     // Runs the main loop.
@@ -168,7 +209,10 @@ int main (int argc, char *argv[])
     g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
     g_signal_connect(start_button, "clicked", G_CALLBACK(on_start), &ui);
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
+    
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
+    
+    g_signal_connect(eb_draw, "button-press-event", G_CALLBACK( on_key_up ), &ui);
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
 
