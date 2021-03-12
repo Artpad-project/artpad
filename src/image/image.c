@@ -61,28 +61,33 @@ parse_image_path(char *path) {
 
 static void
 save_image_pixels(struct Image *im) {
-    int row_len, bpp;
-    guint len;
-
-    guchar *pb_pixels = gdk_pixbuf_get_pixels_with_length(im->pb, &len);
-    row_len = gdk_pixbuf_get_rowstride(im->pb);
-
+    int rowstride, n_channels;
+    guchar *pb_pixels, *p;
+    
     // Alloacte memory for image's pixel data : height * width * sizeof(pixel)
     // pixel(x,y) = array[x][y]
     struct Pixel **im_pixels = (struct Pixel **)malloc(im->width * sizeof(struct Pixel *));
     for (int i = 0; i < im->width; i++)
         im_pixels[i] = (struct Pixel *)malloc(im->height * sizeof(struct Pixel));
 
-    // FIXME: RGBA
-    if(gdk_pixbuf_get_bits_per_sample(im->pb)!=8)
-        return;
+    // Set image to RGBA and get its size
+    im->pb = gdk_pixbuf_add_alpha(im->pb, FALSE, 0, 0, 0);
+    pb_pixels = gdk_pixbuf_get_pixels(im->pb);
+    n_channels = gdk_pixbuf_get_n_channels (im->pb);
+    rowstride = gdk_pixbuf_get_rowstride (im->pb);
+    
+    // Check that image is of the correct type
+    g_assert (gdk_pixbuf_get_colorspace (im->pb) == GDK_COLORSPACE_RGB);
+    g_assert (gdk_pixbuf_get_bits_per_sample (im->pb) == 8);
+    g_assert (n_channels == 4);
 
-    bpp = 3;
-    for (int i = 0; i < im->height; i++) {
-        for (int j = 0; j < row_len; j += bpp) {
-           im_pixels[j/bpp][i].red = pb_pixels[i*row_len+j]; 
-           im_pixels[j/bpp][i].green = pb_pixels[i*row_len+j+1]; 
-           im_pixels[j/bpp][i].blue = pb_pixels[i*row_len+j+2]; 
+    for (int x = 0; x < im->width; ++x) {
+        for (int y = 0; y < im->height; ++y) {
+            p = pb_pixels + y * rowstride + x * n_channels;
+            im_pixels[x][y].red = p[0];
+            im_pixels[x][y].green = p[1];
+            im_pixels[x][y].blue = p[2];
+            im_pixels[x][y].alpha = p[3];
         }
     }
 
@@ -112,7 +117,6 @@ free_image(struct Image *image) {
  */
 void
 save_image(struct Image *im, char *out, char *ftype) {
-    GError *err = NULL;
     guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
 
     if (!out)
@@ -128,14 +132,16 @@ save_image(struct Image *im, char *out, char *ftype) {
         }
     }
 
-    if (gdk_pixbuf_save(im->pb, out, ftype, &err) == FALSE)
-        errx(err->code, "Error: couldn't save image (%s)", err->message);
+    if (!gdk_pixbuf_save(im->pb, out, ftype, NULL, NULL))
+        errx(1, "Error: couldn't save image (%s - > %s)\n", im->file, out);
 }
 
 static void
 set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, const int y) {
-    int bpp = 3;
-    pixels[y * rowstride + x * bpp + 0] = px.red;
-    pixels[y * rowstride + x * bpp + 1] = px.green;
-    pixels[y * rowstride + x * bpp + 2] = px.blue;
+    int n_channels = 4;
+    pixels += y * rowstride + x * n_channels;
+    pixels[0] = px.red;
+    pixels[1] = px.green;
+    pixels[2] = px.blue;
+    pixels[3] = px.alpha;
 }
