@@ -12,6 +12,7 @@
 
 # Executables
 *.out
+gui
 artpad
 main
 test
