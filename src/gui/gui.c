@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include "../image/image.c"
-
+#include <time.h>
 
 // Structure of the graphical user interface.
 
@@ -12,6 +12,8 @@ Image* im ;
 typedef struct UserInterface
 {
     GtkWindow* window;              // Main window
+    GtkFixed *drawarea;
+    GtkEventBox* eb_draw;
     GtkDrawingArea* area;           // Drawing area
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
@@ -19,6 +21,7 @@ typedef struct UserInterface
     GdkRectangle selectzone;
     gdouble xmouse;
     gdouble ymouse;
+    struct timeval lastupdate;
 } UserInterface;
 
 // Event handler for the "draw" signal of the drawing area.
@@ -128,21 +131,28 @@ void mouse_moved(GtkWidget *w,GdkEventMotion *event,gpointer user_data){
 
     // g_print("%s\n", my_string);
     gtk_text_buffer_set_text(ui->curserpos,my_string,val);
+    if(event->state & GDK_BUTTON2_MASK ){
+        struct timeval actual;
+        gettimeofday(&actual,NULL);
 
-    if(event->state & GDK_BUTTON2_MASK){
-       
+     
         GdkRectangle old = ui->drawzone;
         gdouble depx = event->x - ui->xmouse;
         gdouble depy = event->y - ui->ymouse;
         g_print("%f,%f\n",depx,depy);
         ui->drawzone.x += (int)depx;
         ui->drawzone.y += (int)depy;
-    
 
-        gdk_rectangle_union(&old,&ui->drawzone,&old);
-        gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
-                old.x,old.y,old.width,old.height); 
+        //gtk_fixed_move(ui->drawarea,ui->eb_draw,100,100);          
+        if ( (actual.tv_sec - ui->lastupdate.tv_sec) * 1000000 + actual.tv_usec - ui->lastupdate.tv_usec > 100000){
+            printf("took %lu us\n", (actual.tv_sec - ui->lastupdate.tv_sec) * 1000000 + actual.tv_usec - ui->lastupdate.tv_usec);
+            gdk_rectangle_union(&old,&ui->drawzone,&old);
+            gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
+                old.x,old.y,old.width,old.height);
     
+            ui->lastupdate = actual;
+
+        }
     }
     ui->xmouse =event->x;
     ui->ymouse = event->y;
@@ -162,7 +172,6 @@ int main (int argc, char *argv[])
 {
 
     // Initializes GTK.
-
     gtk_init(NULL, NULL);
 
     // Constructs a GtkBuilder instance.
@@ -182,6 +191,7 @@ int main (int argc, char *argv[])
     // Gets the widgets.
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
+    GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"drawzone"));
     GtkDrawingArea* area = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "Draw"));
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
@@ -194,6 +204,8 @@ int main (int argc, char *argv[])
 
     UserInterface ui ={
                 .window = window,
+                .drawarea = drawarea,
+                .eb_draw = eb_draw,
                 .area = area,
                 .start_button = start_button,
                 .curserpos = curser_position,
@@ -201,8 +213,9 @@ int main (int argc, char *argv[])
                 .selectzone = {0,0,0,0},
                 .xmouse = 0,
                 .ymouse = 0,
-
+                .lastupdate = NULL,
     };
+    gettimeofday(&ui.lastupdate,NULL);
     // Connects event handlers.
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
