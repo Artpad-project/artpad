@@ -1,18 +1,8 @@
 #ifndef ARTPAD_ROTATION_H
 #define ARTPAD_ROTATION_H
 
-struct Pixel{
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
-};
+#include "../image/image.h"
 
-struct Image{
-    int width, height;
-    struct Pixel** pixels;
-};
-
-typedef struct Pixel Pixel;
-typedef struct Image Image;
+int Rotate(Image* BitMap, float angle);
 
 #endif //ARTPAD_ROTATION_H
