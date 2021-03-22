@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CLionExternalBuildManager">
+    <target id="5b479897-e2e1-44cf-9d2a-63ec9f0e741a" name="build rotoscopie" defaultType="TOOL">
+      <configuration id="f16a8945-5a8a-4844-aedd-4fb87e0d5655" name="build rotoscopie">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_build rotoscopie" />
+        </build>
+      </configuration>
+    </target>
+  </component>
+</project>
