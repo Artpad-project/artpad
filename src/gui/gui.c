@@ -1,3 +1,14 @@
+/*!
+ *  File created on 3/5/2021 by tom.aubert
+ *  Contributors : tom aubert
+ *
+ *  File containing all the functions necessary to use the interface and the other functions.
+ *  
+ *  
+ */
+
+
+
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -21,7 +32,6 @@ typedef struct UserInterface
     GdkRectangle selectzone;
     gdouble xmouse;
     gdouble ymouse;
-    struct timeval lastupdate;
 } UserInterface;
 
 // Event handler for the "draw" signal of the drawing area.
@@ -39,8 +49,8 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 
     if (im){
         Pixel pixel;
-        int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-        int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
+        //int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+        //int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
         float r, g, b;
         
         for (int x = 0; x < im->width; x++) {
@@ -49,19 +59,15 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
                 r = (float) pixel.red / 255;
                 g = (float) pixel.green / 255;
                 b = (float) pixel.blue / 255;
+               
                 cairo_set_source_rgb(cr, r, g, b);
                 cairo_rectangle(cr, x+ui->drawzone.x, ui->drawzone.y + y,1,1);
-        	    cairo_fill(cr);
+                cairo_fill(cr); 
+                //cairo_push_group(cr);
             }
         }
     }
-    // Draws the disc in red.
-/*
-    cairo_set_source_rgb(cr, 1, 0, 0);
-    cairo_rectangle(cr, game->disc.rect.x, game->disc.rect.y,
-        game->disc.rect.width, game->disc.rect.height);
-    cairo_fill(cr);
-*/
+
     // Propagates the signal.
     return FALSE;
 }
@@ -90,7 +96,7 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
 
 // Event handler for the "clicked" signal of the start button.
 
-void on_start(GtkButton *button, gpointer user_data)
+void on_start(gpointer user_data)
 {
     UserInterface *ui = user_data;
     ui->selectzone.x += 100;
@@ -98,7 +104,7 @@ void on_start(GtkButton *button, gpointer user_data)
 
 }
 
-void on_key_press(GtkWidget *widget,GdkEventKey *event,gpointer user_data){
+void on_key_press(GdkEventKey *event,gpointer user_data){
     UserInterface *ui = user_data;
     if(event->keyval == GDK_KEY_p){
         GdkRectangle old = ui->drawzone;
@@ -120,8 +126,8 @@ void scroll_callback(){
     g_print("c'est la merguez\n");
 }
 
-
-void mouse_moved(GtkWidget *w,GdkEventMotion *event,gpointer user_data){
+/*
+void mouse_moved(GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
     
     char *my_string;
@@ -157,18 +163,10 @@ void mouse_moved(GtkWidget *w,GdkEventMotion *event,gpointer user_data){
     ui->xmouse =event->x;
     ui->ymouse = event->y;
 
-}
+}*/
 
-void on_key_up(GtkWidget *w,GdkEventButton *event,gpointer user_data){
-    UserInterface *ui = user_data;
-    if(event->type == GDK_2BUTTON_PRESS && event->state == GDK_BUTTON2_MASK){
-        ui->xmouse = event->x;
-        ui->ymouse = event->y;
-        g_print("couscous");
-    }
-}
 
-int main (int argc, char *argv[])
+int main ()
 {
 
     // Initializes GTK.
@@ -213,9 +211,8 @@ int main (int argc, char *argv[])
                 .selectzone = {0,0,0,0},
                 .xmouse = 0,
                 .ymouse = 0,
-                .lastupdate = NULL,
+              
     };
-    gettimeofday(&ui.lastupdate,NULL);
     // Connects event handlers.
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -225,8 +222,7 @@ int main (int argc, char *argv[])
     
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
     
-    g_signal_connect(eb_draw, "button-press-event", G_CALLBACK( on_key_up ), &ui);
-    g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
+    //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
 
     gtk_main();
