@@ -22,9 +22,6 @@ Stack *push_to_stack(Stack *stack_ptr, void *data) {
     new_node->data = data;
     new_node->next = stack_ptr;
 
-    static int n = 1;
-    printf("pushed %d\n", n++);
-
     return new_node;
 }
 
