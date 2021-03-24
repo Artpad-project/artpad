@@ -54,41 +54,40 @@ void Saturation(Image* Bitmap, int x, int y,double sat)
         nbleu = 0;
     }
 
-    if (hue >= 60 && hue < 120)
+    else if (hue >= 60 && hue < 120)
     {
         nrouge = X;
         nvert = C;
         nbleu = 0;
     }
 
-    if (hue >= 120 && hue < 180)
+    else if (hue >= 120 && hue < 180)
     {
         nrouge = 0;
         nvert = C;
         nbleu = X;
     }
 
-    if (hue >= 180 && hue < 240)
+    else if (hue >= 180 && hue < 240)
     {
         nrouge = 0;
         nvert = X;
         nbleu = C;
     }
 
-    if (hue >= 240 && hue < 300)
+    else if (hue >= 240 && hue < 300)
     {
         nrouge = X;
         nvert = 0;
         nbleu = C;
     }
 
-    if (hue >= 300 && hue < 360)
+    else if (hue >= 300 && hue < 360)
     {
         nrouge = C;
         nvert = 0;
         nbleu = X;
     }
-    if(x == 150 && y == 150)
 
     Bitmap->pixels[x][y].red = Cap((nrouge+M) * 255);
     Bitmap->pixels[x][y].green = Cap((nvert+M) *  255);
