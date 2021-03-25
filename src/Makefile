@@ -22,9 +22,9 @@ OBJ = 				$(IMG_OBJ) \
 					$(wildcard */main.o) \
 					gui/gui.o
 
-all: gui
-build: gui
-artpad: gui
+all:artpad
+artpad:
+	$(CC) main.c -o $@
 image: $(IMG_OBJ) image/main.o
 	$(CC) $(GTKLIBS) $^ -o image.out
 gui: $(GUI_OBJ) gui/gui.o
