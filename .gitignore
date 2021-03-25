@@ -20,3 +20,5 @@ test
 # Images
 *.jpg
 *.png
+*.jpeg
+result

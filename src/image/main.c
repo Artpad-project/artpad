@@ -5,7 +5,7 @@ int main() {
 
     gtk_init(0, NULL);
 
-    gchar *filename = "test.png";    
+    gchar *filename = "shinobu.jpg";    
     Pixel black = {0, 0, 0, 255};
 
     struct Image *im = load_image(filename);
@@ -19,5 +19,9 @@ int main() {
 
     free_image(im);
 
+    struct Image *im2 = new_image(100,100);
+
+    save_image(im2,"output2.png","png");
+    free_image(im2);
     return 0;
 }
