@@ -23,6 +23,7 @@ OBJ = 				$(IMG_OBJ) \
 					gui/gui.o
 
 all: gui
+build: gui
 artpad: gui
 image: $(IMG_OBJ) image/main.o
 	$(CC) $(GTKLIBS) $^ -o image.out
