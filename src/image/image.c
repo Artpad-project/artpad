@@ -13,7 +13,7 @@
 
 static char * parse_image_path(char *path);
 static void save_image_pixels(struct Image *im);
-static void set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, const int y);
+static void set_pixel(guchar *pixels, int rowstride, struct Pixel px, int x, int y);
 
 /*!
  * Load an image from path, and stores it into a structure. 

@@ -59,4 +59,5 @@ ImageMask init_mask(Image *im);
 Pixel edit_mask(ImageMask mask, int x, int y, int value);
 void free_mask(ImageMask mask);
 
+
 #endif // IMAGE_H_
