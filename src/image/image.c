@@ -49,7 +49,27 @@ new_image(int width,int height) {
 }
 
 
+/*!
+ * Load an image from pixbuff, and stores it into a structure. 
+ * Save a copy of its pixels intto a Pixel array.
+ * 
+ * @param pb relative pixbuff to the image to load
+ */
 
+struct Image*
+load_image_from_pixbuf(GdkPixbuf *pb){
+    if(!pb)
+        err(0,"ERROR: image.c - load_image_from_pixbuff : pb == NULL");
+    
+    struct Image *image = malloc(sizeof(struct Image));
+    int width = gdk_pixbuf_get_width(pb);
+    int height = gdk_pixbuf_get_height(pb);
+    *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
+    save_image_pixels(image);
+    return image;
+
+
+}
 
 /*!
  * Load an image from path, and stores it into a structure. 
