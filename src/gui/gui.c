@@ -41,14 +41,6 @@ typedef struct UserInterface
 
 // Event handler for the "draw" signal of the drawing area.
 
-//Useless tres surement
-/*void getdraw_size(gpointer user_data){
-    UserInterface *ui = user_data;
-    ui-> areawidth = gtk_widget_get_allocated_width(GTK_WIDGET(ui->drawarea));
-    ui-> areaheight = gtk_widget_get_allocated_height(GTK_WIDGET(ui->drawarea));
-    g_print("%i,%i\n",ui->areawidth, ui->areaheight);
-
-}*/
 
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
@@ -91,9 +83,12 @@ void prepare_drawarea(gpointer user_data){
     int totheight = gtk_widget_get_allocated_height(GTK_WIDGET(ui->left_zone));
    
 
-    g_print("%i\n",totheight/2 - im->height/2);
-    //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
-    gtk_fixed_move (ui->left_zone, GTK_WIDGET(ui->drawarea),totwidth/2 - im->width/2 , totheight/2 - im->height/2);
+    
+    int newwidth = 2*totwidth - im->width;
+    int newheight = 2*totheight - im->height;
+    gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
+    gtk_fixed_move (ui->left_zone, GTK_WIDGET(ui->drawarea),newwidth/2 - im->width/2 , newheight/2 - im->height/2);
+    //g_print("%i,%i,%i\n",newheight,im->height,newheight/2 - im->height/2);
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) im->width, (gint)im->height);
     gtk_widget_set_size_request (GTK_WIDGET(ui->eb_draw),(gint) im->width, (gint)im->height);
 
@@ -166,7 +161,7 @@ void on_key_press(GdkEventKey *event,gpointer user_data){
 
         ui->drawzone.x += 50;
 
-        g_print("%i,%i,%i,%i\n", old.x,old.y,old.width,old.height);
+        //g_print("%i,%i,%i,%i\n", old.x,old.y,old.width,old.height);
         gdk_rectangle_union(&old,&ui->drawzone,&old);
         gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
                 old.x,old.y,old.width,old.height);

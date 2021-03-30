@@ -60,7 +60,7 @@ struct Pixel** reallocArray (Pixel **Old, int nRows, int nCols)
 {
     // use a single realloc for the char pointers to the first char of each row
     // so we reallocate space for the pointers and then space for the actual rows.
-    char **pArray = realloc (Old, sizeof(Pixel *) * nRows + sizeof(Pixel) * nCols * nRows);
+    Pixel **pArray = realloc (Old, sizeof(Pixel *) * nRows + sizeof(Pixel) * nCols * nRows);
 
     if (pArray) {
         // calculate offset to the beginning of the actual data space
@@ -85,7 +85,7 @@ struct Pixel** reallocArray (Pixel **Old, int nRows, int nCols)
  */
 void copy_image(Image *origin, Image *copy){
      
-    copy->pixels = realloc2dArray(copy->pixels,origin->height,origin->width);
+    copy->pixels = reallocArray(copy->pixels,origin->height,origin->width);
     copy->file = origin->file;
     copy->file_type = origin->file_type;
     copy->width = origin->width;
