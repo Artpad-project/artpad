@@ -292,7 +292,7 @@ void mouse_moved(GtkEventBox *eb,GdkEventMotion *event,gpointer user_data){
 */
 }
 
-int main ()
+int launch_ap()
 {
 
     // Initializes GTK.
@@ -305,7 +305,7 @@ int main ()
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
-    if (gtk_builder_add_from_file(builder, "prototype.glade", &error) == 0)
+    if (gtk_builder_add_from_file(builder, "../src/gui/prototype.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
         g_clear_error(&error);
