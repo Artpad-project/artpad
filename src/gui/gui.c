@@ -254,17 +254,17 @@ void scroll_callback(GdkEventScroll* event, gpointer user_data){
   }
 */
 
-/*
-void mouse_moved(GdkEventMotion *event,gpointer user_data){
+
+void mouse_moved(GtkEventBox *eb,GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
     
     char *my_string;
     int val = asprintf(&my_string,"X: %i,Y: %i",(int)event->x,(int)event->y);
     if(val <0)
         errx(1,"cannot create the query");
-    g_print("%i",(int)event->x);
-    //gtk_text_buffer_set_text(ui->curserpos,my_string,val);
-    if(event->state & GDK_BUTTON2_MASK ){
+    //g_print("%s",my_string);
+    gtk_text_buffer_set_text(ui->curserpos,my_string,val);
+    /*if(event->state & GDK_BUTTON2_MASK ){
         struct timeval actual;
         gettimeofday(&actual,NULL);
 
@@ -289,9 +289,9 @@ void mouse_moved(GdkEventMotion *event,gpointer user_data){
     }
     ui->xmouse =event->x;
     ui->ymouse = event->y;
-
-}
 */
+}
+
 int main ()
 {
 
@@ -383,7 +383,7 @@ int main ()
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
     g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
 
-    //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
+    g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
 
     gtk_main();
