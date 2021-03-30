@@ -1,10 +1,10 @@
-#ifndef IMAGETOOLS_H_
-#define IMAGETOOLS_H_
+#ifndef IMAGEACTION_H_
+#define IMAGEACTION_H_
 
-#include "basics_tools.h"
+#include "basics_gui.h"
 #include "../puissancen/PuissanceN.h"
 #include "../saturation/Saturation.h"
-#include "../rotation/Rotation.c"
+#include "../rotation/Rotation.h"
 
 void apply_color_balance(GtkButton *button,gpointer user_data);
 void apply_saturation(GtkButton *button,gpointer user_data);

@@ -10,6 +10,8 @@
 #define _GNU_SOURCE
 
 #include "basics_gui.h"
+#include "image_tools.h"
+#include "drawing_tools.h"
 #include <time.h>
 
 

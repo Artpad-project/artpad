@@ -8,8 +8,8 @@
 
 
 static Image* im ;
-Image* im2 ;
-Image* im_toprint;
+static Image* im2 ;
+static Image* im_toprint;
 
 
 typedef struct UserInterface
