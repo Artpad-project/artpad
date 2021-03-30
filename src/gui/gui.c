@@ -32,13 +32,11 @@ typedef struct UserInterface
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
     GtkButton *CB_button;
-    double CB_value;
+    GtkAdjustment *CB_value;
     GdkRectangle drawzone;
     GdkRectangle selectzone;
     gdouble xmouse;
     gdouble ymouse;
-    int shift_pressed;
-
 } UserInterface;
 
 // Event handler for the "draw" signal of the drawing area.
@@ -105,13 +103,10 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     //g_print("load\n");
     UserInterface* ui = user_data;
     im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
-    // TODO copy_image
-    im = malloc(sizeof(struct Image));
-    copy_image(im2,im);
+    im = create_copy_image(im2);
     im_toprint = im;
     int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
     int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-
 
    
     ui->drawzone.x = draw_width/2 - im->width/2;
@@ -123,7 +118,7 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
             0,0,draw_width,draw_height);   
 }
 
-
+/* Put the color balance*/
 void apply_color_balance(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -132,31 +127,28 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
     //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
    
     if (im){
-        save_image(im,"output","jpeg");
-        g_print("CB_value before function call : %f\n",ui->CB_value);
-        BalanceAbsolue(im,(double)0);
+        BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
         sleep(1);
+	int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+    	int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
+    	gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
+
         im_toprint = im;
     }
 }
 
+/* Goes back to the original image*/
 void see_original(GtkButton *useless,gpointer user_data){
     UserInterface* ui = user_data;
     copy_image(im2,im);
     int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
     int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-
-
     gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
 }
 
-void change_CB_value(GtkAdjustment* cbval,gpointer user_data){
-    UserInterface* ui = user_data;
-    ui->CB_value = gtk_adjustment_get_value(cbval);
-    g_print("change the value of CB_value to : %f\n",ui->CB_value);
-}
 
-// Event handler for the "clicked" signal of the start button.
+
+// Event handler for the "clicked" signal of the copy button.
 void on_start(gpointer user_data)
 {
     UserInterface *ui = user_data;
@@ -165,13 +157,10 @@ void on_start(gpointer user_data)
 
 }
 
-//test
+//test on key pressing (actually work)
 void on_key_press(GdkEventKey *event,gpointer user_data){
     UserInterface *ui = user_data;
-    if (event->keyval == GDK_KEY_p){
-        ui->shift_pressed = 1;
-    
-    }
+   
     if(event->keyval == GDK_KEY_p){
         GdkRectangle old = ui->drawzone;
 
@@ -294,13 +283,11 @@ int main ()
                 .start_button = start_button,
                 .curserpos = curser_position,
                 .CB_button = CB_button,
-                .CB_value = 0,
+                .CB_value = CB_value_cursor,
                 .drawzone = {0,0,0,0},
                 .selectzone = {0,0,0,0},
                 .xmouse = 0,
-                .ymouse = 0,
-                .shift_pressed = 0,           
-
+                .ymouse = 0,         
     };
     
     // Connects event handlers.
@@ -314,7 +301,7 @@ int main ()
     g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
     
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
-    g_signal_connect(CB_value_cursor, "value-changed", G_CALLBACK(change_CB_value), &ui);
+    
 
 
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);

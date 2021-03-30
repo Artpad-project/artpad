@@ -49,20 +49,50 @@ new_image(int width,int height) {
 }
 
 /*!
- * copy an image from pixbuff, and stores it into a structure. 
+ * realloc a matric
+ * 
+ * @param origin : Old = original matrix
+ * @param nRows : nomber of rows for the new matrix
+ * @param nCols : nomber of columns for the new matrix
+ * 
+ */
+struct Pixel** reallocArray (Pixel **Old, int nRows, int nCols)
+{
+    // use a single realloc for the char pointers to the first char of each row
+    // so we reallocate space for the pointers and then space for the actual rows.
+    char **pArray = realloc (Old, sizeof(Pixel *) * nRows + sizeof(Pixel) * nCols * nRows);
+
+    if (pArray) {
+        // calculate offset to the beginning of the actual data space
+        Pixel *pOffset = (Pixel *)(pArray + nRows);
+
+        // fix up the pointers to the individual rows
+        for (int i = 0; i < nRows; i++) {
+            pArray[i] = pOffset;
+            pOffset += nCols;
+        }
+    }
+    return pArray;
+}
+
+/*!
+ * copy an image, and put it into another image. 
  * Save a copy of the original matrix of pixel
  * 
  * @param origin : original image
+ * @param copy : copy image
  * 
  */
-
 void copy_image(Image *origin, Image *copy){
-    
-    copy->pixels = (struct Pixel**) realloc(copy->pixels,origin->width * sizeof(struct Pixel));
-    for(int i = 0;i<origin->width;i++){
-            copy->pixels[i] = realloc(copy->pixels[i],origin->height * sizeof(struct Pixel));
+     
+    copy->pixels = realloc2dArray(copy->pixels,origin->height,origin->width);
+    copy->file = origin->file;
+    copy->file_type = origin->file_type;
+    copy->width = origin->width;
+    copy->height = origin->height;
+    copy->pb = origin->pb;
 
-    }
+
     for(int i = 0;i<origin->height;i++)
         for(int j = 0;j<origin->width;j++){
             copy->pixels[i][j].red = origin->pixels[i][j].red;
@@ -70,13 +100,12 @@ void copy_image(Image *origin, Image *copy){
             copy->pixels[i][j].green = origin->pixels[i][j].green;
             copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
         }
-
 }
 
 
 
 /*!
- * copy an image from pixbuff, and stores it into a structure. 
+ * copy an image, and stores it into a structure. 
  * Save a copy of the original matrix of pixel
  * 
  * @param origin : original image
