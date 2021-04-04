@@ -1,6 +1,6 @@
 /*!
  *  File created on 3/5/2021 (MM/DD/YYYY) by leo.duboin
- *  Contributors : leo.duboin
+ *  Contributors : leo.duboin , tom aubert
  *
  *  File containing all the functions necessary to interact with an image.
  *  
@@ -15,6 +15,42 @@ static char * parse_image_path(char *path);
 static void save_image_pixels(struct Image *im);
 static void set_pixel(guchar *pixels, int rowstride, struct Pixel px, int x, int y);
 
+
+
+/*
+ * create a new image of size (width*height), and stores it into a structure. 
+ *  pixels intto the Pixel array are white.
+ * 
+ * @param path relative path to the image to load
+ */
+
+struct Image *
+new_image(int width,int height) {
+    GdkPixbuf *pb;
+    
+    struct Image *image = malloc(sizeof(struct Image)); 
+
+    struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
+    for (int i = 0; i < width; i++)
+        im_pixels[i] = (struct Pixel *)malloc(height * sizeof(struct Pixel));
+    
+    for(int x=0 ;x<width;x++){
+        for(int y = 0;y<height;y++){
+            im_pixels[x][y].alpha = 255;
+            im_pixels[x][y].red = 255;
+            im_pixels[x][y].green = 255;
+            im_pixels[x][y].blue = 255;
+        }
+    }
+    
+    pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
+    *image = (struct Image){NULL, "jpg", width, height, pb, im_pixels};
+    return image;
+}
+
+
+
+
 /*!
  * Load an image from path, and stores it into a structure. 
  * Save a copy of its pixels intto a Pixel array.
@@ -24,8 +60,9 @@ static void set_pixel(guchar *pixels, int rowstride, struct Pixel px, int x, int
 struct Image *
 load_image(char *path) {
     GdkPixbuf *pb;
-    GError *err = NULL;
     int width, height;
+    GError *err = NULL;
+
     char *file_type;
 
     struct Image *image = malloc(sizeof(struct Image));
@@ -110,6 +147,12 @@ free_image(struct Image *image) {
     free(image);
 }
 
+
+
+
+
+
+
 /*!
  * Save image into a file. 
  * 
@@ -118,7 +161,7 @@ free_image(struct Image *image) {
  * @param ftype the file format. If NULL the image's own file format will be used instead.
  */
 void
-save_image(const struct Image *im, char *out, char *ftype) {
+save_image(struct Image *im, char *out, char *ftype) {
     guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
 
     if (!out)

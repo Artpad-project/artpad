@@ -6,7 +6,7 @@ int main() {
 
     gtk_init(0, NULL);
 
-    gchar *filename = "mountain.jpg";    
+    char *filename = "test.png";
 
     Image *im = load_image(filename);
     Image *copy = filterImage(im, EDGE);

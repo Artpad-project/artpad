@@ -13,12 +13,11 @@
 # Executables
 *.out
 artpad
-main
-test
 
 # Images
 *.jpg
 *.png
+*.jpeg
 
 # IDE settings
 .vscode/settings.json
