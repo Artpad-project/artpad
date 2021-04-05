@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     int y = img->height/2;
     struct Pixel px = {0,0,255,0};
 
-    //flood_fill(img, x, y, px, -1);
+    flood_fill(img, x, y, px);
 
     char output[80];
     strcat(output, "images/results/");

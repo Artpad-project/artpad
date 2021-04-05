@@ -14,9 +14,12 @@
 #include <err.h>
 #include "../image.h"
 
-void colorize(const struct Pixel px, int x, int y, int color, int width);
+void paint();
+void polygon();
+void circle();
+void rectangle();
 void change_color(int *color); //TODO add GTK interactions in parameter
 void change_width(int *width); //TODO same as above
-void flood_fill(struct Image *img, int x, int y, struct Pixel color, int dir);
+void flood_fill(struct Image *img, int x, int y, struct Pixel color);
 
 #endif
