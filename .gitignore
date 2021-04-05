@@ -12,4 +12,13 @@
 
 # Executables
 *.out
-*artpad
+gui
+artpad
+main
+test
+
+# Images
+*.jpg
+*.png
+*.jpeg
+result
