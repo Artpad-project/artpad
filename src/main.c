@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int main() {
-    printf("ARTPAD PROJECT (c)\n");
+    printf("TEST\n");
+
     return 0;
 }
