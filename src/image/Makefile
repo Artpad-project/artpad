@@ -5,7 +5,8 @@ CFLAGS  	= -g -Wall -Wextra  `pkg-config --cflags gtk+-3.0 gmodule-2.0`
 CPPFLAGS	= -MMD
 LDLIBS		= `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
-SOURCE		= main.c image.c colorimetrie/colorimetrie.c
+SOURCE		= main.c image.c image_scaling.c
+
 OBJ			= $(SOURCE:.c=.o)
 DEP			= $(SOURCE:.c=.d)
 
