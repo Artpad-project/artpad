@@ -1,3 +1,4 @@
+
 #include "PuissanceN.h"
 #include <stdlib.h>
 #include <string.h>

@@ -12,7 +12,7 @@
 #include <gtk/gtk.h>
 #include "../image/image.h"
 #include "../image/image_scaling.h"
-
+#include "../puissancen/PuissanceN.h"
 #include <time.h>
 
 // Structure of the graphical user interface.
@@ -29,6 +29,8 @@ typedef struct UserInterface
     GtkDrawingArea* area;           // Drawing area
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
+    double CB_value;
+    GtkButton *CB_button;
     GdkRectangle drawzone;
     GdkRectangle selectzone;
     gdouble xmouse;
@@ -101,7 +103,8 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     //g_print("load\n");
     UserInterface* ui = user_data;
     im = load_image((char *)gtk_file_chooser_get_filename (fc));
-    
+    // TODO copy_image
+    im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
     int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
     int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
 
@@ -117,10 +120,26 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
 }
 
 
+void apply_color_balance(gpointer user_data){
+    
+    UserInterface* ui = user_data;
+    im = im2;
+    //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
+   
+    if (im){
+        g_print("%f",ui->CB_value);
+        BalanceAbsolue(im,ui->CB_value);
+    
+    }
+}
 
+void change_CB_value(GtkAdjustment* cbval,gpointer user_data){
+    UserInterface* ui = user_data;
+    ui->CB_value = gtk_adjustment_get_value(cbval);
+    g_print("%f",ui->CB_value);
+}
 
 // Event handler for the "clicked" signal of the start button.
-
 void on_start(gpointer user_data)
 {
     UserInterface *ui = user_data;
@@ -129,6 +148,7 @@ void on_start(gpointer user_data)
 
 }
 
+//test
 void on_key_press(GdkEventKey *event,gpointer user_data){
     UserInterface *ui = user_data;
     if (event->keyval == GDK_KEY_p){
@@ -226,11 +246,6 @@ int main ()
         return 1;
     }
 
-    // Gets the widge/image/Makefile
-src/image/image.c
-src/image/image.h
-src/image/main.c ts.
-
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
     GtkFixed* left_zone =  GTK_FIXED(gtk_builder_get_object(builder,"fixed_left_side"));
@@ -239,6 +254,10 @@ src/image/main.c ts.
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
     
+    GtkAdjustment* CB_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "color_balance"));  
+    GtkButton* CB_button = GTK_BUTTON(gtk_builder_get_object(builder, "color_balance_go"));
+    
+   
     GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
     gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
@@ -254,6 +273,8 @@ src/image/main.c ts.
                 .area = area,
                 .start_button = start_button,
                 .curserpos = curser_position,
+                .CB_value = 0,
+                .CB_button = CB_button,
                 .drawzone = {0,0,0,0},
                 .selectzone = {0,0,0,0},
                 .xmouse = 0,
@@ -261,6 +282,7 @@ src/image/main.c ts.
                 .shift_pressed = 0,           
 
     };
+    
     // Connects event handlers.
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -268,6 +290,11 @@ src/image/main.c ts.
     //g_signal_connect(G_OBJECT(window), "configure-event",G_CALLBACK(getdraw_size), &ui);
     g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
     g_signal_connect(start_button, "clicked", G_CALLBACK(on_start), &ui);
+    
+    g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
+    g_signal_connect(CB_value, "value-changed", G_CALLBACK(change_CB_value), &ui);
+
+
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
     
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
