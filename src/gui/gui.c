@@ -150,7 +150,7 @@ void on_key_press(GdkEventKey *event,gpointer user_data){
 
 
 
-
+/*
 void scroll_callback(GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
      g_print("c'est la merguez\n");
@@ -165,7 +165,7 @@ void scroll_callback(GdkEventScroll* event, gpointer user_data){
     }
    
   }
-
+*/
 /*
 void mouse_moved(GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
@@ -273,7 +273,7 @@ int main ()
     g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
 
     //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
-    g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+    //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
 
     gtk_main();
     
