@@ -11,10 +11,12 @@ int Rotate(Image* BitMap, float angle)
     angle = angle *(float)(3.1415/180);
     int xc = BitMap->width/2;
     int yc = BitMap->height/2;
-    Pixel** BitMapRotate = malloc(BitMap->height * sizeof (*Pixel));
+    Pixel** BitMapRotate = malloc(BitMap->height * sizeof(Pixel*));
     for (int i = 0; i<BitMap->height; i++)
     {
-      BitMapRotate[i] = memset(BitMapRotate[i],0,BitMap->width);
+      BitMapRotate[i] = malloc(BitMap->width * sizeof(Pixel)); 
+      memset(BitMapRotate[i],0,BitMap->width*sizeof(Pixel));
+     
     }
 
     for (int i = 0; i < BitMap->height ; ++i)
