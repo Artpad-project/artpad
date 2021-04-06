@@ -191,7 +191,13 @@
                                 <child>
                                   <placeholder/>
                                 </child>
-                                <child>
+                                <child>/image/Makefile/image/Makefile
+src/image/image.c
+src/image/image.h
+src/image/main.c 
+src/image/image.c
+src/image/image.h
+src/image/main.c 
                                   <placeholder/>
                                 </child>
                                 <child>
@@ -392,6 +398,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <child>
+
                           <object class="GtkFixed" id="fixed_left_side">
                             <property name="width-request">1620</property>
                             <property name="height-request">885</property>

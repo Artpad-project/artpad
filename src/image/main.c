@@ -22,6 +22,7 @@ int main() {
 
     save_image(im2,"output2.png","png");
     free_image(im);
+
     free_image(im2);
     return 0;
 }

@@ -7,7 +7,6 @@
  *  
  */
 
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <gtk/gtk.h>
@@ -35,6 +34,7 @@ typedef struct UserInterface
     gdouble xmouse;
     gdouble ymouse;
     int shift_pressed;
+
 } UserInterface;
 
 // Event handler for the "draw" signal of the drawing area.
@@ -166,6 +166,7 @@ void scroll_callback(GdkEventScroll* event, gpointer user_data){
    
   }
 */
+
 /*
 void mouse_moved(GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
@@ -205,10 +206,6 @@ void mouse_moved(GdkEventMotion *event,gpointer user_data){
 
 }*/
 
-
-
-
-
 int main ()
 {
 
@@ -229,7 +226,10 @@ int main ()
         return 1;
     }
 
-    // Gets the widgets.
+    // Gets the widge/image/Makefile
+src/image/image.c
+src/image/image.h
+src/image/main.c ts.
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
@@ -259,6 +259,7 @@ int main ()
                 .xmouse = 0,
                 .ymouse = 0,
                 .shift_pressed = 0,           
+
     };
     // Connects event handlers.
     // Runs the main loop.
@@ -274,6 +275,7 @@ int main ()
 
     //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+
 
     gtk_main();
     

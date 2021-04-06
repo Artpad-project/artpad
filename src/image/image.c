@@ -71,6 +71,7 @@ load_image_from_pixbuf(GdkPixbuf *pb){
 
 }
 
+
 /*!
  * Load an image from path, and stores it into a structure. 
  * Save a copy of its pixels intto a Pixel array.
