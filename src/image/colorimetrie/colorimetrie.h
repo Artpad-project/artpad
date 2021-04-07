@@ -14,7 +14,7 @@
 #include <err.h>
 #include "../image.h"
 
-void circle(struct Image *img, struct Pixel color, int x, int y, int radius);
+void circle(struct Image *img, struct Pixel color, int x, int y, int radius, int filled);
 //void polygon();
 //void circle();
 //void rectangle();

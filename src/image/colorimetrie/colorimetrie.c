@@ -101,6 +101,7 @@ void paintLine(struct Image *img, struct Pixel color, int x1, int y1, int x2, in
   {
     if (IsInside(img, x1, y1))
       colorize(img, color, x1, y1);
+
     if(x1 == x2 && y1 == y2)
       break;
     int e2 = 2*err;
@@ -118,7 +119,7 @@ void paintLine(struct Image *img, struct Pixel color, int x1, int y1, int x2, in
 }
 
 // draws each symmetrical point for each octants
-void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, int y)
+void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, int y, int filled)
 {
   int pos_x = x+p;
   int pos_y = y+q;
@@ -130,6 +131,9 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
+  if (filled)
+    paintLine(img, color, x+p, y+q, pos_x, pos_y);
+
   pos_x = -y+p;
   pos_y = x+q;
   if (IsInside(img, pos_x, pos_y))
@@ -140,6 +144,9 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
+  if (filled)
+    paintLine(img, color, -y+p, x+q, pos_x, pos_y);
+
   pos_x = -x+p;
   pos_y = -y+q;
   if (IsInside(img, pos_x, pos_y))
@@ -149,6 +156,9 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   pos_y = -x+q;
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
+
+  if (filled)
+    paintLine(img, color, -x+p, -y+q, pos_x, pos_y);
 
   pos_x = y+p;
   pos_y = -x+q;
@@ -160,10 +170,12 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
+  if (filled)
+    paintLine(img, color, y+p, -x+q, pos_x, pos_y);
 }
 
 // Function that creates a circle following Bresenham algorithm
-void circle(struct Image *img, struct Pixel color, int x, int y, int radius)
+void circle(struct Image *img, struct Pixel color, int x, int y, int radius, int filled)
 {
   radius-=1;
   if (IsInside(img, x, y) && radius == 0) colorize(img, color, x, y);
@@ -176,9 +188,8 @@ void circle(struct Image *img, struct Pixel color, int x, int y, int radius)
     while (x1 <= y1) 
     {
       if (d <= 0) 
-      {
         d += 4*x1 +6;
-      }
+
       else 
       {
         d += 4*(x1-y1) + 10;
@@ -186,7 +197,7 @@ void circle(struct Image *img, struct Pixel color, int x, int y, int radius)
       }
 
       x1 += 1;
-      drawSymPoints(img, color, x, y, x1, y1);
+      drawSymPoints(img, color, x, y, x1, y1, filled);
     }
 
     // Closes the circle
