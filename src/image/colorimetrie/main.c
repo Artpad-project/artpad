@@ -19,7 +19,8 @@ int main(int argc, char **argv)
 
     //flood_fill(img, x, y, px);
     //paint(img, px, x, y, atoi(argv[3]));
-    paintLine(img, px, 0, 0, img->width, img->height);
+    //paintLine(img, px, 0, 0, img->width, img->height);
+    circle(img, px, x, y, atoi(argv[3]), 1);
 
     char output[80];
     strcat(output, "images/results/");

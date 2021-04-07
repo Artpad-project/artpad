@@ -131,9 +131,6 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
-  if (filled)
-    paintLine(img, color, x+p, y+q, pos_x, pos_y);
-
   pos_x = -y+p;
   pos_y = x+q;
   if (IsInside(img, pos_x, pos_y))
@@ -144,9 +141,6 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
-  if (filled)
-    paintLine(img, color, -y+p, x+q, pos_x, pos_y);
-
   pos_x = -x+p;
   pos_y = -y+q;
   if (IsInside(img, pos_x, pos_y))
@@ -156,9 +150,6 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   pos_y = -x+q;
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
-
-  if (filled)
-    paintLine(img, color, -x+p, -y+q, pos_x, pos_y);
 
   pos_x = y+p;
   pos_y = -x+q;
@@ -171,7 +162,12 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
     colorize(img, color, pos_x, pos_y);
 
   if (filled)
-    paintLine(img, color, y+p, -x+q, pos_x, pos_y);
+  {
+    paintLine(img, color, x+p, y+q, -x+p, -y+q);
+    paintLine(img, color, x+p, -y+q, -x+p, y+q);
+    paintLine(img, color, y+p, -x+q, -y+p, x+q);
+    paintLine(img, color, -y+p, -x+q, y+p, x+q);
+  }
 }
 
 // Function that creates a circle following Bresenham algorithm
