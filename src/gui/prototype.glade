@@ -23,8 +23,14 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkTextBuffer" id="height_draw">
+    <property name="text" translatable="yes">height</property>
+  </object>
   <object class="GtkTextBuffer" id="size">
     <property name="text" translatable="yes">size</property>
+  </object>
+  <object class="GtkTextBuffer" id="width_draw">
+    <property name="text" translatable="yes">width</property>
   </object>
   <object class="GtkWindow" id="Main">
     <property name="visible">True</property>
@@ -104,7 +110,6 @@
             <property name="height-request">890</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="position">1</property>
             <property name="position-set">True</property>
             <property name="wide-handle">True</property>
             <child>
@@ -116,7 +121,8 @@
                 <property name="expanded">True</property>
                 <child>
                   <object class="GtkFixed" id="expand_tools">
-                    <property name="width-request">27</property>
+                    <property name="width-request">29</property>
+                    <property name="height-request">870</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
@@ -145,6 +151,7 @@
                                     <property name="justification">center</property>
                                     <property name="top-margin">13</property>
                                     <property name="buffer">Effectts</property>
+                                    <property name="accepts-tab">False</property>
                                   </object>
                                   <packing>
                                     <property name="left-attach">0</property>
@@ -154,7 +161,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="cut">
-                                    <property name="label" translatable="yes">cut</property>
+                                    <property name="label" translatable="yes">WIP</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
@@ -167,7 +174,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="copy">
-                                    <property name="label" translatable="yes">copy</property>
+                                    <property name="label" translatable="yes">WIP</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
@@ -180,7 +187,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="Debug_im2">
-                                    <property name="label" translatable="yes">lol</property>
+                                    <property name="label" translatable="yes">Origin</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
@@ -210,7 +217,6 @@
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
                                     <property name="can-focus">True</property>
-                                    <property name="double-buffered">False</property>
                                     <property name="editable">False</property>
                                     <property name="justification">center</property>
                                     <property name="cursor-visible">False</property>
@@ -397,6 +403,93 @@
                       <packing>
                         <property name="x">5</property>
                         <property name="y">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="width_entry">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="text" translatable="yes">0</property>
+                      </object>
+                      <packing>
+                        <property name="y">796</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <!-- n-columns=3 n-rows=2 -->
+                      <object class="GtkGrid">
+                        <property name="width-request">250</property>
+                        <property name="height-request">80</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="row-spacing">3</property>
+                        <property name="column-spacing">3</property>
+                        <property name="row-homogeneous">True</property>
+                        <property name="column-homogeneous">True</property>
+                        <child>
+                          <object class="GtkEntry" id="width_entry1">
+                            <property name="width-request">168</property>
+                            <property name="height-request">34</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="text" translatable="yes">0</property>
+                            <property name="input-purpose">digits</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">1</property>
+                            <property name="width">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="height_entry">
+                            <property name="width-request">168</property>
+                            <property name="height-request">34</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="text" translatable="yes">0</property>
+                            <property name="input-purpose">digits</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                            <property name="width">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkTextView" id="Width">
+                            <property name="width-request">75</property>
+                            <property name="sensitive">False</property>
+                            <property name="can-focus">False</property>
+                            <property name="editable">False</property>
+                            <property name="justification">center</property>
+                            <property name="top-margin">7</property>
+                            <property name="indent">-6</property>
+                            <property name="cursor-visible">False</property>
+                            <property name="buffer">width_draw</property>
+                            <property name="accepts-tab">False</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">2</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkTextView">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="justification">center</property>
+                            <property name="top-margin">7</property>
+                            <property name="buffer">height_draw</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">2</property>
+                            <property name="top-attach">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="y">790</property>
                       </packing>
                     </child>
                   </object>
