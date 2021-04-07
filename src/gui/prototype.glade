@@ -5,14 +5,23 @@
   <object class="GtkTextBuffer" id="Effectts">
     <property name="text" translatable="yes">Effects</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="step-increment">1</property>
+  <object class="GtkTextBuffer" id="color_balanc">
+    <property name="text" translatable="yes">Color Balance</property>
+  </object>
+  <object class="GtkAdjustment" id="color_balance">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.05</property>
     <property name="page-increment">10</property>
   </object>
   <object class="GtkTextBuffer" id="cursor_pos">
     <property name="text" translatable="yes">X - ....  ; Y - ...</property>
+  </object>
+  <object class="GtkAdjustment" id="draw_size">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkTextBuffer" id="size">
     <property name="text" translatable="yes">size</property>
@@ -121,7 +130,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <!-- n-columns=6 n-rows=3 -->
+                              <!-- n-columns=6 n-rows=4 -->
                               <object class="GtkGrid" id="all_image_tools">
                                 <property name="width-request">244</property>
                                 <property name="visible">True</property>
@@ -170,7 +179,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkButton">
+                                  <object class="GtkButton" id="Debug_im2">
                                     <property name="label" translatable="yes">lol</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
@@ -183,28 +192,51 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <object class="GtkScale">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="adjustment">color_balance</property>
+                                    <property name="round-digits">1</property>
+                                    <property name="value-pos">right</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">3</property>
+                                    <property name="width">4</property>
+                                  </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <object class="GtkTextView">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="double-buffered">False</property>
+                                    <property name="editable">False</property>
+                                    <property name="justification">center</property>
+                                    <property name="cursor-visible">False</property>
+                                    <property name="buffer">color_balanc</property>
+                                    <property name="accepts-tab">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">2</property>
+                                    <property name="width">6</property>
+                                  </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>/image/Makefile/image/Makefile
-src/image/image.c
-src/image/image.h
-src/image/main.c 
-src/image/image.c
-src/image/image.h
-src/image/main.c 
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
+                                  <object class="GtkButton" id="color_balance_go">
+                                    <property name="label" translatable="yes">Apply</property>
+                                    <property name="width-request">0</property>
+                                    <property name="height-request">0</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">4</property>
+                                    <property name="top-attach">3</property>
+                                    <property name="width">2</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
@@ -247,7 +279,7 @@ src/image/main.c
                                     <property name="height-request">14</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="adjustment">adjustment1</property>
+                                    <property name="adjustment">draw_size</property>
                                     <property name="digits">0</property>
                                     <property name="draw-value">False</property>
                                   </object>
@@ -398,7 +430,6 @@ src/image/main.c
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <child>
-
                           <object class="GtkFixed" id="fixed_left_side">
                             <property name="width-request">1620</property>
                             <property name="height-request">885</property>
