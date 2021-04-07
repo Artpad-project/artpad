@@ -7,27 +7,32 @@
  *  
  */
 
-
-
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include "../image/image.c"
+#include "../image/image.h"
+#include "../image/image_scaling.h"
+#include "../puissancen/PuissanceN.h"
 #include <time.h>
 
 // Structure of the graphical user interface.
 
-Image* im ;
+static Image* im ;
+Image* im2 ;
+Image* im_toprint;
+
 
 typedef struct UserInterface
 {
     GtkWindow* window;              // Main window
     GtkFixed *drawarea;
+    GtkFixed *left_zone;
     GtkEventBox* eb_draw;
     GtkDrawingArea* area;           // Drawing area
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
+    GtkButton *CB_button;
+    GtkAdjustment *CB_value;
     GdkRectangle drawzone;
     GdkRectangle selectzone;
     gdouble xmouse;
@@ -36,12 +41,20 @@ typedef struct UserInterface
 
 // Event handler for the "draw" signal of the drawing area.
 
+//Useless tres surement
+/*void getdraw_size(gpointer user_data){
+    UserInterface *ui = user_data;
+    ui-> areawidth = gtk_widget_get_allocated_width(GTK_WIDGET(ui->drawarea));
+    ui-> areaheight = gtk_widget_get_allocated_height(GTK_WIDGET(ui->drawarea));
+    g_print("%i,%i\n",ui->areawidth, ui->areaheight);
+
+}*/
+
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
     // Gets the 'Game' structure.
 
     UserInterface *ui = user_data;
-
     // Sets the background to white.
 
     // cairo_set_source_rgb(cr, 1, 1, 1);
@@ -53,15 +66,15 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
         //int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
         float r, g, b;
         
-        for (int x = 0; x < im->width; x++) {
-            for (int y = 0; y < im->height; y++) {
+        for (int x = 0; x < im->height; x++) {
+            for (int y = 0; y < im->width; y++) {
                 pixel = im->pixels[x][y];
                 r = (float) pixel.red / 255;
                 g = (float) pixel.green / 255;
                 b = (float) pixel.blue / 255;
                
                 cairo_set_source_rgb(cr, r, g, b);
-                cairo_rectangle(cr, x+ui->drawzone.x, ui->drawzone.y + y,1,1);
+                cairo_rectangle(cr, x, y,1,1);
                 cairo_fill(cr); 
                 //cairo_push_group(cr);
             }
@@ -72,30 +85,70 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
     return FALSE;
 }
 
+void prepare_drawarea(gpointer user_data){
+    UserInterface* ui = user_data;
+    int totwidth =  gtk_widget_get_allocated_width(GTK_WIDGET(ui->left_zone));
+    int totheight = gtk_widget_get_allocated_height(GTK_WIDGET(ui->left_zone));
+   
+
+    g_print("%i\n",totheight/2 - im->height/2);
+    //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
+    gtk_fixed_move (ui->left_zone, GTK_WIDGET(ui->drawarea),totwidth/2 - im->width/2 , totheight/2 - im->height/2);
+    gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) im->width, (gint)im->height);
+    gtk_widget_set_size_request (GTK_WIDGET(ui->eb_draw),(gint) im->width, (gint)im->height);
+
+}
+
 void on_load(GtkFileChooser *fc,gpointer user_data){
     //g_print("load\n");
     UserInterface* ui = user_data;
-    im = load_image((char *)gtk_file_chooser_get_filename (fc));
-    
+    im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
+    im = create_copy_image(im2);
+    im_toprint = im;
     int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
     int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-
 
    
     ui->drawzone.x = draw_width/2 - im->width/2;
     ui->drawzone.y = draw_height/2 - im->height/2;
     ui->drawzone.width = im->width;
     ui->drawzone.height = im->height;
-    
+    prepare_drawarea(user_data);
     gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
-                ui->drawzone.x,ui->drawzone.y,ui->drawzone.width,ui->drawzone.height);   
+            0,0,draw_width,draw_height);   
+}
+
+/* Put the color balance*/
+void apply_color_balance(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+    copy_image(im2,im);
+    //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
+   
+    if (im){
+        BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
+        sleep(1);
+	int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+    	int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
+    	gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
+
+        im_toprint = im;
+    }
+}
+
+/* Goes back to the original image*/
+void see_original(GtkButton *useless,gpointer user_data){
+    UserInterface* ui = user_data;
+    copy_image(im2,im);
+    int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+    int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
+    gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
 }
 
 
 
-
-// Event handler for the "clicked" signal of the start button.
-
+// Event handler for the "clicked" signal of the copy button.
 void on_start(gpointer user_data)
 {
     UserInterface *ui = user_data;
@@ -104,8 +157,10 @@ void on_start(gpointer user_data)
 
 }
 
+//test on key pressing (actually work)
 void on_key_press(GdkEventKey *event,gpointer user_data){
     UserInterface *ui = user_data;
+   
     if(event->keyval == GDK_KEY_p){
         GdkRectangle old = ui->drawzone;
 
@@ -121,10 +176,22 @@ void on_key_press(GdkEventKey *event,gpointer user_data){
 
 
 
+/*
+void scroll_callback(GdkEventScroll* event, gpointer user_data){
+    UserInterface *ui = user_data;
+     g_print("c'est la merguez\n");
 
-void scroll_callback(){
-    g_print("c'est la merguez\n");
-}
+    if (ui->shift_pressed){
+        g_print("merguez partie\n");
+        im2 = rescale_image(im,150);
+        im = im2;
+        //prepare_drawarea(user_data);
+        //gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,500,500);
+
+    }
+   
+  }
+*/
 
 /*
 void mouse_moved(GdkEventMotion *event,gpointer user_data){
@@ -165,7 +232,6 @@ void mouse_moved(GdkEventMotion *event,gpointer user_data){
 
 }*/
 
-
 int main ()
 {
 
@@ -186,44 +252,66 @@ int main ()
         return 1;
     }
 
-    // Gets the widgets.
-
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
-    GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"drawzone"));
+    GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
+    GtkFixed* left_zone =  GTK_FIXED(gtk_builder_get_object(builder,"fixed_left_side"));
+
     GtkDrawingArea* area = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "Draw"));
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
+    GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
+
+
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
     
+    GtkAdjustment* CB_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "color_balance"));  
+    GtkButton* CB_button = GTK_BUTTON(gtk_builder_get_object(builder, "color_balance_go"));
+    
+   
     GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
     gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
+    gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
 
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
 
     UserInterface ui ={
                 .window = window,
                 .drawarea = drawarea,
+                .left_zone = left_zone,
                 .eb_draw = eb_draw,
                 .area = area,
                 .start_button = start_button,
                 .curserpos = curser_position,
+                .CB_button = CB_button,
+                .CB_value = CB_value_cursor,
                 .drawzone = {0,0,0,0},
                 .selectzone = {0,0,0,0},
                 .xmouse = 0,
-                .ymouse = 0,
-              
+                .ymouse = 0,         
     };
+    
     // Connects event handlers.
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    //g_signal_connect(, "configure-event", G_CALLBACK(getdraw_size), &ui);
+    //g_signal_connect(G_OBJECT(window), "configure-event",G_CALLBACK(getdraw_size), &ui);
     g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
     g_signal_connect(start_button, "clicked", G_CALLBACK(on_start), &ui);
+    
+    g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
+    
+    g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
+    
+
+
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
     
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
-    
+    g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
+
     //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
-    g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+    //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+
 
     gtk_main();
     
