@@ -35,6 +35,9 @@ typedef struct Pixel Pixel;
 
 
 struct Image *new_image(int width,int height);
+void copy_image(Image *origin, Image *copy);
+struct Image *create_copy_image(Image *origin);
+
 struct Image *load_image_from_pixbuf(GdkPixbuf *pb);
 struct Image *load_image(char *path);
 

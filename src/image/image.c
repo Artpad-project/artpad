@@ -48,6 +48,58 @@ new_image(int width,int height) {
     return image;
 }
 
+/*!
+ * copy an image from pixbuff, and stores it into a structure. 
+ * Save a copy of the original matrix of pixel
+ * 
+ * @param origin : original image
+ * 
+ */
+
+void copy_image(Image *origin, Image *copy){
+    
+    copy->pixels = (struct Pixel**) realloc(copy->pixels,origin->width * sizeof(struct Pixel));
+    for(int i = 0;i<origin->width;i++){
+            copy->pixels[i] = realloc(copy->pixels[i],origin->height * sizeof(struct Pixel));
+
+    }
+    for(int i = 0;i<origin->height;i++)
+        for(int j = 0;j<origin->width;j++){
+            copy->pixels[i][j].red = origin->pixels[i][j].red;
+            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
+            copy->pixels[i][j].green = origin->pixels[i][j].green;
+            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
+        }
+
+}
+
+
+
+/*!
+ * copy an image from pixbuff, and stores it into a structure. 
+ * Save a copy of the original matrix of pixel
+ * 
+ * @param origin : original image
+ * 
+ */
+
+struct Image*
+create_copy_image(Image *origin){
+    struct Pixel **im_pixels = (struct Pixel **)malloc(origin->width * sizeof(struct Pixel *));
+    for (int i = 0; i < origin->width; i++)
+        im_pixels[i] = (struct Pixel *)malloc(origin->height * sizeof(struct Pixel));
+    
+    for(int i = 0;i<origin->height;i++)
+        for(int j = 0;j<origin->width;j++){
+            im_pixels[i][j].red = origin->pixels[i][j].red;
+            im_pixels[i][j].blue = origin->pixels[i][j].blue;
+            im_pixels[i][j].green = origin->pixels[i][j].green;
+            im_pixels[i][j].alpha = origin->pixels[i][j].alpha;
+        }
+    struct Image *new_image = malloc(sizeof(struct Image));
+    *new_image = (struct Image){origin->file,origin->file_type,origin->width,origin->height,origin->pb,im_pixels};
+    return new_image;
+}
 
 /*!
  * Load an image from pixbuff, and stores it into a structure. 

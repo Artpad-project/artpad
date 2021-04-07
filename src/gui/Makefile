@@ -1,6 +1,6 @@
 OUT           = gui
 
-CC            = gcc -lm -ldl
+CC            = gcc -fsanitize=address -lm -ldl
 
 CFLAGS        = -g -Wall -Wextra $(shell pkg-config --cflags gtk+-3.0)
 CPPFLAGS      = -MMD

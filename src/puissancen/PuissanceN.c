@@ -10,10 +10,12 @@ void TableauCanal(double* HistoColor, int Index, double Exposant);
 
 void BalanceAbsolue(Image* Bitmap, double coeflum)
 {
+    printf("CB_value In Balace_absolue : %f\n",coeflum);
+    printf("Pixel values: %i,%i,%i\n ",Bitmap->pixels[10][10].red,Bitmap->pixels[10][10].green,Bitmap->pixels[10][10].blue);
     /* ------------------------ Initialisation ----------------------------- */
 
     int nbLine = Bitmap->height;
-    int nbCol = Bitmap->width;
+    int nbCol = Bitmap->width ;
 
     int nbPix = nbLine * nbCol;
 
@@ -147,14 +149,14 @@ void BalanceAbsolue(Image* Bitmap, double coeflum)
 	   
         }
     }
-
+    printf("Print values: %f,%f,%f,%f\n ",ExposantRed, ExposantGreen, ExposantBlue,HistoRed[250]);
     free(HistoRed);
     free(HistoVert);
     free(HistoBleu);
     free(TableauRed);
     free(TableauGreen);
     free(TableauBlue);
-    
+   
 }
 
 

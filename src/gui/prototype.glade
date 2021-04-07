@@ -179,7 +179,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkButton">
+                                  <object class="GtkButton" id="Debug_im2">
                                     <property name="label" translatable="yes">lol</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
