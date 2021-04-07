@@ -8,8 +8,8 @@
 
 int main(int argc, char **argv)
 {
-    if (argc != 3)
-        errx(EXIT_FAILURE, "Only two argument are asked\n");
+    //if (argc != 4)
+        //errx(EXIT_FAILURE, "Only two argument are asked\n");
 
     struct Image *img = load_image(argv[1]);
 
@@ -17,7 +17,9 @@ int main(int argc, char **argv)
     int y = img->height/2;
     struct Pixel px = {0,0,255,0};
 
-    flood_fill(img, x, y, px);
+    //flood_fill(img, x, y, px);
+    //paint(img, px, x, y, atoi(argv[3]));
+    paintLine(img, px, 0, 0, img->width, img->height);
 
     char output[80];
     strcat(output, "images/results/");
