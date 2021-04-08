@@ -38,7 +38,10 @@ typedef struct UserInterface
     GtkAdjustment *ROT_value;
 
     GdkRectangle drawzone;
-    GdkRectangle selectzone;
+    GtkAdjustment *width_print;
+    GtkAdjustment *height_print;
+
+
     int width_drawzone;
     int height_drawzone;
     gdouble xmouse;
@@ -187,7 +190,7 @@ void see_original(GtkButton *useless,gpointer user_data){
 }
 
 
-
+/*
 // Event handler for the "clicked" signal of the copy button.
 void on_start(gpointer user_data)
 {
@@ -195,7 +198,7 @@ void on_start(gpointer user_data)
     ui->selectzone.x += 100;
     g_print("%i\n",ui->selectzone.x);
 
-}
+}*/
 
 //test on key pressing (actually work)
 void on_key_press(GdkEventKey *event,gpointer user_data){
@@ -213,8 +216,26 @@ void on_key_press(GdkEventKey *event,gpointer user_data){
 
     }
 }
+/*
+void set_new_width(GtkAdjustment *buffer,gpointer user_data){
+    g_print("change width\n");
+    UserInterface *ui = user_data;
+    im2 = new_image(gtk_adjustment_get_value(ui->width_print),gtk_adjustment_get_value(ui->height_print));
+    
+    copy_image(im2,im);
+    int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
+    int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
+    ui->drawzone.x = draw_width/2 - im->width/2;
+    ui->drawzone.y = draw_height/2 - im->height/2;
+    ui->drawzone.width = im->width;
+    ui->drawzone.height = im->height;
 
+    prepare_drawarea(user_data);  
+}
 
+void set_new_height(GtkAdjustment *buffer,gpointer user_data){
+    g_print("change height\n") ;  
+}*/
 
 /*
 void scroll_callback(GdkEventScroll* event, gpointer user_data){
@@ -241,9 +262,8 @@ void mouse_moved(GdkEventMotion *event,gpointer user_data){
     int val = asprintf(&my_string,"X: %i,Y: %i",(int)event->x,(int)event->y);
     if(val <0)
         errx(1,"cannot create the query");
-
-    // g_print("%s\n", my_string);
-    gtk_text_buffer_set_text(ui->curserpos,my_string,val);
+    g_print("%i",(int)event->x);
+    //gtk_text_buffer_set_text(ui->curserpos,my_string,val);
     if(event->state & GDK_BUTTON2_MASK ){
         struct timeval actual;
         gettimeofday(&actual,NULL);
@@ -270,8 +290,8 @@ void mouse_moved(GdkEventMotion *event,gpointer user_data){
     ui->xmouse =event->x;
     ui->ymouse = event->y;
 
-}*/
-
+}
+*/
 int main ()
 {
 
@@ -317,6 +337,11 @@ int main ()
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
 
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
+    GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
+    GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
+
+
+
 
     UserInterface ui ={
                 .window = window,
@@ -330,7 +355,8 @@ int main ()
                 .CB_value = CB_value_cursor,
                 .ROT_value = ROT_value_cursor,
                 .drawzone = {0,0,0,0},
-                .selectzone = {0,0,0,0},
+                .width_print = print_width_value,
+                .height_print = print_height_value,
                 .width_drawzone = gtk_widget_get_allocated_width (GTK_WIDGET(left_zone)),
                 .height_drawzone = gtk_widget_get_allocated_height (GTK_WIDGET(left_zone)),
                 .xmouse = 0,
@@ -343,7 +369,9 @@ int main ()
     //g_signal_connect(, "configure-event", G_CALLBACK(getdraw_size), &ui);
     //g_signal_connect(G_OBJECT(window), "configure-event",G_CALLBACK(getdraw_size), &ui);
     g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
-       
+    //g_signal_connect(print_width_value, "value_changed", G_CALLBACK(set_new_width), &ui);
+    //g_signal_connect(print_height_value, "value_changed" , G_CALLBACK(set_new_height), &ui);
+     
     g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
     g_signal_connect(SAT_button,"clicked", G_CALLBACK(apply_saturation), &ui);
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
@@ -357,7 +385,6 @@ int main ()
 
     //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
-
 
     gtk_main();
     
