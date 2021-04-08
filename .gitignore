@@ -13,6 +13,10 @@
 # Executables
 *.out
 artpad
+result
+Test
+test
+gui
 
 # Images
 *.jpg
@@ -23,5 +27,3 @@ artpad
 .vscode/settings.json
 /.idea/.gitignore
 /src/.idea
-result
-Test
