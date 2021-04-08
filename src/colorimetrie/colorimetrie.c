@@ -33,14 +33,16 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin)
   struct Pixel px = img->pixels[x][y];
 
   stack *s = new_stack();
-  struct coord c = {x, y};
 
-  stack_push(s, c);
+  stack_push(s, origin);
 
+  struct coord c;
   while(!stack_IsEmpty(s))
   {
       //printf("popping stack\n");
       c = stack_pop(s);
+      x = c.x;
+      y = c.y;
 
       //printf("coloring pixel\n");
       colorize(img, color, x, y);
