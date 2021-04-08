@@ -33,14 +33,16 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin)
   struct Pixel px = img->pixels[x][y];
 
   stack *s = new_stack();
-  struct coord c = {x, y};
 
-  stack_push(s, c);
+  stack_push(s, origin);
 
+  struct coord c;
   while(!stack_IsEmpty(s))
   {
       //printf("popping stack\n");
       c = stack_pop(s);
+      x = c.x;
+      y = c.y;
 
       //printf("coloring pixel\n");
       colorize(img, color, x, y);
@@ -217,15 +219,29 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
     // Closes the circle
     if (filled)
     {
-      struct coord left = {x1+radius, y1};
-      struct coord right = {x1-radius, y1};
+      struct coord left = {center.x+radius, center.y};
+      struct coord right = {center.x-radius, center.y};
       paintLine(img, color, left, right);
 
-      left.x = x1;
-      left.y = y1+radius;
-      right.x = x1;
-      right.y = y1-radius;
+      left.x = center.x;
+      left.y = center.y+radius;
+      right.x = center.x;
+      right.y = center.y-radius;
       paintLine(img, color, left, right);
+    }
+    else
+    {
+      if (!IsInside(img, center.x+radius, center.y))
+        colorize(img, color, center.x+radius, center.y);
+
+      if (!IsInside(img, center.x-radius, center.y))
+        colorize(img, color, center.x-radius, center.y);
+
+      if (!IsInside(img, center.x, center.y+radius))
+        colorize(img, color, center.x, center.y+radius);
+
+      if (!IsInside(img, center.x, center.y-radius))
+        colorize(img, color, center.x, center.y-radius);
     }
   }
 }

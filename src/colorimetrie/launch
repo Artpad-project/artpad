@@ -1,0 +1,2 @@
+./colorimetrie images/tests/circle.png images/results/circle_test 100 | gimp
+images/results/circle_test
