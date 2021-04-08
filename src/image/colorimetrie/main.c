@@ -17,16 +17,16 @@ int main(int argc, char **argv)
     int y = img->height/2;
     struct Pixel px = {0,0,255,0};
 
-    //flood_fill(img, x, y, px);
-    //paint(img, px, x, y, atoi(argv[3]));
-    //paintLine(img, px, 0, 0, img->width, img->height);
-    circle(img, px, x, y, atoi(argv[3]), 1);
+    //flood_fill(img, px, x, y);
+    paintLine(img, px, 0, 0, img->width, img->height);
+    //circle(img, px, x, y, 100, 1);
+    //rectangle(img, px, x-50, y-50, x+50, y+50, 1);
 
-    char output[80];
-    strcat(output, "images/results/");
-    strcat(output, argv[2]);
+    //char output[100];
+    //strcat(output, "images/results/");
+    //strcat(output, argv[2]);
 
-    save_image(img, output, "jpeg");
+    save_image(img, "images/results/line", "jpeg");
     free_image(img);
 
     return 0;

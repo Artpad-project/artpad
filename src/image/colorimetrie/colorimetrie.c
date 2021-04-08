@@ -3,13 +3,7 @@
 #include "colorimetrie.h"
 #include "../image.h"
 #include "stack.h"
-#include <stdio.h>
 #include <math.h>
-
-#define LEFT 0
-#define RIGHT 1
-#define UP 2
-#define DOWN 3
 
 char same_color(struct Pixel px, struct Pixel color)
 {
@@ -197,40 +191,51 @@ void circle(struct Image *img, struct Pixel color, int x, int y, int radius, int
     }
 
     // Closes the circle
-    int pos_x = x+radius;
-    int pos_y = y;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
-
-    pos_x = x-radius;
-    pos_y = y;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
-
-    pos_x = x;
-    pos_y = y+radius;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
-
-    pos_x = x;
-    pos_y = y-radius;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
+    if (filled)
+    {
+      paintLine(img, color, x+radius, y, x-radius, y);
+      paintLine(img, color, x, y+radius, x, y-radius);
+    }
   }
 }
 
-/*void polygon(struct Pixel px, int x, int y)
+void rectangle(struct Image *img, struct Pixel color, int x1, int y1, int x2, int y2, int filled)
 {
+  int cpy_y1 = y1;
+  if (filled)
+  {
+    for(; x1 <= x2; x1++)
+    {
+      for(; y1 <= y2; y1++)
+        if (IsInside(img, x1, y1))
+          colorize(img, color, x1, y1);
+      y1 = cpy_y1;
+    }
+  }
+  else
+  {
+    while(y1 <= y2)
+    {
+      if (IsInside(img, x1, y1))
+        colorize(img, color, x1, y1);
 
+      if (IsInside(img, x2, y1))
+        colorize(img, color, x2, y1);
+      y1++;
+    }
+
+    y1 = cpy_y1;
+
+    while(x1 <= x2)
+    {
+      if (IsInside(img, x1, y1))
+        colorize(img, color, x1, y1);
+
+      if (IsInside(img, x1, y2))
+        colorize(img, color, x1, y2);
+
+      x1++;
+    }
+  }
 }
 
-void rectangle(struct Pixel px, int x, int y)
-{
-
-}
-
-void cicle(struct Pixel px, int x, int y)
-{
-
-}
-*/
