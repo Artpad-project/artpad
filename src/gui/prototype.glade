@@ -29,6 +29,12 @@
   <object class="GtkTextBuffer" id="height_draw">
     <property name="text" translatable="yes">height</property>
   </object>
+  <object class="GtkAdjustment" id="height_value">
+    <property name="upper">2000</property>
+    <property name="value">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="rotation">
     <property name="lower">-180</property>
     <property name="upper">180</property>
@@ -49,6 +55,12 @@
   </object>
   <object class="GtkTextBuffer" id="width_draw">
     <property name="text" translatable="yes">width</property>
+  </object>
+  <object class="GtkAdjustment" id="width_value">
+    <property name="upper">2000</property>
+    <property name="value">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkWindow" id="Main">
     <property name="visible">True</property>
@@ -511,16 +523,6 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="width_entry">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="text" translatable="yes">0</property>
-                      </object>
-                      <packing>
-                        <property name="y">796</property>
-                      </packing>
-                    </child>
-                    <child>
                       <!-- n-columns=3 n-rows=2 -->
                       <object class="GtkGrid">
                         <property name="width-request">250</property>
@@ -532,37 +534,7 @@
                         <property name="row-homogeneous">True</property>
                         <property name="column-homogeneous">True</property>
                         <child>
-                          <object class="GtkEntry" id="width_entry1">
-                            <property name="width-request">168</property>
-                            <property name="height-request">34</property>
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="text" translatable="yes">0</property>
-                            <property name="input-purpose">digits</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">1</property>
-                            <property name="width">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="height_entry">
-                            <property name="width-request">168</property>
-                            <property name="height-request">34</property>
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="text" translatable="yes">0</property>
-                            <property name="input-purpose">number</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
-                            <property name="width">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkTextView" id="Width">
+                          <object class="GtkTextView">
                             <property name="width-request">75</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
@@ -595,6 +567,32 @@
                           <packing>
                             <property name="left-attach">2</property>
                             <property name="top-attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="height_entry">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="adjustment">height_value</property>
+                            <property name="climb-rate">10.01</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">1</property>
+                            <property name="width">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="width_entry">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="adjustment">width_value</property>
+                            <property name="climb-rate">10</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                            <property name="width">2</property>
                           </packing>
                         </child>
                       </object>

@@ -45,7 +45,7 @@ new_image(int width,int height) {
     }
     
     pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
-    *image = (struct Image){NULL, "jpg", width, height, pb, im_pixels};
+    *image = (struct Image){"", "jpg", width, height, pb, im_pixels};
     return image;
 }
 
@@ -271,7 +271,7 @@ struct Image *copy_image(Image *origin, Image *copy){
 struct Image *
 create_copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
-
+    printf("copied\n");
     *new_image = (struct Image) {
         strdup(im->file),
         strdup(im->file_type),
