@@ -40,9 +40,12 @@ typedef struct Image Image;
 typedef struct Pixel Pixel;
 
 struct Image *new_image(int width,int height);
+struct Image *copy_image(Image *origin, Image *copy);
+
+struct Image *load_image_from_pixbuf(GdkPixbuf *pb);
 struct Image *load_image(char *path);
+
 void save_image(struct Image *im, char *out, char *ftype);
-struct Image *copy_image(const struct Image *im);
 void free_image(struct Image *im);
 
 // mask.c

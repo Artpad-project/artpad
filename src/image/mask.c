@@ -25,7 +25,7 @@ init_mask(Image *im) {
     ImageMask im_mask;
     
     area = malloc(im->width * sizeof(uint8_t*));
-    mask = copy_image(im);
+    mask = copy_image(im, NULL);
     im_mask = (ImageMask){im->width, im->height, area, im, mask};
 
     // Init an empty area and an empty mask (transparent black)

@@ -9,6 +9,7 @@
  */
 
 #include "image.h"
+#include <stdlib.h>
 #include <string.h>
 
 static char * parse_image_path(char *path);
@@ -48,7 +49,51 @@ new_image(int width,int height) {
     return image;
 }
 
+/*!
+ * realloc a matrix
+ * 
+ * @param origin : Old = original matrix
+ * @param nRows : nomber of rows for the new matrix
+ * @param nCols : nomber of columns for the new matrix
+ * 
+ */
+struct Pixel** realloc_image(Image *im, int nRows, int nCols)
+{
+    Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
+    for (int i = 0; i < nCols; ++i) {
+        new_pixels[i] = malloc(nRows * sizeof(Pixel));
+        free(im->pixels[i]);
+    }
+    
+    free(im->pixels);
+    im->pixels = new_pixels;
+    im->width = nCols;
+    im->height = nRows;
 
+    return new_pixels;
+}
+
+/*!
+ * Load an image from pixbuff, and stores it into a structure. 
+ * Save a copy of its pixels intto a Pixel array.
+ * 
+ * @param pb relative pixbuff to the image to load
+ */
+
+struct Image*
+load_image_from_pixbuf(GdkPixbuf *pb){
+    if(!pb)
+        err(0,"ERROR: image.c - load_image_from_pixbuff : pb == NULL");
+    
+    struct Image *image = malloc(sizeof(struct Image));
+    int width = gdk_pixbuf_get_width(pb);
+    int height = gdk_pixbuf_get_height(pb);
+    *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
+    save_image_pixels(image);
+    return image;
+
+
+}
 
 
 /*!
@@ -147,12 +192,6 @@ free_image(struct Image *image) {
     free(image);
 }
 
-
-
-
-
-
-
 /*!
  * Save image into a file. 
  * 
@@ -190,6 +229,38 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
     pixels[2] = px.blue;
     pixels[3] = px.alpha;
 }
+struct Image *create_copy_image(const struct Image *im);
+
+/*!
+ * copy an image, and put it into another image. 
+ * Save a copy of the original matrix of pixel
+ * 
+ * @param origin : original image
+ * @param copy : copy image
+ * 
+ */
+struct Image *copy_image(Image *origin, Image *copy){
+     
+    if (!copy)
+        return create_copy_image(origin);
+
+    realloc_image(copy,origin->height,origin->width);
+    copy->file = origin->file;
+    copy->file_type = origin->file_type;
+    copy->pb = origin->pb;
+
+
+    for(int i = 0;i<origin->width;i++)
+        for(int j = 0;j<origin->height;j++){
+            copy->pixels[i][j].red = origin->pixels[i][j].red;
+            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
+            copy->pixels[i][j].green = origin->pixels[i][j].green;
+            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
+        }
+
+    return copy;
+}
+
 
 /*!
  * Copy an image
@@ -197,7 +268,7 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
  * @return A copy of the image
  */
 struct Image *
-copy_image(const struct Image *im) {
+create_copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
 
     *new_image = (struct Image) {
@@ -208,8 +279,11 @@ copy_image(const struct Image *im) {
         NULL
     };
 
-    new_image->pb = gdk_pixbuf_copy(im->pb);
-    save_image_pixels(new_image);
+    new_image->pixels = malloc(new_image->width * sizeof(Pixel*));
+    for (int i = 0; i < new_image->width; ++i) {
+        new_image->pixels[i] = malloc(new_image->height * sizeof(Pixel));
+        memcpy(new_image->pixels[i], im->pixels[i], sizeof(Pixel) * new_image->height);
+    }
 
     return new_image;
 }
