@@ -76,61 +76,6 @@ struct Pixel** reallocArray (Pixel **Old, int nRows, int nCols)
 }
 
 /*!
- * copy an image, and put it into another image. 
- * Save a copy of the original matrix of pixel
- * 
- * @param origin : original image
- * @param copy : copy image
- * 
- */
-void copy_image(Image *origin, Image *copy){
-     
-    copy->pixels = reallocArray(copy->pixels,origin->height,origin->width);
-    copy->file = origin->file;
-    copy->file_type = origin->file_type;
-    copy->width = origin->width;
-    copy->height = origin->height;
-    copy->pb = origin->pb;
-
-
-    for(int i = 0;i<origin->height;i++)
-        for(int j = 0;j<origin->width;j++){
-            copy->pixels[i][j].red = origin->pixels[i][j].red;
-            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
-            copy->pixels[i][j].green = origin->pixels[i][j].green;
-            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
-        }
-}
-
-
-
-/*!
- * copy an image, and stores it into a structure. 
- * Save a copy of the original matrix of pixel
- * 
- * @param origin : original image
- * 
- */
-
-struct Image*
-create_copy_image(Image *origin){
-    struct Pixel **im_pixels = (struct Pixel **)malloc(origin->width * sizeof(struct Pixel *));
-    for (int i = 0; i < origin->width; i++)
-        im_pixels[i] = (struct Pixel *)malloc(origin->height * sizeof(struct Pixel));
-    
-    for(int i = 0;i<origin->height;i++)
-        for(int j = 0;j<origin->width;j++){
-            im_pixels[i][j].red = origin->pixels[i][j].red;
-            im_pixels[i][j].blue = origin->pixels[i][j].blue;
-            im_pixels[i][j].green = origin->pixels[i][j].green;
-            im_pixels[i][j].alpha = origin->pixels[i][j].alpha;
-        }
-    struct Image *new_image = malloc(sizeof(struct Image));
-    *new_image = (struct Image){origin->file,origin->file_type,origin->width,origin->height,origin->pb,im_pixels};
-    return new_image;
-}
-
-/*!
  * Load an image from pixbuff, and stores it into a structure. 
  * Save a copy of its pixels intto a Pixel array.
  * 
@@ -292,6 +237,40 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
     pixels[2] = px.blue;
     pixels[3] = px.alpha;
 }
+struct Image *create_copy_image(const struct Image *im);
+
+/*!
+ * copy an image, and put it into another image. 
+ * Save a copy of the original matrix of pixel
+ * 
+ * @param origin : original image
+ * @param copy : copy image
+ * 
+ */
+struct Image *copy_image(Image *origin, Image *copy){
+     
+    if (!copy)
+        return create_copy_image(origin);
+
+    copy->pixels = reallocArray(copy->pixels,origin->height,origin->width);
+    copy->file = origin->file;
+    copy->file_type = origin->file_type;
+    copy->width = origin->width;
+    copy->height = origin->height;
+    copy->pb = origin->pb;
+
+
+    for(int i = 0;i<origin->height;i++)
+        for(int j = 0;j<origin->width;j++){
+            copy->pixels[i][j].red = origin->pixels[i][j].red;
+            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
+            copy->pixels[i][j].green = origin->pixels[i][j].green;
+            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
+        }
+
+    return copy;
+}
+
 
 /*!
  * Copy an image
@@ -299,7 +278,7 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
  * @return A copy of the image
  */
 struct Image *
-copy_image(const struct Image *im) {
+create_copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
 
     *new_image = (struct Image) {
@@ -310,8 +289,11 @@ copy_image(const struct Image *im) {
         NULL
     };
 
-    new_image->pb = gdk_pixbuf_copy(im->pb);
-    save_image_pixels(new_image);
+    new_image->pixels = malloc(new_image->width * sizeof(Pixel*));
+    for (int i = 0; i < new_image->width; ++i) {
+        new_image->pixels[i] = malloc(new_image->height * sizeof(Pixel));
+        memcpy(new_image->pixels[i], im->pixels[i], sizeof(Pixel) * new_image->height);
+    }
 
     return new_image;
 }

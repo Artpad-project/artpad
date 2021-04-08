@@ -17,12 +17,7 @@ int main() {
             im->pixels[x][y] = black;
 */
     save_image(im, "output.png", NULL);
-
-    struct Image *im2 = rescale_image(im,50);
-
-    save_image(im2,"output2.png","png");
     free_image(im);
 
-    free_image(im2);
     return 0;
 }

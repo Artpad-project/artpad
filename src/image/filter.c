@@ -31,7 +31,7 @@ Kernel averageFilter();
  * @param filter the filter we want to apply
  */
 Image *filterImage(Image *image, Filter filter) {
-    image = copy_image(image);
+    image = copy_image(image, NULL);
     switch (filter) {
         case IDENTITY:
             convolution(image, identityFilter);
