@@ -14,6 +14,12 @@
 #include <stdlib.h>
 #include <err.h>
 
+// image.c
+
+#define BLACK (Pixel){0, 0, 0, 255};
+#define WHITE (Pixel){255, 255, 255, 255};
+#define EMPTY (Pixel){0, 0, 0, 0};
+
 struct Pixel {
     // 0 to 255 : 8bits
     unsigned char red;
@@ -33,15 +39,29 @@ struct Image {
 typedef struct Image Image;
 typedef struct Pixel Pixel;
 
-
 struct Image *new_image(int width,int height);
-void copy_image(Image *origin, Image *copy);
-struct Image *create_copy_image(Image *origin);
+struct Image *copy_image(Image *origin, Image *copy);
 
 struct Image *load_image_from_pixbuf(GdkPixbuf *pb);
 struct Image *load_image(char *path);
 
 void save_image(struct Image *im, char *out, char *ftype);
 void free_image(struct Image *im);
+
+// mask.c
+
+struct ImageMask {
+    int width, height;
+    uint8_t **area;
+    Image *image;
+    Image *mask;
+};
+
+typedef struct ImageMask ImageMask;
+
+ImageMask init_mask(Image *im);
+Pixel edit_mask(ImageMask mask, int x, int y, int value);
+void free_mask(ImageMask mask);
+
 
 #endif // IMAGE_H_

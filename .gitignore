@@ -12,14 +12,18 @@
 
 # Executables
 *.out
-gui
 artpad
-main
+result
+Test
 test
+gui
 
 # Images
 *.jpg
 *.png
 *.jpeg
-result
-Test
+
+# IDE settings
+.vscode/settings.json
+/.idea/.gitignore
+/src/.idea
