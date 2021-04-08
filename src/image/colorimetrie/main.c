@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     struct Pixel px = {0,0,255,0};
 
     //flood_fill(img, px, x, y);
-    paintLine(img, px, 0, 0, img->width, img->height);
+    //paintLine(img, px, 0, 0, img->width, img->height);
     //circle(img, px, x, y, 100, 1);
     //rectangle(img, px, x-50, y-50, x+50, y+50, 1);
 

@@ -13,14 +13,13 @@
 #include <stdlib.h>
 #include <err.h>
 #include "../image.h"
+#include "stack.h"
 
-void circle(struct Image *img, struct Pixel color, int x, int y, int radius, int filled);
-void rectangle(struct Image *img, struct Pixel color, int x1, int y1, int x2, int y2, int filled);
-//void polygon();
-//void circle();
-//void rectangle();
+void circle(struct Image *img, struct Pixel color, struct coord center, int radius, int filled);
+void rectangle(struct Image *img, struct Pixel color, struct coord c1, struct coord c2
+    , int filled);
+void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest);
 void colorize(struct Image *img, struct Pixel color, int x, int y);
-void flood_fill(struct Image *img, struct Pixel color, int x, int y);
-void paintLine(struct Image *img, struct Pixel color, int x1, int y1, int x2, int y2);
+void flood_fill(struct Image *img, struct Pixel color, struct coord c);
 
 #endif
