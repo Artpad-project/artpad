@@ -9,11 +9,13 @@ GTKLIBS = $(shell pkg-config --libs gtk+-3.0)
 GTKFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 
 IMG_OBJ := 			image/image.o \
+					image/image_scaling.o \
 					image/mask.o \
 					image/filter.o
-GUI_OBJ := 			$(IMG_OBJ)
+GUI_OBJ := 			$(IMG_OBJ) \
+					$(PUISSANCE_N_OBJ) \
+					$(MAGIC_WAND_OBJ)
 PUISSANCE_N_OBJ := 	puissancen/PuissanceN.o \
-					puissancen/Retinex.o \
 					$(IMG_OBJ)
 MAGIC_WAND_OBJ 	:= 	rotoscopie/rotoscopie.o \
 					$(IMG_OBJ)
