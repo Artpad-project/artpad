@@ -1,3 +1,4 @@
+
 #include "PuissanceN.h"
 #include <stdlib.h>
 #include <string.h>
@@ -9,10 +10,11 @@ void TableauCanal(double* HistoColor, int Index, double Exposant);
 
 void BalanceAbsolue(Image* Bitmap, double coeflum)
 {
+   
     /* ------------------------ Initialisation ----------------------------- */
 
     int nbLine = Bitmap->height;
-    int nbCol = Bitmap->width;
+    int nbCol = Bitmap->width ;
 
     int nbPix = nbLine * nbCol;
 
@@ -153,7 +155,7 @@ void BalanceAbsolue(Image* Bitmap, double coeflum)
     free(TableauRed);
     free(TableauGreen);
     free(TableauBlue);
-    
+   
 }
 
 
