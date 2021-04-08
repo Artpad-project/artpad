@@ -5,6 +5,9 @@
   <object class="GtkTextBuffer" id="Effectts">
     <property name="text" translatable="yes">Effects</property>
   </object>
+  <object class="GtkTextBuffer" id="Saturation">
+    <property name="text" translatable="yes">Saturation</property>
+  </object>
   <object class="GtkTextBuffer" id="color_balanc">
     <property name="text" translatable="yes">Color Balance</property>
   </object>
@@ -25,6 +28,21 @@
   </object>
   <object class="GtkTextBuffer" id="height_draw">
     <property name="text" translatable="yes">height</property>
+  </object>
+  <object class="GtkAdjustment" id="rotation">
+    <property name="lower">-180</property>
+    <property name="upper">180</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkTextBuffer" id="rotation_buffer">
+    <property name="text" translatable="yes">Rotation</property>
+  </object>
+  <object class="GtkAdjustment" id="saturation">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.05</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkTextBuffer" id="size">
     <property name="text" translatable="yes">size</property>
@@ -136,12 +154,11 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <!-- n-columns=6 n-rows=4 -->
+                              <!-- n-columns=6 n-rows=8 -->
                               <object class="GtkGrid" id="all_image_tools">
                                 <property name="width-request">244</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="column-homogeneous">True</property>
                                 <child>
                                   <object class="GtkTextView" id="Effects">
                                     <property name="height-request">39</property>
@@ -162,6 +179,8 @@
                                 <child>
                                   <object class="GtkButton" id="cut">
                                     <property name="label" translatable="yes">WIP</property>
+                                    <property name="width-request">85</property>
+                                    <property name="height-request">-1</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
@@ -175,6 +194,7 @@
                                 <child>
                                   <object class="GtkButton" id="copy">
                                     <property name="label" translatable="yes">WIP</property>
+                                    <property name="width-request">85</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
@@ -182,7 +202,7 @@
                                   <packing>
                                     <property name="left-attach">2</property>
                                     <property name="top-attach">1</property>
-                                    <property name="width">2</property>
+                                    <property name="width">3</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -193,9 +213,8 @@
                                     <property name="receives-default">True</property>
                                   </object>
                                   <packing>
-                                    <property name="left-attach">4</property>
+                                    <property name="left-attach">5</property>
                                     <property name="top-attach">1</property>
-                                    <property name="width">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -209,7 +228,7 @@
                                   <packing>
                                     <property name="left-attach">0</property>
                                     <property name="top-attach">3</property>
-                                    <property name="width">4</property>
+                                    <property name="width">5</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -239,9 +258,95 @@
                                     <property name="receives-default">True</property>
                                   </object>
                                   <packing>
-                                    <property name="left-attach">4</property>
+                                    <property name="left-attach">5</property>
                                     <property name="top-attach">3</property>
-                                    <property name="width">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkTextView">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="editable">False</property>
+                                    <property name="justification">center</property>
+                                    <property name="cursor-visible">False</property>
+                                    <property name="buffer">Saturation</property>
+                                    <property name="accepts-tab">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">4</property>
+                                    <property name="width">6</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkScale">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="adjustment">saturation</property>
+                                    <property name="round-digits">1</property>
+                                    <property name="value-pos">right</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">5</property>
+                                    <property name="width">5</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="saturation_go">
+                                    <property name="label" translatable="yes">Apply</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">5</property>
+                                    <property name="top-attach">5</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkTextView">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="editable">False</property>
+                                    <property name="justification">center</property>
+                                    <property name="cursor-visible">False</property>
+                                    <property name="buffer">rotation_buffer</property>
+                                    <property name="accepts-tab">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">6</property>
+                                    <property name="width">6</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="rotation_go">
+                                    <property name="label" translatable="yes">Apply</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">5</property>
+                                    <property name="top-attach">7</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkScale">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="adjustment">rotation</property>
+                                    <property name="round-digits">1</property>
+                                    <property name="digits">0</property>
+                                    <property name="value-pos">right</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left-attach">0</property>
+                                    <property name="top-attach">7</property>
+                                    <property name="width">5</property>
                                   </packing>
                                 </child>
                               </object>
@@ -448,7 +553,7 @@
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="text" translatable="yes">0</property>
-                            <property name="input-purpose">digits</property>
+                            <property name="input-purpose">number</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -459,6 +564,7 @@
                         <child>
                           <object class="GtkTextView" id="Width">
                             <property name="width-request">75</property>
+                            <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can-focus">False</property>
                             <property name="editable">False</property>
@@ -477,10 +583,14 @@
                         <child>
                           <object class="GtkTextView">
                             <property name="visible">True</property>
-                            <property name="can-focus">True</property>
+                            <property name="sensitive">False</property>
+                            <property name="can-focus">False</property>
+                            <property name="editable">False</property>
                             <property name="justification">center</property>
                             <property name="top-margin">7</property>
+                            <property name="cursor-visible">False</property>
                             <property name="buffer">height_draw</property>
+                            <property name="accepts-tab">False</property>
                           </object>
                           <packing>
                             <property name="left-attach">2</property>
@@ -520,6 +630,8 @@
                     <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkViewport">
+                        <property name="width-request">1600</property>
+                        <property name="height-request">-1</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <child>
