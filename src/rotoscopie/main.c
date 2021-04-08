@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     struct Image *im = load_image(argv[1]);
     struct ImageMask mask = magic_wand(im, atoi(argv[2]), atoi(argv[3]));
 
-    save_image(mask.mask, "output.png", NULL);
+    save_image(mask.mask, "./output.png", NULL);
 
     free_image(im);
     free_mask(mask);

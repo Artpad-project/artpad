@@ -279,6 +279,7 @@ create_copy_image(const struct Image *im) {
         NULL
     };
 
+    new_image->pb = im->pb;
     new_image->pixels = malloc(new_image->width * sizeof(Pixel*));
     for (int i = 0; i < new_image->width; ++i) {
         new_image->pixels[i] = malloc(new_image->height * sizeof(Pixel));
