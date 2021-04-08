@@ -1,15 +1,9 @@
 #include <stdlib.h>
 #include <err.h>
 #include "colorimetrie.h"
-#include "../image.h"
+#include "../image/image.h"
 #include "stack.h"
-#include <stdio.h>
 #include <math.h>
-
-#define LEFT 0
-#define RIGHT 1
-#define UP 2
-#define DOWN 3
 
 char same_color(struct Pixel px, struct Pixel color)
 {
@@ -21,10 +15,10 @@ char same_color(struct Pixel px, struct Pixel color)
 
 void colorize(struct Image *img, struct Pixel color, int x, int y)
 {
-      img->pixels[x][y].red = color.red;
-      img->pixels[x][y].green = color.green;
-      img->pixels[x][y].blue = color.blue;
-      img->pixels[x][y].alpha = color.alpha;
+  img->pixels[x][y].red = color.red;
+  img->pixels[x][y].green = color.green;
+  img->pixels[x][y].blue = color.blue;
+  img->pixels[x][y].alpha = color.alpha;
 }
 
 char IsInside(struct Image *img, int x, int y)
@@ -32,23 +26,21 @@ char IsInside(struct Image *img, int x, int y)
   return x >= 0 && x<img->width && y >= 0 && y<img->height;
 }
 
-void flood_fill(struct Image *img, struct Pixel color, int x, int y)
+void flood_fill(struct Image *img, struct Pixel color, struct coord origin)
 {
+  int x = origin.x;
+  int y = origin.y;
   struct Pixel px = img->pixels[x][y];
 
-  //printf("creating stack\n");
   stack *s = new_stack();
   struct coord c = {x, y};
 
-  //printf("pushing corrdinates\n");
   stack_push(s, c);
 
   while(!stack_IsEmpty(s))
   {
       //printf("popping stack\n");
       c = stack_pop(s);
-      int x = c.x;
-      int y = c.y;
 
       //printf("coloring pixel\n");
       colorize(img, color, x, y);
@@ -88,8 +80,13 @@ void flood_fill(struct Image *img, struct Pixel color, int x, int y)
 
 // Bresenham line drawing algorithm
 // TODO Anti-Aliasing with WU algorithm
-void paintLine(struct Image *img, struct Pixel color, int x1, int y1, int x2, int y2)
+void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest)
 {
+  int x1 = src.x;
+  int y1 = src.y;
+  int x2 = dest.x;
+  int y2 = dest.y;
+
   int dx = abs(x2-x1);
   int sx = (x1<x2) ? 1 : -1;
 
@@ -101,6 +98,7 @@ void paintLine(struct Image *img, struct Pixel color, int x1, int y1, int x2, in
   {
     if (IsInside(img, x1, y1))
       colorize(img, color, x1, y1);
+
     if(x1 == x2 && y1 == y2)
       break;
     int e2 = 2*err;
@@ -118,8 +116,14 @@ void paintLine(struct Image *img, struct Pixel color, int x1, int y1, int x2, in
 }
 
 // draws each symmetrical point for each octants
-void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, int y)
+void drawSymPoints(struct Image *img, struct Pixel color, struct coord center, 
+    struct coord points, int filled)
 {
+  int p = center.x;
+  int q = center.y;
+  int x = points.x;
+  int y = points.y;
+
   int pos_x = x+p;
   int pos_y = y+q;
   if (IsInside(img, pos_x, pos_y))
@@ -160,13 +164,34 @@ void drawSymPoints(struct Image *img, struct Pixel color, int p, int q, int x, i
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
+  if (filled)
+  {
+    struct coord c1 = {x+p, y+q};
+    struct coord c2 = {-x+p, -y+q};
+    paintLine(img, color, c1, c2);
+
+    struct coord c3 = {x+p, -y+q};
+    struct coord c4 = {-x+p, y+q};
+    paintLine(img, color, c3, c4);
+
+    struct coord c5 = {y+p, -x+q};
+    struct coord c6 = {-y+p, x+q};
+    paintLine(img, color, c5, c6);
+
+    struct coord c7 = {-y+p, -x+q};
+    struct coord c8 = {y+p, x+q};
+    paintLine(img, color, c7, c8);
+  }
 }
 
 // Function that creates a circle following Bresenham algorithm
-void circle(struct Image *img, struct Pixel color, int x, int y, int radius)
+void circle(struct Image *img, struct Pixel color, struct coord center, int radius, int filled)
 {
+  int x1 = center.x;
+  int y1 = center.y;
   radius-=1;
-  if (IsInside(img, x, y) && radius == 0) colorize(img, color, x, y);
+
+  if (IsInside(img, x1, y1) && radius == 0) colorize(img, color, x1, y1);
   else
   {
     int d = 3 - 2*radius;
@@ -176,9 +201,8 @@ void circle(struct Image *img, struct Pixel color, int x, int y, int radius)
     while (x1 <= y1) 
     {
       if (d <= 0) 
-      {
         d += 4*x1 +6;
-      }
+
       else 
       {
         d += 4*(x1-y1) + 10;
@@ -186,44 +210,68 @@ void circle(struct Image *img, struct Pixel color, int x, int y, int radius)
       }
 
       x1 += 1;
-      drawSymPoints(img, color, x, y, x1, y1);
+      struct coord c = {x1, y1};
+      drawSymPoints(img, color, center, c, filled);
     }
 
     // Closes the circle
-    int pos_x = x+radius;
-    int pos_y = y;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
+    if (filled)
+    {
+      struct coord left = {x1+radius, y1};
+      struct coord right = {x1-radius, y1};
+      paintLine(img, color, left, right);
 
-    pos_x = x-radius;
-    pos_y = y;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
-
-    pos_x = x;
-    pos_y = y+radius;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
-
-    pos_x = x;
-    pos_y = y-radius;
-    if (IsInside(img, pos_x, pos_y))
-      colorize(img, color, pos_x, pos_y);
+      left.x = x1;
+      left.y = y1+radius;
+      right.x = x1;
+      right.y = y1-radius;
+      paintLine(img, color, left, right);
+    }
   }
 }
 
-/*void polygon(struct Pixel px, int x, int y)
+void rectangle(struct Image *img, struct Pixel color, struct coord c1, struct coord c2,
+    int filled)
 {
+  int x1 = c1.x;
+  int y1 = c1.y;
+  int x2 = c2.x;
+  int y2 = c2.y;
 
+  if (filled)
+  {
+    for(; x1 <= x2; x1++)
+    {
+      for(; y1 <= y2; y1++)
+        if (IsInside(img, x1, y1))
+          colorize(img, color, x1, y1);
+      y1 = c1.y;
+    }
+  }
+  else
+  {
+    while(y1 <= y2)
+    {
+      if (IsInside(img, x1, y1))
+        colorize(img, color, x1, y1);
+
+      if (IsInside(img, x2, y1))
+        colorize(img, color, x2, y1);
+      y1++;
+    }
+
+    y1 = c1.y;
+
+    while(x1 <= x2)
+    {
+      if (IsInside(img, x1, y1))
+        colorize(img, color, x1, y1);
+
+      if (IsInside(img, x1, y2))
+        colorize(img, color, x1, y2);
+
+      x1++;
+    }
+  }
 }
 
-void rectangle(struct Pixel px, int x, int y)
-{
-
-}
-
-void cicle(struct Pixel px, int x, int y)
-{
-
-}
-*/
