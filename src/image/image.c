@@ -80,6 +80,7 @@ struct Pixel** realloc_image(Image *im, int nRows, int nCols)
  * @param pb relative pixbuff to the image to load
  */
 
+
 struct Image*
 load_image_from_pixbuf(GdkPixbuf *pb){
     if(!pb)

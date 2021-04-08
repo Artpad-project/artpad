@@ -58,8 +58,8 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
         //int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
         float r, g, b;
         
-        for (int x = 0; x < im->width; x++) {
-            for (int y = 0; y < im->height; y++) {
+        for (int x = 0; x < im->height; x++) {
+            for (int y = 0; y < im->width; y++) {
                 pixel = im->pixels[x][y];
                 r = (float) pixel.red / 255;
                 g = (float) pixel.green / 255;

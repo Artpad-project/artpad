@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "image.h"
-#include "filter.h"
 #include "image_scaling.h"
 
 int main() {
@@ -18,6 +17,6 @@ int main() {
 */
     save_image(im, "output.png", NULL);
     free_image(im);
-
+  
     return 0;
 }
