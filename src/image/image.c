@@ -9,6 +9,7 @@
  */
 
 #include "image.h"
+#include <stdlib.h>
 #include <string.h>
 
 static char * parse_image_path(char *path);
@@ -49,30 +50,27 @@ new_image(int width,int height) {
 }
 
 /*!
- * realloc a matric
+ * realloc a matrix
  * 
  * @param origin : Old = original matrix
  * @param nRows : nomber of rows for the new matrix
  * @param nCols : nomber of columns for the new matrix
  * 
  */
-struct Pixel** reallocArray (Pixel **Old, int nRows, int nCols)
+struct Pixel** realloc_image(Image *im, int nRows, int nCols)
 {
-    // use a single realloc for the char pointers to the first char of each row
-    // so we reallocate space for the pointers and then space for the actual rows.
-    Pixel **pArray = realloc (Old, sizeof(Pixel *) * nRows + sizeof(Pixel) * nCols * nRows);
-
-    if (pArray) {
-        // calculate offset to the beginning of the actual data space
-        Pixel *pOffset = (Pixel *)(pArray + nRows);
-
-        // fix up the pointers to the individual rows
-        for (int i = 0; i < nRows; i++) {
-            pArray[i] = pOffset;
-            pOffset += nCols;
-        }
+    Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
+    for (int i = 0; i < nCols; ++i) {
+        new_pixels[i] = malloc(nRows * sizeof(Pixel));
+        free(im->pixels[i]);
     }
-    return pArray;
+    
+    free(im->pixels);
+    im->pixels = new_pixels;
+    im->width = nCols;
+    im->height = nRows;
+
+    return new_pixels;
 }
 
 /*!
@@ -194,12 +192,6 @@ free_image(struct Image *image) {
     free(image);
 }
 
-
-
-
-
-
-
 /*!
  * Save image into a file. 
  * 
@@ -252,16 +244,14 @@ struct Image *copy_image(Image *origin, Image *copy){
     if (!copy)
         return create_copy_image(origin);
 
-    copy->pixels = reallocArray(copy->pixels,origin->height,origin->width);
+    realloc_image(copy,origin->height,origin->width);
     copy->file = origin->file;
     copy->file_type = origin->file_type;
-    copy->width = origin->width;
-    copy->height = origin->height;
     copy->pb = origin->pb;
 
 
-    for(int i = 0;i<origin->height;i++)
-        for(int j = 0;j<origin->width;j++){
+    for(int i = 0;i<origin->width;i++)
+        for(int j = 0;j<origin->height;j++){
             copy->pixels[i][j].red = origin->pixels[i][j].red;
             copy->pixels[i][j].blue = origin->pixels[i][j].blue;
             copy->pixels[i][j].green = origin->pixels[i][j].green;
