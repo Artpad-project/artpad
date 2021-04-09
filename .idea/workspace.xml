@@ -3,6 +3,19 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="artpad" targetName="test_rotoscopie" />
+      <config projectName="artpad" targetName="test_puissanceN" />
+      <config projectName="artpad" targetName="test_main" />
+      <config projectName="artpad" targetName="test_gui" />
+      <config projectName="artpad" targetName="test_rotation" />
+      <config projectName="artpad" targetName="test_colorimetrie" />
+      <config projectName="artpad" targetName="test_image" />
+      <config projectName="artpad" targetName="test_saturation" />
+      <config projectName="artpad" targetName="artpad" />
+    </generated>
+  </component>
   <component name="CMakeSettings">
     <configurations>
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" ENABLED="true" />
@@ -10,28 +23,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/puissancen/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/puissancen/PuissanceN.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/puissancen/PuissanceN.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/puissancen/main.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/saturation/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/saturation/Saturation.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/saturation/Saturation.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/saturation/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/build_test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build_test.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artpad.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/customTargets.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/tools/External Tools.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/gui.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/gui.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gui/prototype.glade" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/prototype.glade" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/image/image.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/image.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/image/image.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/image.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/image/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artpad.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artpad.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/colorimetrie/colorimetrie" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/colorimetrie/colorimetrie.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/colorimetrie/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/colorimetrie/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/colorimetrie/stack.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/filter.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/image.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/image_scaling.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/puissancen/PuissanceN.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/puissancen/test" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rotation/Rotation.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rotoscopie/rotoscopie.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/saturation/Saturation.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utils.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +51,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -58,11 +69,83 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_MARK_IGNORED_FILES_AS_EXCLUDED" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="cmake.loaded.for.project" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/CMakeLists.txt" />
+  </component>
+  <component name="RunManager" selected="CMake Application.artpad">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="artpad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="artpad" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="artpad">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_colorimetrie" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_colorimetrie" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_colorimetrie">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_gui" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_gui" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_gui">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_image" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_image" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_image">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_main" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_main" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_main">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_puissanceN" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_puissanceN" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_puissanceN">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_rotation" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_rotation" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_rotation">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_rotoscopie" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_rotoscopie" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_rotoscopie">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_saturation" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_saturation" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_saturation">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.artpad" />
+      <item itemvalue="CMake Application.test_colorimetrie" />
+      <item itemvalue="CMake Application.test_gui" />
+      <item itemvalue="CMake Application.test_image" />
+      <item itemvalue="CMake Application.test_main" />
+      <item itemvalue="CMake Application.test_puissanceN" />
+      <item itemvalue="CMake Application.test_rotation" />
+      <item itemvalue="CMake Application.test_rotoscopie" />
+      <item itemvalue="CMake Application.test_saturation" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -74,6 +157,7 @@
       <updated>1616690984870</updated>
       <workItem from="1616690991631" duration="42000" />
       <workItem from="1616691044467" duration="15000" />
+      <workItem from="1618074617945" duration="1750000" />
     </task>
     <servers />
   </component>
@@ -90,5 +174,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

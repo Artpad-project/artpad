@@ -1,29 +1,19 @@
-# Prerequisites
-*.d
+## IDE related stuff
+**/.idea
 
-# Object files
+## build dirs
+cmake-build-debug
+build/
+**/build/
+
+## Object files
 *.o
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+## Depencies
+*.d
 
-# Executables
-*.out
-artpad
-result
-Test
-test
-gui
-
-# Images
+## image files
 *.jpg
 *.png
 *.jpeg
-
-# IDE settings
-.vscode/settings.json
-/.idea/.gitignore
-/src/.idea
+*.bpm
