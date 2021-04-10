@@ -6,6 +6,7 @@ all: build_tests
 build_tests:
 	@[ -f `which cmake` ] || { echo "Install cmake first"; exit 1; }
 	@[ -d $(BUILD_DIR) ] || mkdir $(BUILD_DIR)
+	@[ -d out ] || mkdir out
 	@echo "Compiling executable into $(BUILD_DIR)..."
 	@cd $(BUILD_DIR) && cmake ../.. && make
 	@cd ../..

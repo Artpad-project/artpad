@@ -33,6 +33,6 @@ check_cleanall:
 	@read ans && [ $${ans:-N} == y ] || exit 1
 
 cleanall: clean clean_tests check_cleanall
+	$(MAKE) -C $(TEST_DIR) cleanall BUILD_DIR=$(BUILD_DIR) -s
 	@rm -rv $(BUILD_DIR)
 	@echo "$(BUILD_DIR) has been completely cleared."
-	$(MAKE) -C $(TEST_DIR) cleanall BUILD_DIR=$(BUILD_DIR)

@@ -6,6 +6,10 @@ cmake-build-debug
 build/
 **/build/
 
+## Test results
+**/test_*
+test/out/*
+
 ## Object files
 *.o
 
