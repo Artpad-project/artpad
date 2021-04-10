@@ -3,7 +3,7 @@
 //
 
 #include <stdio.h>
-#include "colorimetrie.h"
+#include "../../include/colorimetrie.h"
 #include <string.h>
 
 void CLI(char *command, int argc, struct Image *img, struct Pixel color, 

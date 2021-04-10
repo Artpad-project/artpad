@@ -28,14 +28,15 @@ link_libraries(${GTK3_LIBRARIES})
 add_subdirectory(src)   # src : source files
 
 # create library
-add_library(${PROJECT_NAME} SHARED ${SRC})
+SET(PROJECT_LIB ${PROJECT_NAME}_LIB)
+add_library(${PROJECT_LIB} SHARED ${SRC})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/${PROJECT_NAME}.h)
-target_include_directories(${PROJECT_NAME} PRIVATE .)
+set_target_properties(${PROJECT_LIB} PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(${PROJECT_LIB} PROPERTIES PUBLIC_HEADER include/${PROJECT_NAME}.h)
+target_include_directories(${PROJECT_LIB} PRIVATE .)
 
 # install library
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_LIB}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
@@ -45,3 +46,5 @@ enable_testing()
 add_subdirectory(test)  # tests: test files
 
 ################
+
+add_executable(${PROJECT_NAME} ${SRC} src/main.c)

@@ -12,6 +12,7 @@ set(IMG_SRC
     src/image/mask.c)
 
 set(IMG_SRC
+    ${IMG_SRC}
     src/rotoscopie/rotoscopie.c
     src/puissancen/PuissanceN.c
     src/saturation/Saturation.c

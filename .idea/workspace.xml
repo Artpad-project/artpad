@@ -7,9 +7,9 @@
     <generated>
       <config projectName="artpad" targetName="test_rotoscopie" />
       <config projectName="artpad" targetName="test_puissanceN" />
-      <config projectName="artpad" targetName="test_main" />
       <config projectName="artpad" targetName="test_gui" />
       <config projectName="artpad" targetName="test_rotation" />
+      <config projectName="artpad" targetName="artpad_LIB" />
       <config projectName="artpad" targetName="test_colorimetrie" />
       <config projectName="artpad" targetName="test_image" />
       <config projectName="artpad" targetName="test_saturation" />
@@ -24,13 +24,9 @@
   <component name="ChangeListManager">
     <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="MAKEFILE: added artpad library to cmake">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/results/circle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/results/circle_fill" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/results/flood_fill" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/results/line" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/results/rectangle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/results/rectangle_filled" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/colorimetrie/images/soutenance/results/flood_fill" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/test/Makefile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,6 +76,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="artpad_LIB" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="artpad_LIB" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="test_colorimetrie" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_colorimetrie" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_colorimetrie">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -91,11 +92,6 @@
       </method>
     </configuration>
     <configuration name="test_image" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_image" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_image">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="test_main" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="test_main" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="artpad" RUN_TARGET_NAME="test_main">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -120,7 +116,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="All CTest" type="CTestRunConfiguration" factoryName="CTestRun" PROGRAM_PARAMS="--extra-verbose" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$CMakeCurrentGenerationDir$" PASS_PARENT_ENVS_2="true" RUN_PATH="$CTestCurrentExecutableName$" EXPLICIT_BUILD_TARGET_NAME="all" TEST_MODE="SUITE_TEST">
+    <configuration name="All CTest" type="CTestRunConfiguration" factoryName="CTestRun" PROGRAM_PARAMS="--extra-verbose" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$CMakeCurrentGenerationDir$" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_PATH="$CTestCurrentExecutableName$" EXPLICIT_BUILD_TARGET_NAME="all" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
@@ -133,10 +129,10 @@
     </configuration>
     <list>
       <item itemvalue="CMake Application.artpad" />
+      <item itemvalue="CMake Application.artpad_LIB" />
       <item itemvalue="CMake Application.test_colorimetrie" />
       <item itemvalue="CMake Application.test_gui" />
       <item itemvalue="CMake Application.test_image" />
-      <item itemvalue="CMake Application.test_main" />
       <item itemvalue="CMake Application.test_puissanceN" />
       <item itemvalue="CMake Application.test_rotation" />
       <item itemvalue="CMake Application.test_rotoscopie" />
@@ -154,7 +150,7 @@
       <updated>1616690984870</updated>
       <workItem from="1616690991631" duration="42000" />
       <workItem from="1616691044467" duration="15000" />
-      <workItem from="1618074617945" duration="4969000" />
+      <workItem from="1618074617945" duration="7038000" />
     </task>
     <task id="LOCAL-00001" summary="MAKEFILE: added artpad library to cmake">
       <created>1618079047726</created>

@@ -1,38 +1,47 @@
 BUILD_DIR := build
 TEST_DIR := test
 
-all: build
+all: artpad
 
-.PHONY: build
+.PHONY: build make_all artpad
 build:
 	@[ -f `which cmake` ] || { echo "Install cmake first"; exit 1; }
 	@echo "Compiling executable into $(BUILD_DIR)..."
 	@[ -d $(BUILD_DIR) ] || mkdir $(BUILD_DIR)
-	@cd $(BUILD_DIR); cmake ..; make
+	@cd $(BUILD_DIR); cmake ..
+	@cd ..
+	@echo "Build sucessfull !"
+
+make_all: build
+	@cd $(BUILD_DIR) && $(MAKE)
 	@cd ..
 	@echo "Compiled sucessfuly !"
 
-.PHONY: build_tests test
-test: build_tests
-build_tests:
-	$(MAKE) -C $(TEST_DIR) build_tests BUILD_DIR=$(BUILD_DIR)
+artpad: build
+	@cd $(BUILD_DIR) && $(MAKE) artpad
+	@cd ..
+	@echo "Compiled sucessfuly !"
+
+TEST_RULES := build_tests test tests
+TEST :=
+.PHONY: $(TEST_RULES)
+$(TEST_RULES):
+	$(MAKE) -C $(TEST_DIR) $@ BUILD_DIR=$(BUILD_DIR) TEST=$(TEST)
 
 .PHONY: clean clean_tests check_cleanall cleanall
-.SILENT: clean clean_tests
 clean:
-	@[ -d $(BUILD_DIR) ] || { echo "'$(BUILD_DIR)': Nothing to clean."; exit 1; }
-	@cd $(BUILD_DIR) && $(MAKE) clean -s
+	@cd $(BUILD_DIR) && $(MAKE) --silent clean
 	@cd ..
 	@echo "Cleaned all targets inside of '$(BUILD_DIR)'."
 
 clean_tests:
-	$(MAKE) -C $(TEST_DIR) clean BUILD_DIR=$(BUILD_DIR)
+	@$(MAKE) -C $(TEST_DIR) clean BUILD_DIR=$(BUILD_DIR)
 
 check_cleanall:
 	@echo -n "Do you really want to delete '$(BUILD_DIR)' directory? [y/N] "
 	@read ans && [ $${ans:-N} == y ] || exit 1
 
 cleanall: clean clean_tests check_cleanall
-	$(MAKE) -C $(TEST_DIR) cleanall BUILD_DIR=$(BUILD_DIR) -s
-	@rm -rv $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 	@echo "$(BUILD_DIR) has been completely cleared."
+	@$(MAKE) -C $(TEST_DIR) cleanall BUILD_DIR=$(BUILD_DIR) --silent
