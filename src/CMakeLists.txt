@@ -12,14 +12,14 @@ set(IMG_SRC
     src/image/mask.c)
 
 set(IMG_SRC
+    src/rotoscopie/rotoscopie.c
     src/puissancen/PuissanceN.c
     src/saturation/Saturation.c
     src/rotation/Rotation.c)
 
 # Source files related to the GUI
 
-set(GUI_SRC
-    src/gui/gui.c)
+set(GUI_SRC "")
 
 # Source files related to video editing
 set(VIDEO_SRC "")

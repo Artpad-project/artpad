@@ -18,9 +18,10 @@ build_tests:
 	$(MAKE) -C $(TEST_DIR) build_tests BUILD_DIR=$(BUILD_DIR)
 
 .PHONY: clean clean_tests check_cleanall cleanall
+.SILENT: clean clean_tests
 clean:
 	@[ -d $(BUILD_DIR) ] || { echo "'$(BUILD_DIR)': Nothing to clean."; exit 1; }
-	@cd $(BUILD_DIR) && make clean
+	@cd $(BUILD_DIR) && $(MAKE) clean -s
 	@cd ..
 	@echo "Cleaned all targets inside of '$(BUILD_DIR)'."
 

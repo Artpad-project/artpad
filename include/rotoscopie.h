@@ -5,8 +5,8 @@
 #include <pthread.h>
 #include <err.h>
 
-#include "../image/image.h"
-#include "../utils/utils.h"
+#include "image.h"
+#include "utils.h"
 
 #define MAGIC_WAND_THRESHOLD 0.125
 

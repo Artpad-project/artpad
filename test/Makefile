@@ -14,7 +14,7 @@ build_tests:
 .PHONY: cleanall clean_tests clean
 clean:
 	@[ -d $(BUILD_DIR) ] || { echo "'$(BUILD_DIR)': Nothing to clean."; exit 1; }
-	@cd $(BUILD_DIR) && make clean
+	@cd $(BUILD_DIR) && $(MAKE) -s clean
 	@cd ..
 	@echo "Cleaned all targets inside of '$(BUILD_DIR)'."
 
