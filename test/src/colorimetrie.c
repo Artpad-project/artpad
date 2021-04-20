@@ -3,7 +3,7 @@
 //
 
 #include <stdio.h>
-#include "colorimetrie.h"
+#include "../../include/colorimetrie.h"
 #include <string.h>
 
 void CLI(char *command, int argc, struct Image *img, struct Pixel color, 
@@ -32,8 +32,8 @@ void CLI(char *command, int argc, struct Image *img, struct Pixel color,
 
 int main(int argc, char **argv)
 {
-    //if (argc != 4)
-        //errx(EXIT_FAILURE, "Only two argument are asked\n");
+    if (argc != 6)
+        errx(EXIT_FAILURE, "Only two argument are asked\n");
 
     struct Image *img = load_image(argv[2]);
 

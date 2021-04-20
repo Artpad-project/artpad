@@ -8,7 +8,7 @@
  *  3/9/2021 - image rescaling
  */
 
-#include "image_scaling.h"
+#include "../../include/image_scaling.h"
 
 
 struct Image*
