@@ -28,6 +28,27 @@ TEST :=
 $(TEST_RULES):
 	$(MAKE) -C $(TEST_DIR) $@ BUILD_DIR=$(BUILD_DIR) TEST=$(TEST)
 
+help:
+	@echo "The following are some of the valid targets for this Makefile:"
+	@echo "... all (the default if no target is provided)"
+	@echo "... clean"
+	@echo "... clean_tests"
+	@echo "... cleanall (clean targets and remove build directories)"
+	@echo "... tests"
+	@echo "... test (must specify test using 'TEST=')"
+	@echo "... artpad"
+	@echo ""
+	@echo "- A build directory can be specified anytime using 'BUILD_DIR='."
+	@echo ""
+	@echo "Available tests are listed below:"
+	@echo "- test_colorimetrie"
+	@echo "- test_gui"
+	@echo "- test_image"
+	@echo "- test_puissanceN"
+	@echo "- test_rotation"
+	@echo "- test_rotoscopie"	  
+	@echo "- test_saturation"
+
 .PHONY: clean clean_tests check_cleanall cleanall
 clean:
 	@cd $(BUILD_DIR) && $(MAKE) --silent clean
