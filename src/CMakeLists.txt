@@ -20,7 +20,11 @@ set(IMG_SRC
 
 # Source files related to the GUI
 
-set(GUI_SRC "")
+set(GUI_SRC
+    src/gui/gui.c
+    src/gui/basics_gui.c
+    src/gui/drawing_tools.c
+    src/gui/image_tools.c)
 
 # Source files related to video editing
 set(VIDEO_SRC "")

@@ -9,11 +9,8 @@
 
 #define _GNU_SOURCE
 
-#include "basics_gui.h"
-#include "image_tools.h"
-#include "drawing_tools.h"
 #include <time.h>
-
+#include "../../include/gui.h"
 
 //test on key pressing (actually work)
 void on_key_press(GdkEventKey *event,gpointer user_data){
@@ -81,7 +78,7 @@ void mouse_moved(GtkEventBox *eb,GdkEventMotion *event,gpointer user_data){
     gtk_text_buffer_set_text(ui->curserpos,my_string,val);
 }
 
-int main ()
+int launch_app ()
 {
 
     // Initializes GTK.
@@ -93,7 +90,7 @@ int main ()
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
-    if (gtk_builder_add_from_file(builder, "prototype.glade", &error) == 0)
+    if (gtk_builder_add_from_file(builder, "../src/gui/prototype.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
         g_clear_error(&error);

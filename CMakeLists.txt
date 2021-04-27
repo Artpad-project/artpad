@@ -6,8 +6,7 @@ include_directories(./)
 
 ### CFLAGS #####
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -lm -pthread")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fsanitize=address -ldl -lm -pthread")
 
 ### GTK ########
 
