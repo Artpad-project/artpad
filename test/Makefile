@@ -1,47 +1,37 @@
-BUILD_DIR := build
+BIN_DIR := ../bin
+TEST_BIN_DIR := bin
 
-TESTS_SRC := `cd src && ls *.c`
-TESTS := $(patsubst %.c,test_%,$TESTS_SRC)
-TEST := 
+TESTS_SRC := $(shell ls src/*.c)
+TESTS_OBJ := $(patsubst src/%.c,$(TEST_BIN_DIR)/%.o,$(TESTS_SRC))
+TESTS := $(patsubst $(TEST_BIN_DIR)/%.o,test_%,$(TESTS_OBJ))
 
-all: build_tests $(TEST)
+GTKLIB = $(shell pkg-config --libs gtk+-3.0)
+LDLIB = -ld -lm $(GTKLIBS)
 
-tests: build_tests $(TESTS)
-$(TESTS):
-	@cd $(BUILD_DIR) && $(MAKE) $<
-	@cd ..
-	@echo "Succesfully compiled all tests!"
-	@cp $(BUILD_DIR)/test/test_* .
+OBJS = $(patsubst %.c,$(BIN_DIR)/%.o,$(SRC))
 
-test: $(TEST)
-$(TEST):
-	cd $(BUILD_DIR) && $(MAKE) $(TEST)
-	@cd ..
-	@echo "Succesfully compiled '$(TEST)'!"
-	@cp $(BUILD_DIR)/test/$(TEST) .
+all: tests
+tests: $(TESTS)
 
-build_tests:
-	@[ -f `which cmake` ] || { echo "Install cmake first"; exit 1; }
-	@[ -d $(BUILD_DIR) ] || mkdir $(BUILD_DIR)
-	@[ -d out ] || mkdir out
-	@echo "Compiling into $(BUILD_DIR)..."
-	@cd $(BUILD_DIR) && cmake ../..
-	@cd ../..
-	@echo "Built sucessfuly !"
+test_%: $(TEST_BIN_DIR)/%.o build
+	$(CC) $(CFLAGS) $(LDLIB) $(OBJS) $< -o $@
 
-.PHONY: cleanall clean_tests clean
+build:
+	$(MAKE) -C ../src BIN_DIR=$(BIN_DIR) build
+
+$(TEST_BIN_DIR)/%.o: src/%.c
+	@echo "-- Compiling test: $< -> $@"
+	@mkdir -p $(shell dirname $@)
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(GTKFLAGS) -c $< -o $@
+
 clean:
-	@[ -d $(BUILD_DIR) ] || { echo "'$(BUILD_DIR)': Nothing to clean."; exit 1; }
-	@cd $(BUILD_DIR) && $(MAKE) --silent clean
-	@cd ..
-	@echo "Cleaned all targets inside of '$(BUILD_DIR)'."
-	@rm -rfv test_*
+	rm -rf $(TESTS) $(TEST_BIN_DIR)
 
-check_cleanall:
-	@echo -n "Do you really want to delete '$(BUILD_DIR)' directory? [y/N] "
-	@read ans && [ $${ans:-N} == y ] || exit 1
+help:
+	@echo "Available tests:"
+	@for test in $(TESTS);do \
+		echo "-- $${test}"; \
+	done
 
-cleanall: clean clean_tests check_cleanall
-	@rm -rf $(BUILD_DIR)
-	@echo "$(BUILD_DIR) has been completely cleared."
-	@rm -rfv out
+include ../src/sources.mk
+

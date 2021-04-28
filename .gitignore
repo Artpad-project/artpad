@@ -5,6 +5,7 @@
 cmake-build-debug
 build/
 **/build/
+bin/
 
 ## Test results
 **/test_*
@@ -16,8 +17,5 @@ test/out/*
 ## Depencies
 *.d
 
-## image files
-*.jpg
-*.png
-*.jpeg
-*.bpm
+# Executables
+artpad
