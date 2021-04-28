@@ -14,7 +14,7 @@ all: tests
 tests: $(TESTS)
 
 test_%: $(TEST_BIN_DIR)/%.o build
-	$(CC) $(CFLAGS) $(LDLIB) $(OBJS) $< -o $@
+	@$(CC) $(CFLAGS) $(LDLIB) $(OBJS) $< -o $@
 
 build:
 	$(MAKE) -C ../src BIN_DIR=$(BIN_DIR) build
@@ -25,7 +25,7 @@ $(TEST_BIN_DIR)/%.o: src/%.c
 	@$(CC) $(CPPFLAGS) $(CFLAGS) $(GTKFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(TESTS) $(TEST_BIN_DIR)
+	@rm -rf $(TESTS) $(TEST_BIN_DIR)
 
 help:
 	@echo "Available tests:"
@@ -33,5 +33,5 @@ help:
 		echo "-- $${test}"; \
 	done
 
-include ../src/sources.mk
+include ../src/variables.mk
 

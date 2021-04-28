@@ -3,6 +3,8 @@ BIN_DIR := bin
 TEST_DIR := test
 OUT := artpad
 
+MAKE += -s
+
 all: $(OUT)
 
 .PHONY: build $(OUT) test%
@@ -16,7 +18,7 @@ $(OUT):
 	@echo "Compiled sucessfuly !"
 
 test%:
-	$(MAKE) -C $(TEST_DIR) $@ BIN_DIR=../$(BIN_DIR)
+	@$(MAKE) -C $(TEST_DIR) $@ BIN_DIR=../$(BIN_DIR)
 
 .PHONY: clean clean_tests cleanall
 clean:
@@ -28,5 +30,5 @@ clean_tests:
 clean_all: clean clean_tests
 
 help:
-	@$(MAKE) -C $(SRC_DIR) help -s
-	@$(MAKE) -C $(TEST_DIR) help -s
+	@$(MAKE) -C $(SRC_DIR) help
+	@$(MAKE) -C $(TEST_DIR) help

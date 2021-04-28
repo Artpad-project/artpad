@@ -1,7 +1,7 @@
 OUT = artpad
 BIN_DIR = ../bin
 
--include sources.mk
+-include variables.mk
 
 ifdef DEBUG
 	CFLAGS += -g -fsanitize=address #-DNDEBUG
