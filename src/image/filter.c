@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../include/filter.h"
+#include "filter.h"
 
 
 //--------------------------------

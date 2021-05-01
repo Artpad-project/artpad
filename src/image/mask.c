@@ -10,7 +10,7 @@
  *  3/12/2021 - renamed ImageArea to ImageMask
  */
 
-#include "../../include/image.h"
+#include "image.h"
 
 /*!
  * Create an empty area of the size of an image

@@ -1,5 +1,5 @@
 
-#include "../../include/PuissanceN.h"
+#include "PuissanceN.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
