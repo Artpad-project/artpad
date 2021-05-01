@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 #include <err.h>
-#include "image.h"
+#include "../image/image.h"
 #include "stack.h"
 
 void circle(struct Image *img, struct Pixel color, struct coord center, int radius, int filled);

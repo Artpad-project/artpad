@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "../../include/image.h"
-#include "../../include/rotoscopie.h"
+#include "../image/image.h"
+#include "rotoscopie.h"
 
 int main(int argc, char *argv[]) {
 

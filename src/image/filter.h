@@ -9,7 +9,7 @@
 #define PI 3.1415926535
 
 #include "image.h"
-#include "utils.h"
+#include "../utils/utils.h"
 
 /*!
  * Basic structure of a kernel used for convolution.

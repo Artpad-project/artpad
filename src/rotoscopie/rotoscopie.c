@@ -14,7 +14,7 @@
  *  - https://www.losingfight.com/blog/2007/08/28/how-to-implement-a-magic-wand-tool/
  */
 
-#include "../../include/rotoscopie.h"
+#include "rotoscopie.h"
 
 struct cords {
     int x;

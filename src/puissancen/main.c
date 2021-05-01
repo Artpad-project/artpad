@@ -1,4 +1,4 @@
-#include "../../include/PuissanceN.h"
+#include "PuissanceN.h"
 
 int main()
 {
