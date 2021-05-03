@@ -20,6 +20,6 @@ void rectangle(struct Image *img, struct Pixel color, struct coord c1, struct co
     , int filled);
 void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest);
 void colorize(struct Image *img, struct Pixel color, int x, int y);
-void flood_fill(struct Image *img, struct Pixel color, struct coord c);
+void flood_fill(struct Image *img, struct Pixel color, struct coord c, int acceptance);
 
 #endif
