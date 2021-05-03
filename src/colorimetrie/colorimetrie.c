@@ -5,12 +5,12 @@
 #include "stack.h"
 #include <math.h>
 
-char same_color(struct Pixel px, struct Pixel color)
+char same_color(struct Pixel px, struct Pixel color, int acceptance)
 {
-  return px.red == color.red &&
-      px.blue == color.blue &&
-      px.green == color.green &&
-      px.alpha == color.alpha;
+  return px.red >= color.red-acceptance && px.red <= color.red+acceptance &&
+      px.blue >= color.blue-acceptance && px.blue <= color.blue+acceptance &&
+      px.green >= color.green-acceptance && px.green <= color.green+acceptance &&
+      px.alpha >= color.alpha-acceptance && px.alpha <= color.alpha+acceptance;
 }
 
 void colorize(struct Image *img, struct Pixel color, int x, int y)
@@ -26,7 +26,7 @@ char IsInside(struct Image *img, int x, int y)
   return x >= 0 && x<img->width && y >= 0 && y<img->height;
 }
 
-void flood_fill(struct Image *img, struct Pixel color, struct coord origin)
+void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int acceptance)
 {
   int x = origin.x;
   int y = origin.y;
@@ -48,25 +48,25 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin)
       colorize(img, color, x, y);
 
       //printf("starting to fill queue\n");
-      if (x+1 < img->width && same_color(img->pixels[x+1][y], px))
+      if (x+1 < img->width && same_color(img->pixels[x+1][y], px, acceptance))
       {
           struct coord new_c = {x+1, y};
           stack_push(s, new_c);
       }
 
-      if (x-1 >= 0 && same_color(img->pixels[x-1][y], px))
+      if (x-1 >= 0 && same_color(img->pixels[x-1][y], px, acceptance))
       {
           struct coord new_c = {x-1, y};
           stack_push(s, new_c);
       }
 
-      if (y+1 < img->height && same_color(img->pixels[x][y+1], px))
+      if (y+1 < img->height && same_color(img->pixels[x][y+1], px, acceptance))
       {
           struct coord new_c = {x, y+1};
           stack_push(s, new_c);
       }
 
-      if (y-1 >= 0 && same_color(img->pixels[x][y-1], px))
+      if (y-1 >= 0 && same_color(img->pixels[x][y-1], px, acceptance))
       {
           struct coord new_c = {x, y-1};
           stack_push(s, new_c);
