@@ -643,18 +643,20 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
-                                  <object class="GtkDrawingArea" id="Draw">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                  </object>
-                                </child>
-                                <child>
                                   <object class="GtkEventBox" id="pepa_humain">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
                                       <placeholder/>
                                     </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkImage" id="Image_evidemment">
+                                    <property name="width-request">10</property>
+                                    <property name="height-request">10</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
                                   </object>
                                 </child>
                               </object>

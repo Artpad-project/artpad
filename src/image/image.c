@@ -27,8 +27,8 @@ static void set_pixel(guchar *pixels, int rowstride, struct Pixel px, int x, int
 
 struct Image *
 new_image(int width,int height) {
+   
     GdkPixbuf *pb;
-    
     struct Image *image = malloc(sizeof(struct Image)); 
 
     struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
@@ -221,6 +221,27 @@ save_image(struct Image *im, char *out, char *ftype) {
         errx(1, "Error: couldn't save image (%s - > %s)\n", im->file, out);
 }
 
+/*!
+ * actualise image into a file.
+ * 
+ * @param im the image to sav 
+ * */
+void
+actualise_image(struct Image *im, int xinit, int yinit, int width,int heigth) {
+    guchar *pixels = gdk_pixbuf_get_pixels(im->pb);
+    int rowstride = gdk_pixbuf_get_rowstride(im->pb);
+    int tot = 0;
+    for (int x = xinit; x < width; ++x) {
+        for (int y = yinit; y < heigth; ++y) {
+            struct Pixel px = im->pixels[x][y];
+            set_pixel(pixels, rowstride, px, x, y);
+	    tot++;
+        }
+    }
+}
+
+
+
 static void
 set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, const int y) {
     int n_channels = 4;
@@ -230,6 +251,7 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
     pixels[2] = px.blue;
     pixels[3] = px.alpha;
 }
+
 struct Image *create_copy_image(const struct Image *im);
 
 /*!
