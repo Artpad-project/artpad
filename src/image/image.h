@@ -46,6 +46,7 @@ struct Image *load_image_from_pixbuf(GdkPixbuf *pb);
 struct Image *load_image(char *path);
 
 void save_image(struct Image *im, char *out, char *ftype);
+void actualise_image (struct Image *im,int xinit,int yinit,int width,int height);
 void free_image(struct Image *im);
 
 // mask.c

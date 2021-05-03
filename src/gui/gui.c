@@ -21,7 +21,6 @@
 
 static Image* im ;
 Image* im2 ;
-Image* im_toprint;
 
 
 typedef struct UserInterface
@@ -30,7 +29,7 @@ typedef struct UserInterface
     GtkFixed *drawarea;
     GtkFixed *left_zone;
     GtkEventBox* eb_draw;
-    GtkDrawingArea* area;           // Drawing area
+    GtkImage* area;           // Drawing area
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
     GtkAdjustment *SAT_value;
@@ -50,7 +49,7 @@ typedef struct UserInterface
 
 // Event handler for the "draw" signal of the drawing area.
 
-
+/*
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
     // Gets the 'Game' structure.
@@ -84,11 +83,11 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 
     // Propagates the signal.
     return FALSE;
-}
+}*/
 
 void prepare_drawarea(gpointer user_data){
     UserInterface* ui = user_data;
-    
+
     int totwidth = im->width > ui->width_drawzone ? im->width : ui->width_drawzone;
     int totheight = im->height>ui->height_drawzone ? im->height : ui->height_drawzone;
 
@@ -96,18 +95,17 @@ void prepare_drawarea(gpointer user_data){
     int newheight = 2*totheight - im->height;
     gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
     gtk_fixed_move (ui->left_zone, GTK_WIDGET(ui->drawarea),newwidth/2 - im->width/2 , newheight/2 - im->height/2);
-    g_print("%i,%i,%i\n",newheight,im->height,newheight/2 - im->height/2);
+
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) im->width, (gint)im->height);
     gtk_widget_set_size_request (GTK_WIDGET(ui->eb_draw),(gint) im->width, (gint)im->height);
 
 }
 
 void on_load(GtkFileChooser *fc,gpointer user_data){
-    //g_print("load\n");
     UserInterface* ui = user_data;
     im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
     im = copy_image(im2, NULL);
-    im_toprint = im;
+        
     int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
     int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
 
@@ -117,8 +115,8 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     ui->drawzone.width = im->width;
     ui->drawzone.height = im->height;
     prepare_drawarea(user_data);
-    gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
-            0,0,draw_width,draw_height);   
+    actualise_image(im,0,0,im->width,im->height);
+    gtk_image_set_from_pixbuf(ui->area,im->pb);
 }
 
 /* Put the color balance*/
@@ -132,12 +130,8 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
     if (im){
         copy_image(im2,im);
         BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
-        sleep(1);
-	int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-    	int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-    	gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
-
-        im_toprint = im;
+    	actualise_image(im,0,0,im->width,im->height);
+        gtk_image_set_from_pixbuf(ui->area,im->pb);
     }
 }
 
@@ -150,12 +144,8 @@ void apply_saturation(GtkButton *button,gpointer user_data){
         copy_image(im2,im);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         SaturationAbsolue(im,gtk_adjustment_get_value(ui->SAT_value));
-        sleep(1);
-    	int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-    	int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-    	gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
-
-        im_toprint = im;
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
     }
 }
 
@@ -167,12 +157,8 @@ void apply_rotation(GtkButton *button,gpointer user_data){
         copy_image(im2,im);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(im,(float)gtk_adjustment_get_value(ui->ROT_value));
-        sleep(1);
-    	int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-    	int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-    	gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
-
-        im_toprint = im;
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
     }
 }
 
@@ -181,11 +167,11 @@ void apply_rotation(GtkButton *button,gpointer user_data){
 /* Goes back to the original image*/
 void see_original(GtkButton *useless,gpointer user_data){
     if (im){
-    UserInterface* ui = user_data;
-    copy_image(im2,im);
-    int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-    int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-    gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,draw_width,draw_height);
+    	UserInterface* ui = user_data;
+    	copy_image(im2,im);
+    	actualise_image(im,0,0,im->width,im->height);
+    	gtk_image_set_from_pixbuf(ui->area,im->pb);
+   
     }
 }
 
@@ -316,10 +302,12 @@ int main ()
     GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
     GtkFixed* left_zone =  GTK_FIXED(gtk_builder_get_object(builder,"fixed_left_side"));
 
-    GtkDrawingArea* area = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "Draw"));
+    GtkImage* area = GTK_IMAGE(gtk_builder_get_object(builder, "Image_evidemment"));
+    
+
+   
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
-
 
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
     
@@ -339,7 +327,6 @@ int main ()
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
-
 
 
 
@@ -368,7 +355,7 @@ int main ()
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     //g_signal_connect(, "configure-event", G_CALLBACK(getdraw_size), &ui);
     //g_signal_connect(G_OBJECT(window), "configure-event",G_CALLBACK(getdraw_size), &ui);
-    g_signal_connect(area, "draw", G_CALLBACK(on_draw), &ui);
+    
     //g_signal_connect(print_width_value, "value_changed", G_CALLBACK(set_new_width), &ui);
     //g_signal_connect(print_height_value, "value_changed" , G_CALLBACK(set_new_height), &ui);
      
