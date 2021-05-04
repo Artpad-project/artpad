@@ -15,6 +15,8 @@
 #include "../puissancen/PuissanceN.h"
 #include "../saturation/Saturation.h"
 #include "../rotation/Rotation.c"
+#include "../colorimetrie/colorimetrie.h"
+#include "../colorimetrie/stack.h"
 #include <time.h>
 
 // Structure of the graphical user interface.
@@ -27,8 +29,10 @@ typedef struct UserInterface
 {
     GtkWindow* window;              // Main window
     GtkFixed *drawarea;
-    GtkFixed *left_zone;
+
+
     GtkEventBox* eb_draw;
+
     GtkImage* area;           // Drawing area
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
@@ -40,11 +44,16 @@ typedef struct UserInterface
     GtkAdjustment *width_print;
     GtkAdjustment *height_print;
 
-
-    int width_drawzone;
-    int height_drawzone;
+    
+    int xpos;
+    int ypos;
     gdouble xmouse;
     gdouble ymouse;
+    GtkColorChooser* draw_color;
+    struct Pixel actual_color;
+    GtkRadioButton* pencil;
+    GtkRadioButton* fill;
+
 } UserInterface;
 
 // Event handler for the "draw" signal of the drawing area.
@@ -88,16 +97,15 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 void prepare_drawarea(gpointer user_data){
     UserInterface* ui = user_data;
 
-    int totwidth = im->width > ui->width_drawzone ? im->width : ui->width_drawzone;
-    int totheight = im->height>ui->height_drawzone ? im->height : ui->height_drawzone;
-
-    int newwidth = 2*totwidth - im->width;
-    int newheight = 2*totheight - im->height;
-    gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
-    gtk_fixed_move (ui->left_zone, GTK_WIDGET(ui->drawarea),newwidth/2 - im->width/2 , newheight/2 - im->height/2);
+    
+    //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
+    gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),0 ,0);
+    
+    ui->xpos = 0;
+    ui->ypos = 0,
 
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) im->width, (gint)im->height);
-    gtk_widget_set_size_request (GTK_WIDGET(ui->eb_draw),(gint) im->width, (gint)im->height);
+    
 
 }
 
@@ -106,14 +114,7 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
     im = copy_image(im2, NULL);
         
-    int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-    int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-
-   
-    ui->drawzone.x = draw_width/2 - im->width/2;
-    ui->drawzone.y = draw_height/2 - im->height/2;
-    ui->drawzone.width = im->width;
-    ui->drawzone.height = im->height;
+ 
     prepare_drawarea(user_data);
     actualise_image(im,0,0,im->width,im->height);
     gtk_image_set_from_pixbuf(ui->area,im->pb);
@@ -240,44 +241,73 @@ void scroll_callback(GdkEventScroll* event, gpointer user_data){
   }
 */
 
-/*
-void mouse_moved(GdkEventMotion *event,gpointer user_data){
+void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
+	UserInterface *ui = user_data;
+	
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+		if(event->button == 1 && im){
+			struct coord src = {ui->xmouse,ui->ymouse};
+			flood_fill(im,ui->actual_color,src,10);
+			 actualise_image(im,0,0,im->width,im->height);
+	  		gtk_image_set_from_pixbuf(ui->area,im->pb);
+		}
+
+}
+
+
+void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
     
     char *my_string;
-    int val = asprintf(&my_string,"X: %i,Y: %i",(int)event->x,(int)event->y);
-    if(val <0)
-        errx(1,"cannot create the query");
-    g_print("%i",(int)event->x);
-    //gtk_text_buffer_set_text(ui->curserpos,my_string,val);
-    if(event->state & GDK_BUTTON2_MASK ){
-        struct timeval actual;
-        gettimeofday(&actual,NULL);
+    if (im){
+	int xposi = -ui->xpos + event->x;
+	int yposi = -ui->ypos + event->y;
+	int val = 0;
+	if (xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height)
+		val = asprintf(&my_string,"X: %i,Y: %i",xposi,yposi);
+	else {val = asprintf(&my_string,"X: -,Y: -");}
+	if(val <0)
+		errx(1,"cannot create the query");
+	    
+	gtk_text_buffer_set_text(ui->curserpos,my_string,val);
+	    
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
+		if( event->state & GDK_BUTTON1_MASK ){
+		     //struct timeval actual;
+		     //gettimeofday(&actual,NULL);
+		     g_print("%s\n",my_string);
+		     struct coord src= {ui->xmouse,ui->ymouse};
+		     struct coord dest = {event->x,event->y};
+		     paintLine(im,ui->actual_color,src,dest);
+		     actualise_image(im,0,0,im->width,im->height);
+		     gtk_image_set_from_pixbuf(ui->area,im->pb);
+		}
 
-     
-        GdkRectangle old = ui->drawzone;
-        gdouble depx = event->x - ui->xmouse;
-        gdouble depy = event->y - ui->ymouse;
-        g_print("%f,%f\n",depx,depy);
-        ui->drawzone.x += (int)depx;
-        ui->drawzone.y += (int)depy;
-
-        //gtk_fixed_move(ui->drawarea,ui->eb_draw,100,100);          
-        if ( (actual.tv_sec - ui->lastupdate.tv_sec) * 1000000 + actual.tv_usec - ui->lastupdate.tv_usec > 100000){
-            printf("took %lu us\n", (actual.tv_sec - ui->lastupdate.tv_sec) * 1000000 + actual.tv_usec - ui->lastupdate.tv_usec);
-            gdk_rectangle_union(&old,&ui->drawzone,&old);
-            gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
-                old.x,old.y,old.width,old.height);
-    
-            ui->lastupdate = actual;
-
-        }
+	if( event->state & GDK_BUTTON2_MASK ){
+		g_print("%s\n",my_string);
+		ui->xpos += event->x - ui->xmouse;
+		ui->ypos += event->y - ui->ymouse;
+		gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),ui->xpos ,ui->ypos);
+	}
+	    
+	ui->xmouse = event->x;
+	ui->ymouse = event->y;
     }
-    ui->xmouse =event->x;
-    ui->ymouse = event->y;
-
 }
-*/
+
+void color_updated(GtkColorChooser* cc,gpointer user_data){
+	UserInterface* ui = user_data;
+
+	struct _GdkRGBA* col = malloc(sizeof(struct _GdkRGBA));
+	col->red = 0;
+	col ->blue = 0;
+	col->green = 0;
+	col->alpha = 0;
+	gtk_color_chooser_get_rgba(cc,col);
+	ui->actual_color = pixel_from_GdkRGBA(col);
+	g_print("color : %i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue);
+}
+
 int main ()
 {
 
@@ -300,12 +330,10 @@ int main ()
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
-    GtkFixed* left_zone =  GTK_FIXED(gtk_builder_get_object(builder,"fixed_left_side"));
 
     GtkImage* area = GTK_IMAGE(gtk_builder_get_object(builder, "Image_evidemment"));
-    
 
-   
+    
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
 
@@ -323,17 +351,35 @@ int main ()
     gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
-
+    
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
 
 
+// ------------------------------ DRAW BUTTONS---------------------------------//
+    GtkColorChooser* draw_color = GTK_COLOR_CHOOSER(gtk_builder_get_object(builder, "Colorconar"));
+    GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
+    GtkRadioButton* flood_fill = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "fill"));
+
+    struct _GdkRGBA *col = malloc(sizeof(struct _GdkRGBA));
+    col->red = 0;
+    col->blue = 0;
+    col->green = 0;
+    col->alpha = 255;
+    gtk_color_chooser_set_rgba(draw_color,col);
+    struct Pixel pixel = {0,0,0,255};
+    //im = new_image(1650,900);
+    //copy_image(im2,im);
+
+   
+
+    
 
     UserInterface ui ={
                 .window = window,
                 .drawarea = drawarea,
-                .left_zone = left_zone,
+                
                 .eb_draw = eb_draw,
                 .area = area,
                 .start_button = start_button,
@@ -344,10 +390,16 @@ int main ()
                 .drawzone = {0,0,0,0},
                 .width_print = print_width_value,
                 .height_print = print_height_value,
-                .width_drawzone = gtk_widget_get_allocated_width (GTK_WIDGET(left_zone)),
-                .height_drawzone = gtk_widget_get_allocated_height (GTK_WIDGET(left_zone)),
+		.xpos = 0,
+		.ypos = 0,
                 .xmouse = 0,
-                .ymouse = 0,         
+                .ymouse = 0,
+
+       		.draw_color = draw_color,
+		.actual_color = pixel,
+
+		.pencil = pencil,
+		.fill = flood_fill,
     };
     
     // Connects event handlers.
@@ -370,8 +422,12 @@ int main ()
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
     g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
 
-    //g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
+    g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
+    g_signal_connect(eb_draw, "button_press_event",G_CALLBACK (mouse_clicked), &ui);
+
     //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+    //
+    g_signal_connect(draw_color,"color-set",G_CALLBACK(color_updated),&ui);
 
     gtk_main();
     
