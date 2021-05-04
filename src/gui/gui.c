@@ -127,10 +127,9 @@ void prepare_drawarea(gpointer user_data){
 
 void on_load(GtkFileChooser *fc,gpointer user_data){
     UserInterface* ui = user_data;
-    im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
+    im = load_image((char *)gtk_file_chooser_get_filename (fc));
     sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
-    im = copy_image(im2, NULL);
-        
+    im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
  
     prepare_drawarea(user_data);
     actualise_image(im,0,0,im->width,im->height);
