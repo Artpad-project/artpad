@@ -5,7 +5,7 @@ CFLAGS  	= -g -Wall -Wextra -fno-stack-protector `pkg-config --cflags gtk+-3.0 g
 CPPFLAGS	= -MMD
 LDLIBS		= `pkg-config --libs gtk+-3.0 gmodule-2.0`
 
-SOURCE		= ../image/image.c video.c
+SOURCE		= ../image/image.c video.c main.c
 
 OBJ			= $(SOURCE:.c=.o)
 DEP			= $(SOURCE:.c=.d)
@@ -18,6 +18,6 @@ $(OUT): $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -rf $(OUT) $(DEP) $(OBJ) "output.png" frames
+	rm -rf $(OUT) $(DEP) $(OBJ) output.mp4
 
 -include $(DEP) 

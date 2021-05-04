@@ -14,10 +14,6 @@
 
 #include "video.h"
 
-// Video resolution
-#define W 1280
-#define H 720
-
 size_t get_frame_number(char *file)
 {
     size_t frame_nbr = 0;
@@ -32,7 +28,7 @@ size_t get_frame_number(char *file)
     return frame_nbr - 1; // Frames start at 1
 }
 
-Video create_video(char *path, int w, int h)
+Video create_video(char *path, int w, int h, int fps)
 {
     DIR *frame_folder;
     Image *frames;
@@ -74,7 +70,7 @@ Video create_video(char *path, int w, int h)
         free(img);
     }
 
-    video = (Video){w, h, total_frame_count, 60, frames};
+    video = (Video){w, h, total_frame_count, fps, frames};
 
     chdir("..");
     printf("VIDEO SUCCESFULLY EXPORTED!\n");
@@ -94,25 +90,27 @@ void save_video(Video video, char *out)
     char *pipestr = malloc(256);
 
     sprintf(pipestr,
-            "ffmpeg -y -f rawvideo -vcodec rawvideo -pix_fmt rgb24 -s %dx%d "
-            "-r 25 -i - -f mp4 -q:v 5 -an -vcodec mpeg4 %s",
-            video.width, video.height, out);
+            "ffmpeg -y -f rawvideo -vcodec rawvideo -pix_fmt rgba -s %dx%d "
+            "-r %d -i - -f mp4 -q:v 5 -an -vcodec mpeg4 %s",
+            video.width, video.height, video.fps, out);
 
     FILE *pipeout = popen(pipestr, "w");
     free(pipestr);
 
     // Allocate a buffer to store one frame
-    unsigned char frame[H][W][3] = {0};
+    unsigned char frame[video.height][video.width][4];
+    memset(frame, 0, sizeof(frame));
 
     for (int i = 0; i < video.frame_count; ++i) {
         for (int y=0 ; y<video.height ; ++y) for (int x=0 ; x<video.width ; ++x) {
             frame[y][x][0] = video.frames[i].pixels[x][y].red;
             frame[y][x][1] = video.frames[i].pixels[x][y].green;
             frame[y][x][2] = video.frames[i].pixels[x][y].blue;
+            frame[y][x][3] = video.frames[i].pixels[x][y].alpha;
         }
 
         // Write this frame to the output pipe
-        fwrite(frame, 1, video.width*video.height*3, pipeout);
+        fwrite(frame, 1, video.width*video.height*4, pipeout);
     }
 
     // Flush and close output pipe
@@ -120,14 +118,4 @@ void save_video(Video video, char *out)
     pclose(pipeout);
 
     printf("VIDEO SUCCESFULLY SAVED!\n");
-}
-
-int main()
-{
-    Video video;
-
-    video = create_video("teapot.mp4");
-    save_video(video, "output.mp4");
-
-    return 1;
 }
