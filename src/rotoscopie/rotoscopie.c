@@ -1,3 +1,19 @@
+/*!
+ *  File created on 3/10/2021 (MM/DD/YYYY) by leo.duboin
+ *  Contributors : leo.duboin
+ *
+ *  File containing all the necessary function to perform image extraction from an image.
+ *  If possible the task is ran on different threads to make it faster (8 or 4 depending on the number of cores) 
+ *  
+ *  Added:
+ *  - 3/10/2021 : magic_wand, magic_wand_rec
+ *  - 3/11/2021 : multithreading using POSIX threads on 4 or 8 threads (magic_wand_async)
+ *  - 3/23/2021 : iterative version using a stack and line segments
+ *
+ *  Documentation:
+ *  - https://www.losingfight.com/blog/2007/08/28/how-to-implement-a-magic-wand-tool/
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <err.h>
