@@ -706,7 +706,6 @@
                                             <property name="receives-default">False</property>
                                             <property name="tooltip-text" translatable="yes">Pencil</property>
                                             <property name="draw-indicator">False</property>
-                                            <property name="group">fill</property>
                                             <child>
                                               <object class="GtkImage">
                                                 <property name="visible">True</property>
@@ -788,13 +787,77 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
+                                      <!-- n-columns=3 n-rows=1 -->
+                                      <object class="GtkGrid" id="all_drawables">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="column-homogeneous">True</property>
+                                        <child>
+                                          <object class="GtkRadioButton" id="draw_line">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">line</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">pencil</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="draw_rectangle">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">rectangle</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">pencil</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="draw_circle">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">cercle</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">pencil</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">2</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">4</property>
+                                        <property name="width">3</property>
+                                      </packing>
                                     </child>
                                   </object>
                                 </child>

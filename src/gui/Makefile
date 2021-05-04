@@ -2,7 +2,7 @@ OUT           = gui
 
 CC            = gcc -fsanitize=address -lm -ldl
 
-CFLAGS        = -g -Wall -Wextra $(shell pkg-config --cflags gtk+-3.0)
+CFLAGS        = -g -Wall -Wextra -Wno-unused-parameter $(shell pkg-config --cflags gtk+-3.0)
 CPPFLAGS      = -MMD
 LDLIBS        = $(shell pkg-config --libs gtk+-3.0)
 
