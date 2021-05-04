@@ -64,5 +64,5 @@ ImageMask init_mask(Image *im);
 Pixel edit_mask(ImageMask mask, int x, int y, int value);
 void free_mask(ImageMask mask);
 
-
+struct Pixel  pixel_from_GdkRGBA(GdkRGBA *col); 
 #endif // IMAGE_H_
