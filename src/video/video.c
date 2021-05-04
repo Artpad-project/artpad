@@ -18,6 +18,19 @@
 #define W 1280
 #define H 720
 
+size_t get_frame_number(char *file)
+{
+    size_t frame_nbr = 0;
+    file += 6; // Skip the 'frame_' part of the filename
+
+    while (*file != '.') {
+        frame_nbr *= 10;
+        frame_nbr += *file - '0';
+        ++file;
+    }
+
+    return frame_nbr - 1; // Frames start at 1
+}
 
 Video create_video(char *path)
 {
@@ -26,6 +39,7 @@ Video create_video(char *path)
     struct dirent *file;
     struct stat *st = malloc(sizeof(struct stat));
     Video video;
+    int total_frame_count = -2; // minus '.' and '..'
 
     if (stat("frames", st) == 0)
         printf("using already existing frames.\n");
@@ -33,7 +47,7 @@ Video create_video(char *path)
         // Create folder
         char *cmd = malloc(256);
         sprintf(cmd, "ffmpeg -i %s ", path);
-        cmd = strcat(cmd, "frames/frame_%03d.jpg");
+        cmd = strcat(cmd, "frames/frame_%04d.jpg");
 
         // Separate video into frames
         mkdir("frames", 0700);
@@ -41,22 +55,29 @@ Video create_video(char *path)
         free(cmd);
     }
 
+    // Find the actual number of frames
+    frame_folder = opendir("frames");
+    while ((file = readdir(frame_folder))) ++total_frame_count;
+
     // Read all frames
     frame_folder = opendir("frames");
     chdir("frames"); // Enter frames folder
-    frames = malloc(sizeof(Image) * 500);
+    frames = malloc(sizeof(Image) * total_frame_count);
     video = (Video){W, H, 0, 60, NULL};
+    // Load every frame as an image
     while ((file = readdir(frame_folder))) {
         if (strcmp(file->d_name, ".") == 0 ||
             strcmp(file->d_name, "..") == 0)
             continue;
         img = load_image(file->d_name);
-        frames[video.frame_count++] = *img;
+        frames[get_frame_number(file->d_name)] = *img;
+        ++video.frame_count;
     }
 
     free(img);
     video.frames = frames;
 
+    chdir("..");
     printf("VIDEO SUCCESFULLY EXPORTED!\n");
 
     return video;
