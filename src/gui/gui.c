@@ -66,6 +66,12 @@ typedef struct UserInterface
     struct Pixel actual_color;
     GtkRadioButton* pencil;
     GtkRadioButton* fill;
+    GtkRadioButton* brush1;
+    GtkRadioButton* brush2;
+    GtkRadioButton* brush3;
+
+
+
     GtkAdjustment *draw_size;
     double draw_value;
     double tolerance;
@@ -463,7 +469,14 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		        int pasty = -ui->ypos + ui->ymouse;
 		        struct coord src= {pastx,pasty};
 		        struct coord dest = {xposi,yposi};
-		        special_brushes(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+			if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush1)))
+				pencil(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+
+			if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush2)))
+				brush(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+
+			if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush3)))
+		        	special_brushes(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 		        actualise_image(im,0,0,im->width,im->height);
 		        gtk_image_set_from_pixbuf(ui->area,im->pb);
 		    }
@@ -606,6 +619,11 @@ int main ()
     GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
     GtkRadioButton* flood_fill = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "fill"));
 
+    GtkRadioButton* brush1 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush1"));
+    GtkRadioButton* brush2 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush2"));
+    GtkRadioButton* brush3 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush3"));
+
+
     struct _GdkRGBA *col = malloc(sizeof(struct _GdkRGBA));
     col->red = 0;
     col->blue = 0;
@@ -650,6 +668,11 @@ int main ()
 
 		.pencil = pencil,
 		.fill = flood_fill,
+
+		.brush1 = brush1,
+		.brush2 = brush2,
+		.brush3 = brush3,
+
 		.draw_size = draw_size,
 		.draw_value  = 1,
 		.tolerance = 1
