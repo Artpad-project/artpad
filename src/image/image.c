@@ -92,8 +92,6 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
     save_image_pixels(image);
     return image;
-
-
 }
 
 
@@ -190,7 +188,7 @@ free_image(struct Image *image) {
     free(image->pixels);
     free(image->file);
     free(image->file_type);
-    free(image);
+    //free(image);
 }
 
 /*!

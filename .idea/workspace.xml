@@ -18,7 +18,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="" />
+    <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/video/video" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/video" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/video/video.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/video.c" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -85,6 +89,11 @@
     <property name="cidr.known.project.marker" value="true" />
     <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/rotoscopie" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
   </component>
   <component name="RunManager" selected="Makefile Application.magic_wand">
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="all" CONFIG_NAME="all" version="1">
