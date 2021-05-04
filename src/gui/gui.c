@@ -49,6 +49,7 @@ typedef struct UserInterface
     int ypos;
     gdouble xmouse;
     gdouble ymouse;
+
     GtkColorChooser* draw_color;
     struct Pixel actual_color;
     GtkRadioButton* pencil;
@@ -243,12 +244,14 @@ void scroll_callback(GdkEventScroll* event, gpointer user_data){
 
 void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	UserInterface *ui = user_data;
-	
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+	int xposi = -ui->xpos + ui->xmouse;
+	int yposi = -ui->ypos + ui->ymouse;
+
+	if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
 		if(event->button == 1 && im){
-			struct coord src = {ui->xmouse,ui->ymouse};
-			flood_fill(im,ui->actual_color,src,10);
-			 actualise_image(im,0,0,im->width,im->height);
+			struct coord src = {xposi, yposi };
+			flood_fill(im,ui->actual_color,src,0);
+			actualise_image(im,0,0,im->width,im->height);
 	  		gtk_image_set_from_pixbuf(ui->area,im->pb);
 		}
 
@@ -276,8 +279,10 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		     //struct timeval actual;
 		     //gettimeofday(&actual,NULL);
 		     g_print("%s\n",my_string);
-		     struct coord src= {ui->xmouse,ui->ymouse};
-		     struct coord dest = {event->x,event->y};
+		     int pastx = -ui->xpos + ui->xmouse;
+		     int pasty = -ui->ypos + ui->ymouse;
+		     struct coord src= {pastx,pasty};
+		     struct coord dest = {xposi,yposi};
 		     paintLine(im,ui->actual_color,src,dest);
 		     actualise_image(im,0,0,im->width,im->height);
 		     gtk_image_set_from_pixbuf(ui->area,im->pb);
