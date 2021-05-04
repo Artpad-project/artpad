@@ -7,7 +7,7 @@
 #include <string.h>
 
 void CLI(char *command, int argc, struct Image *img, struct Pixel color, 
-    struct coord c, int radius, int filled)
+    struct coord c, int radius, int filled, int acceptance)
 {
   if (!strcmp(command, "-r"))
   {
@@ -27,7 +27,7 @@ void CLI(char *command, int argc, struct Image *img, struct Pixel color,
   }
 
   else if (!strcmp(command, "-f"))
-    flood_fill(img, color, c);
+    flood_fill(img, color, c, acceptance);
 }
 
 int main(int argc, char **argv)
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     struct coord c = {x, y};
     struct Pixel px = {0,0,255,0};
 
-    CLI(argv[1], argc, img, px, c, atoi(argv[4]), atoi(argv[5]));
+    CLI(argv[1], argc, img, px, c, atoi(argv[4]), atoi(argv[5]), atoi(argv[6]));
 
     //char output[150];
     //strcat(output, "images/base/");
