@@ -4,10 +4,7 @@
 #include <string.h>
 #include <math.h>
 
-double max(double x, double y);
-double min(double x, double y);
 double Hue(double red, double green, double blue, double cmax, double delta);
-double absolu(double x);
 int Cap(double x);
 double CapSat(double x);
 
@@ -26,7 +23,6 @@ void BalanceAuto(Image* Bitmap)
     for(int i = 0; i<101; ++i) cdf[i]=0;
 
 
-
     for (int i = 0; i < nbLine; ++i) {
 
         for (int j = 0; j < nbCol; ++j) {
@@ -35,8 +31,8 @@ void BalanceAuto(Image* Bitmap)
             double nvert = Bitmap->pixels[j][i].green / 255.0;
             double nbleu = Bitmap->pixels[j][i].blue / 255.0;
 
-            double cmax = max(nbleu, max(nrouge,nvert));
-            double cmin = min(nbleu, min(nvert,nrouge));
+            double cmax = MAX(nbleu, MAX(nrouge,nvert));
+            double cmin = MIN(nbleu, MIN(nvert,nrouge));
 
             int luminance = (int)(((cmax + cmin)/2.0)*100);
 
@@ -61,19 +57,19 @@ void BalanceAuto(Image* Bitmap)
             double nvert = Bitmap->pixels[j][i].green / 255.0;
             double nbleu = Bitmap->pixels[j][i].blue / 255.0;
 
-            double cmax = max(nbleu, max(nrouge,nvert));
-            double cmin = min(nbleu, min(nvert,nrouge));
+            double cmax = MAX(nbleu, MAX(nrouge,nvert));
+            double cmin = MIN(nbleu, MIN(nvert,nrouge));
 
             double delta = cmax - cmin;
 
             double hue = delta == 0 ? 0 : Hue(nrouge,nvert,nbleu,cmax,delta) ;
             double luminance = ((cmax + cmin)/2.0)*100;
-            double saturation = delta == 0 ? 0 : CapSat(delta /(1-absolu(2*luminance/100-1))) ;
+            double saturation = delta == 0 ? 0 : CapSat(delta /(1-ABS(2*luminance/100-1))) ;
 
             double newluminance =  round( ((cdf[(int)luminance] - cdftmin) / (double)( (nbPix-cdftmin))) * 100.0 ) /100.0;
 
-            double C = (1-absolu(2*newluminance-1))*saturation;
-            double X = C * (1-absolu(fmod((hue/60),2) - 1));
+            double C = (1-ABS(2*newluminance-1))*saturation;
+            double X = C * (1-ABS(fmod((hue/60),2) - 1));
             double M = newluminance - C/2;
 
             if (hue >= 0 && hue < 60)
@@ -117,8 +113,7 @@ void BalanceAuto(Image* Bitmap)
                 nvert = 0;
                 nbleu = X;
             }
-	    //printf("%f %f %f \n",nrouge,nvert,nbleu);
-            Bitmap->pixels[j][i].red = Cap((nrouge+M) * 255);
+	       Bitmap->pixels[j][i].red = Cap((nrouge+M) * 255);
             Bitmap->pixels[j][i].green = Cap((nvert+M) *  255);
             Bitmap->pixels[j][i].blue = Cap((nbleu+M) * 255);
 
@@ -130,16 +125,6 @@ void BalanceAuto(Image* Bitmap)
 
 }
 
-double max(double x, double y)
-{
-    double res = x < y ? y : x;
-    return res;
-}
-
-double min(double x, double y) {
-    double res = x < y ? x : y;
-    return res;
-}
 
 double Hue(double red, double green, double blue, double cmax, double delta)
 {
@@ -150,13 +135,6 @@ double Hue(double red, double green, double blue, double cmax, double delta)
     }
    if(green == cmax) return 60 * (((blue - red)/delta) + 2);
     return 60 * (((red - green)/delta) + 4);
-}
-
-double absolu(double x)
-{
-    double res = x < 0 ? -x : x;
-    return res;
-
 }
 
 int Cap(double x)
