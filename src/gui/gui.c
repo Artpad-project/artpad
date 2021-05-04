@@ -137,6 +137,12 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     gtk_image_set_from_pixbuf(ui->area,im->pb);
 }
 
+void on_save(GtkFileChooser *fc,gpointer user_data){
+    if (im)  
+    	save_image(im,NULL,NULL);
+
+}
+
 
 /* Put the color balance*/
 void apply_auto_color_balance(GtkButton *button,gpointer user_data){
@@ -283,10 +289,10 @@ void apply_undo(GtkButton *useless,gpointer user_data){
 }
 
 void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
-    if (im){
+    
 	
     	UserInterface* ui = user_data;
-    	g_print("before draw_mode: %f,%f\n",ui->draw_value,ui->tolerance);
+
 
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
@@ -296,18 +302,15 @@ void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
 
 		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
 	}
-    	g_print("after : %f,%f\n",ui->draw_value,ui->tolerance);
-
-	/*actualise_image(im,0,0,im->width,im->height);
+   	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
-    }
+    
 }
 
 void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
-    if (im){
 	
     	UserInterface* ui = user_data;
-    	g_print("before fill_mode: %f,%f\n",ui->draw_value,ui->tolerance);
+  
 
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
 		
@@ -319,12 +322,8 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
 
 	}
-    	g_print("after : %f,%f\n",ui->draw_value,ui->tolerance);
-
 	/*actualise_image(im,0,0,im->width,im->height);
-    	gtk_image_set_from_pixbuf(ui->area,im->pb);*/
-   
-    }
+    	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
 }
 
 
@@ -334,8 +333,8 @@ void see_original(GtkButton *useless,gpointer user_data){
     if (im){
     	UserInterface* ui = user_data;
     	copy_image(im2,im);
-    	/*actualise_image(im,0,0,im->width,im->height);
-    	gtk_image_set_from_pixbuf(ui->area,im->pb);*/
+    	actualise_image(im,0,0,im->width,im->height);
+    	gtk_image_set_from_pixbuf(ui->area,im->pb);
    
     }
 }
@@ -460,7 +459,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		    if( event->state & GDK_BUTTON1_MASK ){
 		         //struct timeval actual;
 		        //gettimeofday(&actual,NULL);
-		        g_print("%s\n",my_string);
+		        //g_print("%s\n",my_string);
 		        int pastx = -ui->xpos + ui->xmouse;
 		        int pasty = -ui->ypos + ui->ymouse;
 		        struct coord src= {pastx,pasty};
@@ -472,7 +471,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     }
 
 	if( event->state & GDK_BUTTON2_MASK ){
-		g_print("%s\n",my_string);
+		//g_print("%s\n",my_string);
 		ui->xpos += event->x - ui->xmouse;
 		ui->ypos += event->y - ui->ymouse;
 		gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),ui->xpos ,ui->ypos);
@@ -518,6 +517,8 @@ int main ()
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
+    GtkButton* saver =  GTK_BUTTON(gtk_builder_get_object(builder, "Save"));  
+
     GtkStack* stack_used = GTK_STACK(gtk_builder_get_object(builder,"stack1"));
       
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
@@ -594,7 +595,7 @@ int main ()
                 .window = window,
                 .drawarea = drawarea,
                 .stack_used = stack_used,
-
+		
                 .eb_draw = eb_draw,
 
                 .area = area,
@@ -658,7 +659,8 @@ int main ()
 
 
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
-    
+    g_signal_connect(saver, "clicked", G_CALLBACK(on_save), &ui);
+
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
     //g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
 
@@ -670,6 +672,9 @@ int main ()
     g_signal_connect(draw_color,"color-set",G_CALLBACK(color_updated),&ui);
 
     gtk_main();
+    g_object_unref(builder);
+    free_image(im);
+    free(im);
     
     // Exits.
 
