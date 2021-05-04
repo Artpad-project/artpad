@@ -3,8 +3,6 @@
 
 #include "../image/image.h"
 
-#include <gstreamer-1.0/gst/gst.h>
-
 typedef struct {
     int width, height;
     int frame_count;

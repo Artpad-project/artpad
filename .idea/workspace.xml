@@ -20,7 +20,9 @@
   <component name="ChangeListManager">
     <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/video/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/video/video.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/video.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/video/video.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/video.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

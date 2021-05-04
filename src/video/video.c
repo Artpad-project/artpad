@@ -32,10 +32,10 @@ size_t get_frame_number(char *file)
     return frame_nbr - 1; // Frames start at 1
 }
 
-Video create_video(char *path)
+Video create_video(char *path, int w, int h)
 {
     DIR *frame_folder;
-    Image *img, *frames;
+    Image *frames;
     struct dirent *file;
     struct stat *st = malloc(sizeof(struct stat));
     Video video;
@@ -54,6 +54,7 @@ Video create_video(char *path)
         system(cmd);
         free(cmd);
     }
+    free(st);
 
     // Find the actual number of frames
     frame_folder = opendir("frames");
@@ -63,19 +64,17 @@ Video create_video(char *path)
     frame_folder = opendir("frames");
     chdir("frames"); // Enter frames folder
     frames = malloc(sizeof(Image) * total_frame_count);
-    video = (Video){W, H, 0, 60, NULL};
     // Load every frame as an image
     while ((file = readdir(frame_folder))) {
         if (strcmp(file->d_name, ".") == 0 ||
             strcmp(file->d_name, "..") == 0)
             continue;
-        img = load_image(file->d_name);
+        Image *img = load_image(file->d_name);
         frames[get_frame_number(file->d_name)] = *img;
-        ++video.frame_count;
+        free(img);
     }
 
-    free(img);
-    video.frames = frames;
+    video = (Video){w, h, total_frame_count, 60, frames};
 
     chdir("..");
     printf("VIDEO SUCCESFULLY EXPORTED!\n");
@@ -100,6 +99,7 @@ void save_video(Video video, char *out)
             video.width, video.height, out);
 
     FILE *pipeout = popen(pipestr, "w");
+    free(pipestr);
 
     // Allocate a buffer to store one frame
     unsigned char frame[H][W][3] = {0};
@@ -122,7 +122,7 @@ void save_video(Video video, char *out)
     printf("VIDEO SUCCESFULLY SAVED!\n");
 }
 
-int main(int argc, char** argv)
+int main()
 {
     Video video;
 
