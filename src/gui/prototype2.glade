@@ -942,7 +942,11 @@
                                             <property name="draw-indicator">False</property>
                                             <property name="group">brush1</property>
                                             <child>
-                                              <placeholder/>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="pixbuf">icons/broken_pencil.png</property>
+                                              </object>
                                             </child>
                                           </object>
                                           <packing>
