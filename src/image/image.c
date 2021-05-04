@@ -311,3 +311,14 @@ create_copy_image(const struct Image *im) {
 
     return new_image;
 }
+
+
+struct Pixel 
+pixel_from_GdkRGBA(GdkRGBA *col){
+	struct Pixel pixel;
+	pixel.red = col->red*255;
+	pixel.green = col->green*255;
+	pixel.blue = col->blue*255;
+	pixel.alpha = col->alpha*255;
+	return pixel;
+}
