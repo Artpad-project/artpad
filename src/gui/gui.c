@@ -1,3 +1,4 @@
+
 /*!
  *  File created on 3/5/2021 by tom.aubert
  *  Contributors : tom aubert
@@ -19,6 +20,7 @@
 #include "../rotation/Rotation.c"
 #include "../colorimetrie/colorimetrie.h"
 #include "../colorimetrie/stack.h"
+#include "../contrastsimple/ContrastSimple.h"
 #include <time.h>
 
 // Structure of the graphical user interface.
@@ -27,12 +29,13 @@ static Image* im ;
 Image* im2 ;
 Image sauv_im1;
 
+enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
 typedef struct UserInterface
 {
     GtkWindow* window;              // Main window
     GtkFixed *drawarea;
-
+    GtkStack *stack_used;
 
     GtkEventBox* eb_draw;
 
@@ -42,6 +45,10 @@ typedef struct UserInterface
     GtkAdjustment *SAT_value;
     GtkAdjustment *CB_value;
     GtkAdjustment *ROT_value;
+    GtkAdjustment *BRI_value;
+    GtkAdjustment *CON_value;
+
+
 
     GdkRectangle drawzone;
     GtkAdjustment *width_print;
@@ -173,6 +180,22 @@ void apply_saturation(GtkButton *button,gpointer user_data){
     }
 }
 
+
+void apply_brightness(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+    if (im){
+        copy_image(im2,im);
+       // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
+        Contrast(im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+
+
 void apply_rotation(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -260,15 +283,15 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	UserInterface *ui = user_data;
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
-
-	if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-		if(event->button == 1 && im){
-			struct coord src = {xposi, yposi };
-			flood_fill(im,ui->actual_color,src,0);
-			actualise_image(im,0,0,im->width,im->height);
-	  		gtk_image_set_from_pixbuf(ui->area,im->pb);
+    if(strcmp((char*)gtk_stack_get_visible_child_name (ui->stack_used),"page1") == 0){
+    	if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+		    if(event->button == 1 && im){
+			    struct coord src = {xposi, yposi };
+			    flood_fill(im,ui->actual_color,src,0);
+			    actualise_image(im,0,0,im->width,im->height);
+	  		    gtk_image_set_from_pixbuf(ui->area,im->pb);
 		}
-
+    }
 }
 
 
@@ -287,20 +310,22 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		errx(1,"cannot create the query");
 	    
 	gtk_text_buffer_set_text(ui->curserpos,my_string,val);
-	    
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
-		if( event->state & GDK_BUTTON1_MASK ){
-		     //struct timeval actual;
-		     //gettimeofday(&actual,NULL);
-		     g_print("%s\n",my_string);
-		     int pastx = -ui->xpos + ui->xmouse;
-		     int pasty = -ui->ypos + ui->ymouse;
-		     struct coord src= {pastx,pasty};
-		     struct coord dest = {xposi,yposi};
-		     paintLine(im,ui->actual_color,src,dest);
-		     actualise_image(im,0,0,im->width,im->height);
-		     gtk_image_set_from_pixbuf(ui->area,im->pb);
-		}
+	if(strcmp((char*)gtk_stack_get_visible_child_name (ui->stack_used),"page1") == 0){
+    
+	    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
+		    if( event->state & GDK_BUTTON1_MASK ){
+		         //struct timeval actual;
+		        //gettimeofday(&actual,NULL);
+		        g_print("%s\n",my_string);
+		        int pastx = -ui->xpos + ui->xmouse;
+		        int pasty = -ui->ypos + ui->ymouse;
+		        struct coord src= {pastx,pasty};
+		        struct coord dest = {xposi,yposi};
+		        paintLine(im,ui->actual_color,src,dest);
+		        actualise_image(im,0,0,im->width,im->height);
+		        gtk_image_set_from_pixbuf(ui->area,im->pb);
+		    }
+    }
 
 	if( event->state & GDK_BUTTON2_MASK ){
 		g_print("%s\n",my_string);
@@ -349,12 +374,12 @@ int main ()
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
-
+    GtkStack* stack_used = GTK_STACK(gtk_builder_get_object(builder,"stack1"));
       
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
-
+    
 
 // ------------------------------ DRAWING ------------------------------------//
     GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
@@ -374,13 +399,17 @@ int main ()
     GtkAdjustment* CB_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "color_balance"));  
     GtkAdjustment* SAT_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "saturation"));  
     GtkAdjustment* ROT_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "rotation"));  
+    GtkAdjustment* BRI_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "Brightness_adj"));  
+    GtkAdjustment* CON_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "Contrast_adj"));  
+
 
     GtkButton* CB_button = GTK_BUTTON(gtk_builder_get_object(builder, "color_balance_go"));
     GtkButton* CB_auto = GTK_BUTTON(gtk_builder_get_object(builder, "color_balance_auto"));
     GtkButton* SAT_button = GTK_BUTTON(gtk_builder_get_object(builder, "saturation_go"));
     GtkButton* ROT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rotation_go"));
-
-   
+    GtkButton* BRI_button = GTK_BUTTON(gtk_builder_get_object(builder, "brightness_go"));
+    GtkButton* CON_button = GTK_BUTTON(gtk_builder_get_object(builder, "contrast_go"));
+    
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
 
@@ -407,7 +436,8 @@ int main ()
     UserInterface ui ={
                 .window = window,
                 .drawarea = drawarea,
-                
+                .stack_used = stack_used,
+
                 .eb_draw = eb_draw,
                 .area = area,
                 .start_button = start_button,
@@ -415,16 +445,18 @@ int main ()
                 .SAT_value = SAT_value_cursor,
                 .CB_value = CB_value_cursor,
                 .ROT_value = ROT_value_cursor,
+                .BRI_value = BRI_value_cursor,
+                .CON_value = CON_value_cursor,
                 .drawzone = {0,0,0,0},
                 .width_print = print_width_value,
                 .height_print = print_height_value,
-		.xpos = 0,
-		.ypos = 0,
+		        .xpos = 0,
+		        .ypos = 0,
                 .xmouse = 0,
                 .ymouse = 0,
 
-       		.draw_color = draw_color,
-		.actual_color = pixel,
+       		    .draw_color = draw_color,
+		        .actual_color = pixel,
 
 		.pencil = pencil,
 		.fill = flood_fill,
@@ -442,6 +474,9 @@ int main ()
     g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
     g_signal_connect(SAT_button,"clicked", G_CALLBACK(apply_saturation), &ui);
     g_signal_connect(CB_auto,"clicked", G_CALLBACK(apply_auto_color_balance), &ui);
+    g_signal_connect(BRI_button,"clicked", G_CALLBACK(apply_brightness), &ui);
+    g_signal_connect(CON_button,"clicked", G_CALLBACK(apply_brightness), &ui);
+
 
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);   
