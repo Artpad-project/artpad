@@ -13,7 +13,7 @@ DEP           = $(SOURCE:.c=.d)
 all: $(OUT)
 
 gui: $(OBJ)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) -o $@ $^ $(LDLIBS)
 
 .PHONY: clean
 
