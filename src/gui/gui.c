@@ -21,13 +21,14 @@
 #include "../colorimetrie/colorimetrie.h"
 #include "../colorimetrie/stack.h"
 #include "../contrastsimple/ContrastSimple.h"
+#include "../flip/Flip.h"
 #include <time.h>
 
 // Structure of the graphical user interface.
 
 static Image* im ;
 Image* im2 ;
-Image sauv_im1;
+Image* sauv_im1;
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
@@ -141,6 +142,7 @@ void apply_auto_color_balance(GtkButton *button,gpointer user_data){
     //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
    
     if (im){
+        copy_image(im,sauv_im1);
         copy_image(im2,im);
         BalanceAuto(im);
     	actualise_image(im,0,0,im->width,im->height);
@@ -159,6 +161,7 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
     //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
    
     if (im){
+        copy_image(im,sauv_im1);
         copy_image(im2,im);
         BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
     	actualise_image(im,0,0,im->width,im->height);
@@ -172,6 +175,7 @@ void apply_saturation(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
+        copy_image(im,sauv_im1);
         copy_image(im2,im);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         SaturationAbsolue(im,gtk_adjustment_get_value(ui->SAT_value));
@@ -186,6 +190,7 @@ void apply_brightness(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
+        copy_image(im,sauv_im1);
         copy_image(im2,im);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Contrast(im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
@@ -201,6 +206,7 @@ void apply_rotation(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
+        copy_image(im,sauv_im1);
         copy_image(im2,im);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(im,(float)gtk_adjustment_get_value(ui->ROT_value));
@@ -209,6 +215,68 @@ void apply_rotation(GtkButton *button,gpointer user_data){
     }
 }
 
+void apply_rot_right(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+    if (im){
+        copy_image(im,sauv_im1);
+        //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
+        Rotate(im,(float)90);
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+void apply_rot_left(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+    if (im){
+        copy_image(im,sauv_im1);
+        //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
+        Rotate(im,(float)-90);
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+void apply_flip_hori(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+    if (im){
+        copy_image(im,sauv_im1);
+        //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
+        FlipHorizon(im);
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+void apply_flip_vert(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+    if (im){
+        copy_image(im,sauv_im1);
+        //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
+        FlipVertical(im);
+        actualise_image(im,0,0,im->width,im->height);
+	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+
+void apply_undo(GtkButton *useless,gpointer user_data){
+    if (im){
+    	UserInterface* ui = user_data;
+    	copy_image(im2,im);
+    	actualise_image(im,0,0,im->width,im->height);
+    	gtk_image_set_from_pixbuf(ui->area,im->pb);
+   
+    }
+}
 
 
 /* Goes back to the original image*/
@@ -233,14 +301,40 @@ void on_start(gpointer user_data)
 
 }*/
 
-//test on key pressing (actually work)
+//test on key pressing (actually doesn't work)
 void on_key_press(GtkWindow oof,GdkEventKey *event,gpointer user_data){
     UserInterface *ui = user_data;
-    g_print("oof");
-    if(event->keyval == GDK_KEY_1){
-        g_print("controle z");
+    /*g_print("%s\n",((char*)gdk_keyval_name(event->keyval)));
+    switch (event->keyval)
+    {
+        case GDK_KEY_Z:
+            g_print("key pressed: Z\n");
+            break;
+        case GDK_KEY_z:
+            g_print("key pressed: z\n");
+            break;
+        case GDK_KEY_S:
+        case GDK_KEY_s:
+            if (event->state & GDK_SHIFT_MASK)
+            {
+                printf("key pressed: %s\n", "shift + s");
+            }
+            else if (event->state & GDK_CONTROL_MASK)
+            {
+                printf("key pressed: %s\n", "ctrl + s");
+            }
+            else
+            {
+                printf("key pressed: %s\n", "s");
+            }
+            break;
     }
+
+    if(strcmp(gdk_keyval_name(event->keyval), "Z") == 0){
+        g_print("controle z");
+    }*/
 }
+
 /*
 void set_new_width(GtkAdjustment *buffer,gpointer user_data){
     g_print("change width\n");
@@ -379,7 +473,10 @@ int main ()
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
-    
+   
+    GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
+
+
 
 // ------------------------------ DRAWING ------------------------------------//
     GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
@@ -394,7 +491,7 @@ int main ()
    
     
     
-// ------------------------------ IMAGE BUTTONS--------------------------------//
+// ------------------------------ IMAGE TOOLS--------------------------------//
     
     GtkAdjustment* CB_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "color_balance"));  
     GtkAdjustment* SAT_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "saturation"));  
@@ -410,6 +507,11 @@ int main ()
     GtkButton* BRI_button = GTK_BUTTON(gtk_builder_get_object(builder, "brightness_go"));
     GtkButton* CON_button = GTK_BUTTON(gtk_builder_get_object(builder, "contrast_go"));
     
+    GtkButton* FLIPHORI_button = GTK_BUTTON(gtk_builder_get_object(builder, "flip_hori_go"));
+    GtkButton* FLIPVERT_button = GTK_BUTTON(gtk_builder_get_object(builder, "flip_vert_go"));
+    GtkButton* ROTRIGHT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rot_right_go"));
+    GtkButton* ROTLEFT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rot_left_go"));
+
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
     GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
 
@@ -476,6 +578,12 @@ int main ()
     g_signal_connect(CB_auto,"clicked", G_CALLBACK(apply_auto_color_balance), &ui);
     g_signal_connect(BRI_button,"clicked", G_CALLBACK(apply_brightness), &ui);
     g_signal_connect(CON_button,"clicked", G_CALLBACK(apply_brightness), &ui);
+    g_signal_connect(ROTRIGHT_button,"clicked", G_CALLBACK(apply_rot_right), &ui);
+    g_signal_connect(ROTLEFT_button,"clicked", G_CALLBACK(apply_rot_left), &ui);
+    g_signal_connect(FLIPVERT_button,"clicked", G_CALLBACK(apply_flip_vert), &ui);
+    g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
+
+    g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
 
 
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
