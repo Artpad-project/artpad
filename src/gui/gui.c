@@ -287,6 +287,7 @@ void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
 	
     	UserInterface* ui = user_data;
     	g_print("before draw_mode: %f,%f\n",ui->draw_value,ui->tolerance);
+
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
@@ -310,6 +311,7 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
 		
+
 		ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
 		char* size;
@@ -317,8 +319,6 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
 
 	}
-
-
     	g_print("after : %f,%f\n",ui->draw_value,ui->tolerance);
 
 	/*actualise_image(im,0,0,im->width,im->height);
@@ -646,7 +646,9 @@ int main ()
 
 
     g_signal_connect(pencil,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
+
 
     g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
 

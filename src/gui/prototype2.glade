@@ -858,6 +858,7 @@
                                         <property name="top-attach">4</property>
                                         <property name="width">3</property>
                                       </packing>
+
                                     </child>
                                   </object>
                                 </child>
