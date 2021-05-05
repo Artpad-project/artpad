@@ -43,6 +43,7 @@ typedef struct UserInterface
     GtkImage* area;           // Drawing area
     GtkButton* start_button;        // Start button
     GtkTextBuffer *curserpos;
+    GtkTextBuffer *drawbuffer;
     GtkAdjustment *SAT_value;
     GtkAdjustment *CB_value;
     GtkAdjustment *ROT_value;
@@ -65,6 +66,9 @@ typedef struct UserInterface
     struct Pixel actual_color;
     GtkRadioButton* pencil;
     GtkRadioButton* fill;
+    GtkAdjustment *draw_size;
+    int draw_value;
+    int tolerance;
 
 } UserInterface;
 
@@ -124,6 +128,7 @@ void prepare_drawarea(gpointer user_data){
 void on_load(GtkFileChooser *fc,gpointer user_data){
     UserInterface* ui = user_data;
     im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
+    sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
     im = copy_image(im2, NULL);
         
  
@@ -271,12 +276,43 @@ void apply_flip_vert(GtkButton *button,gpointer user_data){
 void apply_undo(GtkButton *useless,gpointer user_data){
     if (im){
     	UserInterface* ui = user_data;
-    	copy_image(im2,im);
+    	copy_image(sauv_im1,im);
     	actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
+    if (im){
+	
+    	UserInterface* ui = user_data;
+    	g_print("before draw_mode: %i,%i\n",ui->draw_value,ui->tolerance);
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
+		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
+		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
+		char* size;
+       		int val = asprintf(&size,"size");
+
+		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
+	}
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
+		ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
+		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
+		char* size;
+		int val = asprintf(&size,"tolerance");
+		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
+
+	}
+
+
+    	g_print("after : %i,%i\n",ui->draw_value,ui->tolerance);
+
+	/*actualise_image(im,0,0,im->width,im->height);
+    	gtk_image_set_from_pixbuf(ui->area,im->pb);*/
    
     }
 }
+
 
 
 /* Goes back to the original image*/
@@ -284,8 +320,8 @@ void see_original(GtkButton *useless,gpointer user_data){
     if (im){
     	UserInterface* ui = user_data;
     	copy_image(im2,im);
-    	actualise_image(im,0,0,im->width,im->height);
-    	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    	/*actualise_image(im,0,0,im->width,im->height);
+    	gtk_image_set_from_pixbuf(ui->area,im->pb);*/
    
     }
 }
@@ -381,7 +417,7 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
     	if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
 		    if(event->button == 1 && im){
 			    struct coord src = {xposi, yposi };
-			    flood_fill(im,ui->actual_color,src,0);
+			    flood_fill(im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 			    actualise_image(im,0,0,im->width,im->height);
 	  		    gtk_image_set_from_pixbuf(ui->area,im->pb);
 		}
@@ -415,7 +451,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		        int pasty = -ui->ypos + ui->ymouse;
 		        struct coord src= {pastx,pasty};
 		        struct coord dest = {xposi,yposi};
-		        paintLine(im,ui->actual_color,src,dest);
+		        paintLine(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 		        actualise_image(im,0,0,im->width,im->height);
 		        gtk_image_set_from_pixbuf(ui->area,im->pb);
 		    }
@@ -473,7 +509,10 @@ int main ()
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
-   
+    
+    GtkAdjustment* draw_size =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "draw_size"));  
+
+
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
 
 
@@ -518,6 +557,8 @@ int main ()
  
 // ------------------------------ DRAW BUTTONS---------------------------------//
     GtkColorChooser* draw_color = GTK_COLOR_CHOOSER(gtk_builder_get_object(builder, "Colorconar"));
+    GtkTextBuffer* drawbuffer = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "buffer_draw"));
+
     GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
     GtkRadioButton* flood_fill = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "fill"));
 
@@ -541,9 +582,12 @@ int main ()
                 .stack_used = stack_used,
 
                 .eb_draw = eb_draw,
+
                 .area = area,
                 .start_button = start_button,
                 .curserpos = curser_position,
+		.drawbuffer = drawbuffer,
+
                 .SAT_value = SAT_value_cursor,
                 .CB_value = CB_value_cursor,
                 .ROT_value = ROT_value_cursor,
@@ -552,16 +596,19 @@ int main ()
                 .drawzone = {0,0,0,0},
                 .width_print = print_width_value,
                 .height_print = print_height_value,
-		        .xpos = 0,
-		        .ypos = 0,
+		.xpos = 0,
+	        .ypos = 0,
                 .xmouse = 0,
                 .ymouse = 0,
 
-       		    .draw_color = draw_color,
-		        .actual_color = pixel,
+       		.draw_color = draw_color,
+	        .actual_color = pixel,
 
 		.pencil = pencil,
 		.fill = flood_fill,
+		.draw_size = draw_size,
+		.draw_value  = 1,
+		.tolerance = 1
     };
     
     // Connects event handlers.
@@ -582,6 +629,10 @@ int main ()
     g_signal_connect(ROTLEFT_button,"clicked", G_CALLBACK(apply_rot_left), &ui);
     g_signal_connect(FLIPVERT_button,"clicked", G_CALLBACK(apply_flip_vert), &ui);
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
+
+
+    g_signal_connect(pencil,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+    //g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_flood_fill_mode), &ui);
 
     g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
 
