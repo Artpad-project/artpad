@@ -60,6 +60,7 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
       c = stack_pop(s);
       x = c.x;
       y = c.y;
+
       if (buf[y*img->width+x])
         continue;
       buf[y*img->width+x] = 1;
@@ -95,7 +96,7 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
 
   //printf("freeing stack\n");
   stack_free(s);
-
+  free(buf);
 }
 
 // Bresenham line drawing algorithm
@@ -120,13 +121,16 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
     if (IsInside(img, x1, y1))
       colorize(img, color, x1, y1);
 
-    for (int i = 0; i < size; i++)
+    if (size)
     {
-      if (IsInside(img, x1, y1+i))
-        colorize(img, color, x1, y1+i);
+      for (int i = 0; i < size; i++)
+      {
+        if (IsInside(img, x1, y1+i))
+          colorize(img, color, x1, y1+i);
 
-      if (IsInside(img, x1, y1-i))
-        colorize(img, color, x1, y1-i);
+        if (IsInside(img, x1, y1-i))
+          colorize(img, color, x1, y1-i);
+      }
     }
 
     if(x1 == x2 && y1 == y2)
@@ -145,9 +149,33 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
   }
 }
 
+void pencil(struct Image *img, struct Pixel color, struct coord src, struct coord dest, int size)
+{
+  /*struct coord copy_src = {src.x, src.y};
+  struct coord copy_dest = {dest.x, dest.y};
+  for(int i = 0; i < size; i++)
+  {
+    src.x += i;
+    src.y += i;
+    dest.x += i;
+    dest.y += i;
+    paintLine(img, color, src, dest, 0);
+
+    // can change vaalues here to create some sort of shade
+    src.x = copy_src.x + i;
+    src.y = copy_src.y -i;
+    dest.x = copy_dest.x + i;
+    dest.y = copy_dest.y - i;
+    paintLine(img, color, src, dest, 0);
+  }
+  */
+
+  circle(img, color, src, size, 1);
+}
+
 // draws each symmetrical point for each octants
 void drawSymPoints(struct Image *img, struct Pixel color, struct coord center, 
-    struct coord points)
+    struct coord points, int filled)
 {
   int p = center.x;
   int q = center.y;
@@ -194,33 +222,26 @@ void drawSymPoints(struct Image *img, struct Pixel color, struct coord center,
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
-/*
- * will have to reviez code to make it fill without buffer
   if (filled)
   {
     struct coord c1 = {x+p, y+q};
     struct coord c2 = {-x+p, -y+q};
-    paintLine(img, color, c1, c2);
 
     struct coord c3 = {x+p, -y+q};
     struct coord c4 = {-x+p, y+q};
-    paintLine(img, color, c3, c4);
 
     struct coord c5 = {y+p, -x+q};
     struct coord c6 = {-y+p, x+q};
-    paintLine(img, color, c5, c6);
 
     struct coord c7 = {-y+p, -x+q};
     struct coord c8 = {y+p, x+q};
-    paintLine(img, color, c7, c8);
 
-    //symmetry - pi/2 filling
-    paintLine(img, color, c8, c2);
-    paintLine(img, color, c1, c7);
-    paintLine(img, color, c3, c5);
-    paintLine(img, color, c4, c6);
+    // connecting lines with same y coordinates
+    paintLine(img, color, c1, c4, 0);
+    paintLine(img, color, c6, c8, 0);
+    paintLine(img, color, c2, c3, 0);
+    paintLine(img, color, c5, c7, 0);
   }
-  */
 }
 
 // Function that creates a circle following Bresenham algorithm
@@ -228,42 +249,6 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
 {
   int x1 = center.x;
   int y1 = center.y;
-
-  struct Image *buffer;
-  struct coord buffer_center;
-
-  if (filled)
-  {
-    int width = (radius+1)*2;
-    int height = width;
-
-    //if (x1 < radius) 
-      //width -= radius - x1;
-    //if (x1 +radius > img->width)
-      //width -= img->width - x1 - radius;
-
-    //if (y1 < radius)
-      //height -= radius - y1;
-    //if (y1 +radius > img->height)
-      //height -= img->height - y1 - radius;
-
-    printf("w: %d, h: %d\n", width, height);
-    buffer = new_image(width, height);
-    buffer_center.x = radius;
-    buffer_center.y = radius;
-
-    if (!IsInside(buffer, buffer_center.x+radius, buffer_center.y))
-      colorize(buffer, color, buffer_center.x+radius, buffer_center.y);
-
-    if (!IsInside(buffer, buffer_center.x-radius, buffer_center.y))
-      colorize(buffer, color, buffer_center.x-radius, buffer_center.y);
-
-    if (!IsInside(buffer, buffer_center.x, buffer_center.y+radius))
-      colorize(buffer, color, buffer_center.x, buffer_center.y+radius);
-
-    if (!IsInside(buffer, buffer_center.x, buffer_center.y-radius))
-      colorize(buffer, color, buffer_center.x, buffer_center.y-radius);
-  }
 
   if (IsInside(img, x1, y1) && radius == 0) colorize(img, color, x1, y1);
   else
@@ -287,33 +272,22 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
       
       struct coord c = {x1, y1};
       
-      if (filled)
-        drawSymPoints(buffer, color, buffer_center, c);
-      else
-        drawSymPoints(img, color, center, c);
-    }
-
-    if (filled)
-    {
-      struct coord origin = {center.x-radius, center.y-radius};
-      copy_buffer(img, buffer, origin);
-      free_image(buffer);
-      free(buffer);
+      drawSymPoints(img, color, center, c, filled);
     }
 
     // Closes the circle
-    /* same as symmety point draw
+    // same as symmety point draw
     if (filled)
     {
       struct coord left = {center.x+radius, center.y};
       struct coord right = {center.x-radius, center.y};
-      paintLine(img, color, left, right);
+      paintLine(img, color, left, right, 0);
 
       left.x = center.x;
       left.y = center.y+radius;
       right.x = center.x;
       right.y = center.y-radius;
-      paintLine(img, color, left, right);
+      paintLine(img, color, left, right, 0);
     }
     else
     {
@@ -329,8 +303,6 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
       if (!IsInside(img, center.x, center.y-radius))
         colorize(img, color, center.x, center.y-radius);
     }
-    */
-
   }
 }
 
