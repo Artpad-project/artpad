@@ -4,9 +4,9 @@
 #include <string.h>
 #include <math.h>
 
-double Hue(double red, double green, double blue, double cmax, double delta);
-int Cap(double x);
-double CapSat(double x);
+double Hue2(double red, double green, double blue, double cmax, double delta);
+int Cap2(double x);
+double CapSat2(double x);
 
 void BalanceAuto(Image* Bitmap)
 {
@@ -62,9 +62,9 @@ void BalanceAuto(Image* Bitmap)
 
             double delta = cmax - cmin;
 
-            double hue = delta == 0 ? 0 : Hue(nrouge,nvert,nbleu,cmax,delta) ;
+            double hue = delta == 0 ? 0 : Hue2(nrouge,nvert,nbleu,cmax,delta) ;
             double luminance = ((cmax + cmin)/2.0)*100;
-            double saturation = delta == 0 ? 0 : CapSat(delta /(1-ABS(2*luminance/100-1))) ;
+            double saturation = delta == 0 ? 0 : CapSat2(delta /(1-ABS(2*luminance/100-1))) ;
 
             double newluminance =  round( ((cdf[(int)luminance] - cdftmin) / (double)( (nbPix-cdftmin))) * 100.0 ) /100.0;
 
@@ -113,9 +113,9 @@ void BalanceAuto(Image* Bitmap)
                 nvert = 0;
                 nbleu = X;
             }
-	       Bitmap->pixels[j][i].red = Cap((nrouge+M) * 255);
-            Bitmap->pixels[j][i].green = Cap((nvert+M) *  255);
-            Bitmap->pixels[j][i].blue = Cap((nbleu+M) * 255);
+	       Bitmap->pixels[j][i].red = Cap2((nrouge+M) * 255);
+            Bitmap->pixels[j][i].green = Cap2((nvert+M) *  255);
+            Bitmap->pixels[j][i].blue = Cap2((nbleu+M) * 255);
 
         }
     }
@@ -126,7 +126,7 @@ void BalanceAuto(Image* Bitmap)
 }
 
 
-double Hue(double red, double green, double blue, double cmax, double delta)
+double Hue2(double red, double green, double blue, double cmax, double delta)
 {
   if(red == cmax)
     {
@@ -137,14 +137,14 @@ double Hue(double red, double green, double blue, double cmax, double delta)
     return 60 * (((red - green)/delta) + 4);
 }
 
-int Cap(double x)
+int Cap2(double x)
 {
   double res = x < 0 ? 0 : x;
   res = x > 255 ? 255 : x;
   return (int)res;
 }
 
-double CapSat(double x)
+double CapSat2(double x)
 {
   if(x>1)return 1.0;
   if(x<-1)return -1.0;
