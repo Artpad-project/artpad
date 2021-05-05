@@ -5,17 +5,14 @@
 #include "stack.h"
 #include <math.h>
 
-char same_color(struct Pixel px, struct Pixel color, int acceptance)
+typedef struct coord coord;
+
+char same_color(struct Pixel px, struct Pixel origin, int acceptance)
 {
-  int red_acceptance = (255 * acceptance)/100;
-  int blue_acceptance = (255 * acceptance)/100;
-  int green_acceptance = (255 * acceptance)/100;
-  int alpha_acceptance = (255 * acceptance)/100;
-  
-  return px.red >= color.red-red_acceptance && px.red <= color.red+red_acceptance &&
-      px.blue >= color.blue-blue_acceptance && px.blue <= color.blue+blue_acceptance &&
-      px.green >= color.green-green_acceptance && px.green <= color.green+green_acceptance &&
-      px.alpha >= color.alpha-alpha_acceptance && px.alpha <= color.alpha-alpha_acceptance;
+    acceptance = 255 / (101 - acceptance);
+    return  ABS(origin.red - px.red) <= acceptance &&
+            ABS(origin.green - px.green) <= acceptance &&
+            ABS(origin.blue - px.blue) <= acceptance;
 }
 
 void colorize(struct Image *img, struct Pixel color, int x, int y)
@@ -43,15 +40,18 @@ void copy_buffer(struct Image *img, struct Image *buffer, struct coord origin)
 void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int acceptance)
 {
   int x = origin.x;
-  int y = origin.y;
+  int y = origin.x;
   struct Pixel px = img->pixels[x][y];
 
-  if (same_color(px, color, acceptance))
+  if (acceptance < 100 && same_color(px, color, acceptance))
     return;
 
   stack *s = new_stack();
 
   stack_push(s, origin);
+
+  unsigned char *buf = malloc(img->width*img->height);
+  memset(buf,0,img->width*img->height);
 
   struct coord c;
   while(!stack_IsEmpty(s))
@@ -60,6 +60,9 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
       c = stack_pop(s);
       x = c.x;
       y = c.y;
+      if (buf[y*img->width+x])
+        continue;
+      buf[y*img->width+x] = 1;
 
       //printf("coloring pixel\n");
       colorize(img, color, x, y);
@@ -88,8 +91,6 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
           struct coord new_c = {x, y-1};
           stack_push(s, new_c);
       }
-
-      //printf("finished pushing stack\n");
   }
 
   //printf("freeing stack\n");
@@ -227,43 +228,6 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
 {
   int x1 = center.x;
   int y1 = center.y;
-
-  struct Image *buffer;
-  struct coord buffer_center;
-
-  if (filled)
-  {
-    int width = radius*2;
-    int height = width;
-    radius -= 1;
-
-    //if (x1 < radius) 
-      //width -= radius - x1;
-    //if (x1 +radius > img->width)
-      //width -= img->width - x1 - radius;
-
-    //if (y1 < radius)
-      //height -= radius - y1;
-    //if (y1 +radius > img->height)
-      //height -= img->height - y1 - radius;
-
-    printf("w: %d, h: %d\n", width, height);
-    buffer = new_image(width, height);
-    buffer_center.x = radius;
-    buffer_center.y = radius;
-
-    if (!IsInside(buffer, buffer_center.x+radius, buffer_center.y))
-      colorize(buffer, color, buffer_center.x+radius, buffer_center.y);
-
-    if (!IsInside(buffer, buffer_center.x-radius, buffer_center.y))
-      colorize(buffer, color, buffer_center.x-radius, buffer_center.y);
-
-    if (!IsInside(buffer, buffer_center.x, buffer_center.y+radius))
-      colorize(buffer, color, buffer_center.x, buffer_center.y+radius);
-
-    if (!IsInside(buffer, buffer_center.x, buffer_center.y-radius))
-      colorize(buffer, color, buffer_center.x, buffer_center.y-radius);
-  }
 
   struct Image *buffer;
   struct coord buffer_center;
