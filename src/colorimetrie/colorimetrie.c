@@ -99,7 +99,8 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
 
 // Bresenham line drawing algorithm
 // TODO Anti-Aliasing with WU algorithm
-void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest)
+void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest, 
+    int size)
 {
   int x1 = src.x;
   int y1 = src.y;
@@ -117,6 +118,15 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
   {
     if (IsInside(img, x1, y1))
       colorize(img, color, x1, y1);
+
+    for (int i = 0; i < size; i++)
+    {
+      if (IsInside(img, x1, y1+i))
+        colorize(img, color, x1, y1+i);
+
+      if (IsInside(img, x1, y1-i))
+        colorize(img, color, x1, y1-i);
+    }
 
     if(x1 == x2 && y1 == y2)
       break;
@@ -217,7 +227,6 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
 {
   int x1 = center.x;
   int y1 = center.y;
-  radius-=1;
 
   struct Image *buffer;
   struct coord buffer_center;
@@ -226,17 +235,19 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
   {
     int width = radius*2;
     int height = width;
+    radius -= 1;
 
-    if (x1 < radius) 
-      width -= radius - x1;
-    if (x1 +radius > img->width)
-      width -= img->width - x1 - radius;
+    //if (x1 < radius) 
+      //width -= radius - x1;
+    //if (x1 +radius > img->width)
+      //width -= img->width - x1 - radius;
 
-    if (y1 < radius)
-      height -= radius - y1;
-    if (y1 +radius > img->height)
-      height -= img->height - y1 - radius;
+    //if (y1 < radius)
+      //height -= radius - y1;
+    //if (y1 +radius > img->height)
+      //height -= img->height - y1 - radius;
 
+    printf("w: %d, h: %d\n", width, height);
     buffer = new_image(width, height);
     buffer_center.x = radius;
     buffer_center.y = radius;
@@ -286,6 +297,8 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
     {
       struct coord origin = {center.x-radius, center.y-radius};
       copy_buffer(img, buffer, origin);
+      free_image(buffer);
+      free(buffer);
     }
 
     // Closes the circle
