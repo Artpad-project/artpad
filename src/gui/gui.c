@@ -13,6 +13,8 @@
 #include "../image/image.h"
 #include "../image/image_scaling.h"
 #include "../puissancen/PuissanceN.h"
+#include "../balanceauto/BalanceAuto.h"
+
 #include "../saturation/Saturation.h"
 #include "../rotation/Rotation.c"
 #include "../colorimetrie/colorimetrie.h"
@@ -23,6 +25,7 @@
 
 static Image* im ;
 Image* im2 ;
+Image sauv_im1;
 
 
 typedef struct UserInterface
@@ -121,6 +124,25 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     gtk_image_set_from_pixbuf(ui->area,im->pb);
 }
 
+
+/* Put the color balance*/
+void apply_auto_color_balance(GtkButton *button,gpointer user_data){
+
+    UserInterface* ui = user_data;
+    //free_image(im);
+
+    //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
+   
+    if (im){
+        copy_image(im2,im);
+        BalanceAuto(im);
+    	actualise_image(im,0,0,im->width,im->height);
+        gtk_image_set_from_pixbuf(ui->area,im->pb);
+    }
+}
+
+
+
 /* Put the color balance*/
 void apply_color_balance(GtkButton *button,gpointer user_data){
 
@@ -189,19 +211,11 @@ void on_start(gpointer user_data)
 }*/
 
 //test on key pressing (actually work)
-void on_key_press(GdkEventKey *event,gpointer user_data){
+void on_key_press(GtkWindow oof,GdkEventKey *event,gpointer user_data){
     UserInterface *ui = user_data;
-   
-    if(event->keyval == GDK_KEY_p){
-        GdkRectangle old = ui->drawzone;
-
-        ui->drawzone.x += 50;
-
-        //g_print("%i,%i,%i,%i\n", old.x,old.y,old.width,old.height);
-        gdk_rectangle_union(&old,&ui->drawzone,&old);
-        gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),
-                old.x,old.y,old.width,old.height);
-
+    g_print("oof");
+    if(event->keyval == GDK_KEY_1){
+        g_print("controle z");
     }
 }
 /*
@@ -326,7 +340,7 @@ int main ()
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
-    if (gtk_builder_add_from_file(builder, "prototype.glade", &error) == 0)
+    if (gtk_builder_add_from_file(builder, "prototype2.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
         g_clear_error(&error);
@@ -334,34 +348,43 @@ int main ()
     }
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
-    GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
+    GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
 
+      
+    GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
+    GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
+    GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
+
+
+// ------------------------------ DRAWING ------------------------------------//
+    GtkFixed* drawarea = GTK_FIXED(gtk_builder_get_object(builder,"fixed_drawable"));
     GtkImage* area = GTK_IMAGE(gtk_builder_get_object(builder, "Image_evidemment"));
 
+ 
+    GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
+    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
+    gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
+    gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
     
-    GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
-    GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
-
-    GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
+   
+    
+    
+// ------------------------------ IMAGE BUTTONS--------------------------------//
     
     GtkAdjustment* CB_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "color_balance"));  
     GtkAdjustment* SAT_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "saturation"));  
     GtkAdjustment* ROT_value_cursor =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "rotation"));  
 
     GtkButton* CB_button = GTK_BUTTON(gtk_builder_get_object(builder, "color_balance_go"));
+    GtkButton* CB_auto = GTK_BUTTON(gtk_builder_get_object(builder, "color_balance_auto"));
     GtkButton* SAT_button = GTK_BUTTON(gtk_builder_get_object(builder, "saturation_go"));
     GtkButton* ROT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rotation_go"));
+
    
-    GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
-    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
-    gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
-    gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
-    
-    GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
-    GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
-    GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
+    GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
+    GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
 
-
+ 
 // ------------------------------ DRAW BUTTONS---------------------------------//
     GtkColorChooser* draw_color = GTK_COLOR_CHOOSER(gtk_builder_get_object(builder, "Colorconar"));
     GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
@@ -418,6 +441,8 @@ int main ()
      
     g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
     g_signal_connect(SAT_button,"clicked", G_CALLBACK(apply_saturation), &ui);
+    g_signal_connect(CB_auto,"clicked", G_CALLBACK(apply_auto_color_balance), &ui);
+
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);   
 
@@ -425,7 +450,7 @@ int main ()
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
     
     g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
-    g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
+    //g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
 
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "button_press_event",G_CALLBACK (mouse_clicked), &ui);
