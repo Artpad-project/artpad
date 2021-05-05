@@ -92,8 +92,6 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
     save_image_pixels(image);
     return image;
-
-
 }
 
 
@@ -190,7 +188,7 @@ free_image(struct Image *image) {
     free(image->pixels);
     free(image->file);
     free(image->file_type);
-    free(image);
+    //free(image);
 }
 
 /*!
@@ -310,4 +308,15 @@ create_copy_image(const struct Image *im) {
     }
 
     return new_image;
+}
+
+
+struct Pixel 
+pixel_from_GdkRGBA(GdkRGBA *col){
+	struct Pixel pixel;
+	pixel.red = col->red*255;
+	pixel.green = col->green*255;
+	pixel.blue = col->blue*255;
+	pixel.alpha = col->alpha*255;
+	return pixel;
 }
