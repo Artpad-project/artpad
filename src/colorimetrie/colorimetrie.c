@@ -227,7 +227,43 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
 {
   int x1 = center.x;
   int y1 = center.y;
-  radius-=1;
+
+  struct Image *buffer;
+  struct coord buffer_center;
+
+  if (filled)
+  {
+    int width = radius*2;
+    int height = width;
+    radius -= 1;
+
+    //if (x1 < radius) 
+      //width -= radius - x1;
+    //if (x1 +radius > img->width)
+      //width -= img->width - x1 - radius;
+
+    //if (y1 < radius)
+      //height -= radius - y1;
+    //if (y1 +radius > img->height)
+      //height -= img->height - y1 - radius;
+
+    printf("w: %d, h: %d\n", width, height);
+    buffer = new_image(width, height);
+    buffer_center.x = radius;
+    buffer_center.y = radius;
+
+    if (!IsInside(buffer, buffer_center.x+radius, buffer_center.y))
+      colorize(buffer, color, buffer_center.x+radius, buffer_center.y);
+
+    if (!IsInside(buffer, buffer_center.x-radius, buffer_center.y))
+      colorize(buffer, color, buffer_center.x-radius, buffer_center.y);
+
+    if (!IsInside(buffer, buffer_center.x, buffer_center.y+radius))
+      colorize(buffer, color, buffer_center.x, buffer_center.y+radius);
+
+    if (!IsInside(buffer, buffer_center.x, buffer_center.y-radius))
+      colorize(buffer, color, buffer_center.x, buffer_center.y-radius);
+  }
 
   struct Image *buffer;
   struct coord buffer_center;
