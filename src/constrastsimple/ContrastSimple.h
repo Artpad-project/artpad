@@ -3,6 +3,6 @@
 
 #include "../image/image.h"
 
-void Constrast(Image* Bitmap, double coefcontrast, double brightness);
+void Contrast(Image* Bitmap, double coefcontrast, double brightness);
 
 #endif //ARTPAD_CONSTASTSIMPLE_H

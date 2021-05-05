@@ -5,28 +5,26 @@
 
 int Cap(double x);
 
-int Constrast(Image* Bitmap, double coefcontrast, double brightness)
+void Contrast(Image* Bitmap, double coefcontrast, double brightness)
 {
 
     for (int i = 0; i < Bitmap->height ; ++i)
     {
         for(int j = 0; j < Bitmap->width ; ++j)
         {
-            if(i >= 0 && j>=0 && i<=Bitmap->height-1 && j<=Bitmap->width-1)
-            {
-                Bitmap->pixels[i][j].red =  Cap(Bitmap->pixels[i][j].red * coefcontrast + brightness);
-                Bitmap->pixels[i][j].green = Cap(Bitmap->pixels[i][j].green * coefcontrast + brightness);
-                Bitmap->pixels[i][j].blue = Cap(Bitmap->pixels[i][j].blue * coefcontrast + brightness);
-            }
+            
+	  Bitmap->pixels[j][i].red =  Cap(Bitmap->pixels[j][i].red * coefcontrast + brightness);
+	  Bitmap->pixels[j][i].green = Cap(Bitmap->pixels[j][i].green * coefcontrast + brightness);
+	  Bitmap->pixels[j][i].blue = Cap(Bitmap->pixels[j][i].blue * coefcontrast + brightness);
+           
         }
     }
 
-    return 0;
 }
 
 int Cap(double x)
 {
     if(x<0)return 0;
-    if(x>255)return 0;
+    if(x>255)return 255;
     return (int)x;
 }
