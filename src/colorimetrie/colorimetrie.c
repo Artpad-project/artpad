@@ -7,10 +7,15 @@
 
 char same_color(struct Pixel px, struct Pixel color, int acceptance)
 {
-  return px.red >= color.red-acceptance && px.red <= color.red+acceptance &&
-      px.blue >= color.blue-acceptance && px.blue <= color.blue+acceptance &&
-      px.green >= color.green-acceptance && px.green <= color.green+acceptance &&
-      px.alpha >= color.alpha-acceptance && px.alpha <= color.alpha+acceptance;
+  int red_acceptance = (color.red * acceptance)/100;
+  int blue_acceptance = (color.blue * acceptance)/100;
+  int green_acceptance = (color.green * acceptance)/100;
+  int alpha_acceptance = (color.alpha * acceptance)/100;
+  
+  return px.red >= color.red-red_acceptance && px.red <= color.red+red_acceptance &&
+      px.blue >= color.blue-blue_acceptance && px.blue <= color.blue+blue_acceptance &&
+      px.green >= color.green-green_acceptance && px.green <= color.green+green_acceptance &&
+      px.alpha >= color.alpha-alpha_acceptance && px.alpha <= color.alpha-alpha_acceptance;
 }
 
 void colorize(struct Image *img, struct Pixel color, int x, int y)
@@ -26,11 +31,23 @@ char IsInside(struct Image *img, int x, int y)
   return x >= 0 && x<img->width && y >= 0 && y<img->height;
 }
 
+void copy_buffer(struct Image *img, struct Image *buffer, struct coord origin)
+{
+  struct Pixel white = {255, 255, 255, 255};
+  for(int i = 0; i < buffer->width; i++)
+    for(int j = 0; j < buffer->height; j++)
+      if (!same_color(img->pixels[i][j], white, 0))
+        colorize(img, buffer->pixels[i][j], origin.x+i, origin.y+j);
+}
+
 void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int acceptance)
 {
   int x = origin.x;
   int y = origin.y;
   struct Pixel px = img->pixels[x][y];
+
+  if (same_color(px, color, acceptance))
+    return;
 
   stack *s = new_stack();
 
@@ -82,7 +99,8 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
 
 // Bresenham line drawing algorithm
 // TODO Anti-Aliasing with WU algorithm
-void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest)
+void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest, 
+    int size)
 {
   int x1 = src.x;
   int y1 = src.y;
@@ -100,6 +118,15 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
   {
     if (IsInside(img, x1, y1))
       colorize(img, color, x1, y1);
+
+    for (int i = 0; i < size; i++)
+    {
+      if (IsInside(img, x1, y1+i))
+        colorize(img, color, x1, y1+i);
+
+      if (IsInside(img, x1, y1-i))
+        colorize(img, color, x1, y1-i);
+    }
 
     if(x1 == x2 && y1 == y2)
       break;
@@ -119,7 +146,7 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
 
 // draws each symmetrical point for each octants
 void drawSymPoints(struct Image *img, struct Pixel color, struct coord center, 
-    struct coord points, int filled)
+    struct coord points)
 {
   int p = center.x;
   int q = center.y;
@@ -166,6 +193,8 @@ void drawSymPoints(struct Image *img, struct Pixel color, struct coord center,
   if (IsInside(img, pos_x, pos_y))
     colorize(img, color, pos_x, pos_y);
 
+/*
+ * will have to reviez code to make it fill without buffer
   if (filled)
   {
     struct coord c1 = {x+p, y+q};
@@ -183,7 +212,14 @@ void drawSymPoints(struct Image *img, struct Pixel color, struct coord center,
     struct coord c7 = {-y+p, -x+q};
     struct coord c8 = {y+p, x+q};
     paintLine(img, color, c7, c8);
+
+    //symmetry - pi/2 filling
+    paintLine(img, color, c8, c2);
+    paintLine(img, color, c1, c7);
+    paintLine(img, color, c3, c5);
+    paintLine(img, color, c4, c6);
   }
+  */
 }
 
 // Function that creates a circle following Bresenham algorithm
@@ -191,7 +227,43 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
 {
   int x1 = center.x;
   int y1 = center.y;
-  radius-=1;
+
+  struct Image *buffer;
+  struct coord buffer_center;
+
+  if (filled)
+  {
+    int width = radius*2;
+    int height = width;
+    radius -= 1;
+
+    //if (x1 < radius) 
+      //width -= radius - x1;
+    //if (x1 +radius > img->width)
+      //width -= img->width - x1 - radius;
+
+    //if (y1 < radius)
+      //height -= radius - y1;
+    //if (y1 +radius > img->height)
+      //height -= img->height - y1 - radius;
+
+    printf("w: %d, h: %d\n", width, height);
+    buffer = new_image(width, height);
+    buffer_center.x = radius;
+    buffer_center.y = radius;
+
+    if (!IsInside(buffer, buffer_center.x+radius, buffer_center.y))
+      colorize(buffer, color, buffer_center.x+radius, buffer_center.y);
+
+    if (!IsInside(buffer, buffer_center.x-radius, buffer_center.y))
+      colorize(buffer, color, buffer_center.x-radius, buffer_center.y);
+
+    if (!IsInside(buffer, buffer_center.x, buffer_center.y+radius))
+      colorize(buffer, color, buffer_center.x, buffer_center.y+radius);
+
+    if (!IsInside(buffer, buffer_center.x, buffer_center.y-radius))
+      colorize(buffer, color, buffer_center.x, buffer_center.y-radius);
+  }
 
   if (IsInside(img, x1, y1) && radius == 0) colorize(img, color, x1, y1);
   else
@@ -212,11 +284,25 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
       }
 
       x1 += 1;
+      
       struct coord c = {x1, y1};
-      drawSymPoints(img, color, center, c, filled);
+      
+      if (filled)
+        drawSymPoints(buffer, color, buffer_center, c);
+      else
+        drawSymPoints(img, color, center, c);
+    }
+
+    if (filled)
+    {
+      struct coord origin = {center.x-radius, center.y-radius};
+      copy_buffer(img, buffer, origin);
+      free_image(buffer);
+      free(buffer);
     }
 
     // Closes the circle
+    /* same as symmety point draw
     if (filled)
     {
       struct coord left = {center.x+radius, center.y};
@@ -243,6 +329,8 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
       if (!IsInside(img, center.x, center.y-radius))
         colorize(img, color, center.x, center.y-radius);
     }
+    */
+
   }
 }
 
@@ -289,5 +377,5 @@ void rectangle(struct Image *img, struct Pixel color, struct coord c1, struct co
       x1++;
     }
   }
-}
+} 
 

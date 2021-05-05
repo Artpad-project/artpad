@@ -18,7 +18,8 @@
 void circle(struct Image *img, struct Pixel color, struct coord center, int radius, int filled);
 void rectangle(struct Image *img, struct Pixel color, struct coord c1, struct coord c2
     , int filled);
-void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest);
+void paintLine(struct Image *img, struct Pixel color, struct coord src, struct coord dest, 
+    int size);
 void colorize(struct Image *img, struct Pixel color, int x, int y);
 void flood_fill(struct Image *img, struct Pixel color, struct coord c, int acceptance);
 
