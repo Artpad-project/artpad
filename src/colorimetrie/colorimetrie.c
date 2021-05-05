@@ -7,10 +7,10 @@
 
 char same_color(struct Pixel px, struct Pixel color, int acceptance)
 {
-  int red_acceptance = (color.red * acceptance)/100;
-  int blue_acceptance = (color.blue * acceptance)/100;
-  int green_acceptance = (color.green * acceptance)/100;
-  int alpha_acceptance = (color.alpha * acceptance)/100;
+  int red_acceptance = (255 * acceptance)/100;
+  int blue_acceptance = (255 * acceptance)/100;
+  int green_acceptance = (255 * acceptance)/100;
+  int alpha_acceptance = (255 * acceptance)/100;
   
   return px.red >= color.red-red_acceptance && px.red <= color.red+red_acceptance &&
       px.blue >= color.blue-blue_acceptance && px.blue <= color.blue+blue_acceptance &&
@@ -227,15 +227,15 @@ void circle(struct Image *img, struct Pixel color, struct coord center, int radi
 {
   int x1 = center.x;
   int y1 = center.y;
+  radius-=1;
 
   struct Image *buffer;
   struct coord buffer_center;
 
   if (filled)
   {
-    int width = radius*2;
+    int width = (radius+1)*2;
     int height = width;
-    radius -= 1;
 
     //if (x1 < radius) 
       //width -= radius - x1;
