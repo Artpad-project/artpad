@@ -121,6 +121,42 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
     if (IsInside(img, x1, y1))
       colorize(img, color, x1, y1);
 
+    if(x1 == x2 && y1 == y2)
+      break;
+    int e2 = 2*err;
+    if(e2 >= dy)
+    {
+      err += dy;
+      x1 += sx;
+    }
+    if(e2 <= dx)
+    {
+      err += dx;
+      y1 += sy;
+    }
+  }
+}
+
+
+void brush(struct Image *img, struct Pixel color, struct coord src, struct coord dest, int size)
+{
+  int x1 = src.x;
+  int y1 = src.y;
+  int x2 = dest.x;
+  int y2 = dest.y;
+
+  int dx = abs(x2-x1);
+  int sx = (x1<x2) ? 1 : -1;
+
+  int dy = -abs(y2-y1);
+  int sy = (y1<y2) ? 1 : -1;
+
+  int err = dx+dy;
+  while(1)
+  {
+    if (IsInside(img, x1, y1))
+      colorize(img, color, x1, y1);
+
     if (size)
     {
       for (int i = 0; i < size; i++)
@@ -149,9 +185,10 @@ void paintLine(struct Image *img, struct Pixel color, struct coord src, struct c
   }
 }
 
-void pencil(struct Image *img, struct Pixel color, struct coord src, struct coord dest, int size)
+void special_brushed(struct Image *img, struct Pixel color, struct coord src, 
+    struct coord dest, int size)
 {
-  /*struct coord copy_src = {src.x, src.y};
+  struct coord copy_src = {src.x, src.y};
   struct coord copy_dest = {dest.x, dest.y};
   for(int i = 0; i < size; i++)
   {
@@ -168,9 +205,46 @@ void pencil(struct Image *img, struct Pixel color, struct coord src, struct coor
     dest.y = copy_dest.y - i;
     paintLine(img, color, src, dest, 0);
   }
-  */
+}
 
-  circle(img, color, src, size, 1);
+void pencil(struct Image *img, struct Pixel color, struct coord src, struct coord dest, int size)
+{
+  int x1 = src.x;
+  int y1 = src.y;
+  int x2 = dest.x;
+  int y2 = dest.y;
+
+  int dx = abs(x2-x1);
+  int sx = (x1<x2) ? 1 : -1;
+
+  int dy = -abs(y2-y1);
+  int sy = (y1<y2) ? 1 : -1;
+
+  int err = dx+dy;
+
+  while(1)
+  {
+    // spacing of 25% diameter of the circle
+    if (IsInside(img, x1, y1) /*&& (pow(src.x-x1, 2) + pow(src.y-y1, 2) <= pow(25*size/100, 2))*/)
+    {
+      struct coord center = {x1, y1};
+      circle(img, color, center, size, 1);
+    }
+
+    if(x1 == x2 && y1 == y2)
+      break;
+    int e2 = 2*err;
+    if(e2 >= dy)
+    {
+      err += dy;
+      x1 += sx;
+    }
+    if(e2 <= dx)
+    {
+      err += dx;
+      y1 += sy;
+    }
+  }
 }
 
 // draws each symmetrical point for each octants
