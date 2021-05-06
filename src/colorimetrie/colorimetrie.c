@@ -185,12 +185,14 @@ void brush(struct Image *img, struct Pixel color, struct coord src, struct coord
   }
 }
 
-void special_brushed(struct Image *img, struct Pixel color, struct coord src, 
-    struct coord dest, int size)
+void special_brushes(struct Image *img, struct Pixel color, struct coord src, 
+    struct coord dest, int offset)
 {
   struct coord copy_src = {src.x, src.y};
   struct coord copy_dest = {dest.x, dest.y};
-  for(int i = 0; i < size; i++)
+  int side = (offset < 0) ? -1 : 1;
+  Pixel shadow = {color.red, color.blue, color.green, color.alpha-10};
+  for(int i = 0; i < abs(offset); i++)
   {
     src.x += i;
     src.y += i;
@@ -200,10 +202,10 @@ void special_brushed(struct Image *img, struct Pixel color, struct coord src,
 
     // can change vaalues here to create some sort of shade
     src.x = copy_src.x + i;
-    src.y = copy_src.y -i;
+    src.y = copy_src.y +i*side;
     dest.x = copy_dest.x + i;
-    dest.y = copy_dest.y - i;
-    paintLine(img, color, src, dest, 0);
+    dest.y = copy_dest.y + i*side;
+    paintLine(img, shadow, src, dest, 0);
   }
 }
 

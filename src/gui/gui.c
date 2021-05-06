@@ -464,7 +464,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		        int pasty = -ui->ypos + ui->ymouse;
 		        struct coord src= {pastx,pasty};
 		        struct coord dest = {xposi,yposi};
-		        pencil(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		        special_brushes(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 		        actualise_image(im,0,0,im->width,im->height);
 		        gtk_image_set_from_pixbuf(ui->area,im->pb);
 		    }
@@ -493,7 +493,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		        int pasty = -ui->ypos + ui->ymouse;
 		        struct coord src= {pastx,pasty};
 		        struct coord dest = {xposi,yposi};
-		        special_brushes(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		        pencil(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 		        actualise_image(im,0,0,im->width,im->height);
 		        gtk_image_set_from_pixbuf(ui->area,im->pb);
 		    }
