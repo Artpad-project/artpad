@@ -37,13 +37,14 @@ Video create_video(char *path, int w, int h, int fps)
     Video video;
     int total_frame_count = -2; // minus '.' and '..'
 
+    // Separate video into frames, or use already existing ones
     if (stat("frames", st) == 0)
         printf("using already existing frames.\n");
     else {
         // Create folder
         char *cmd = malloc(256);
-        sprintf(cmd, "ffmpeg -i %s ", path);
-        cmd = strcat(cmd, "frames/frame_%04d.jpg");
+        sprintf(cmd, "ffmpeg -i %s frames/frame_%%04d.jpg", path);
+        //cmd = strcat(cmd, "frames/frame_%04d.jpg");
 
         // Separate video into frames
         mkdir("frames", 0700);
@@ -54,7 +55,9 @@ Video create_video(char *path, int w, int h, int fps)
 
     // Find the actual number of frames
     frame_folder = opendir("frames");
-    while ((file = readdir(frame_folder))) ++total_frame_count;
+    while (readdir(frame_folder)) {
+        ++total_frame_count;
+    }
 
     // Read all frames
     frame_folder = opendir("frames");
@@ -73,7 +76,7 @@ Video create_video(char *path, int w, int h, int fps)
     video = (Video){w, h, total_frame_count, fps, frames};
 
     chdir("..");
-    printf("VIDEO SUCCESFULLY EXPORTED!\n");
+    printf("VIDEO IMPORTED SUCCESSFULLY !\n");
 
     return video;
 }
@@ -117,5 +120,5 @@ void save_video(Video video, char *out)
     fflush(pipeout);
     pclose(pipeout);
 
-    printf("VIDEO SUCCESFULLY SAVED!\n");
+    printf("VIDEO EXPORTED SUCCESSFULLY!\n");
 }
