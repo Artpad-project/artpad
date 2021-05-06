@@ -32,16 +32,9 @@ new_image(int width,int height) {
     struct Image *image = malloc(sizeof(struct Image)); 
 
     struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
-    for (int i = 0; i < width; i++)
+    for (int i = 0; i < width; i++) {
         im_pixels[i] = (struct Pixel *)malloc(height * sizeof(struct Pixel));
-    
-    for(int x=0 ;x<width;x++){
-        for(int y = 0;y<height;y++){
-            im_pixels[x][y].alpha = 255;
-            im_pixels[x][y].red = 255;
-            im_pixels[x][y].green = 255;
-            im_pixels[x][y].blue = 255;
-        }
+        memset(im_pixels[i], 256, height*sizeof(struct Pixel));
     }
     
     pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
@@ -183,12 +176,15 @@ save_image_pixels(struct Image *im) {
  */
 void
 free_image(struct Image *image) {
-    for (int x = 0; x < image->width; ++x)
-        free(image->pixels[x]);
-    free(image->pixels);
-    free(image->file);
-    free(image->file_type);
-    //free(image);
+    if(image){
+    	for (int x = 0; x < image->width; ++x)
+            free(image->pixels[x]);
+    	free(image->pixels);
+    	free(image->file);
+    	free(image->file_type);
+    	//free(image);
+
+    }
 }
 
 /*!
