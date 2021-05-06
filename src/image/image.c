@@ -183,12 +183,15 @@ save_image_pixels(struct Image *im) {
  */
 void
 free_image(struct Image *image) {
-    for (int x = 0; x < image->width; ++x)
-        free(image->pixels[x]);
-    free(image->pixels);
-    free(image->file);
-    free(image->file_type);
-    //free(image);
+    if(image){
+    	for (int x = 0; x < image->width; ++x)
+            free(image->pixels[x]);
+    	free(image->pixels);
+    	free(image->file);
+    	free(image->file_type);
+    	//free(image);
+
+    }
 }
 
 /*!
