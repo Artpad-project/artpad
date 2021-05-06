@@ -20,9 +20,7 @@
   <component name="ChangeListManager">
     <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/video/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/video/video.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/video.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/video/video.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/video/video.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rotoscopie/main_video.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/rotoscopie/main_video.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,6 +88,7 @@
     <property name="cidr.known.project.marker" value="true" />
     <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/rotoscopie" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -122,16 +121,6 @@
         <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_magic_wand" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Makefile Application.all" />
       <item itemvalue="Makefile Application.artpad" />
@@ -152,6 +141,10 @@
       <workItem from="1616691044467" duration="15000" />
       <workItem from="1620148284315" duration="3764000" />
       <workItem from="1620152395328" duration="1944000" />
+      <workItem from="1620197193539" duration="7041000" />
+      <workItem from="1620209641214" duration="6334000" />
+      <workItem from="1620218129771" duration="1275000" />
+      <workItem from="1620231353394" duration="1873000" />
     </task>
     <servers />
   </component>

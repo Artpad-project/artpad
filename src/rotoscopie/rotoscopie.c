@@ -23,7 +23,7 @@
 #include "../utils/utils.h"
 #include "rotoscopie.h"
 
-int check_pixel(struct Pixel px, struct Pixel origin)
+static int check_pixel(struct Pixel px, struct Pixel origin)
 {
     return  ((double)ABS(origin.red - px.red) / 255 <= MAGIC_WAND_THRESHOLD) &&
             ((double)ABS(origin.green - px.green) / 255 <= MAGIC_WAND_THRESHOLD) &&
