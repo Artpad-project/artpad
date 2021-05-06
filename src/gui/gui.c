@@ -464,10 +464,40 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		        int pasty = -ui->ypos + ui->ymouse;
 		        struct coord src= {pastx,pasty};
 		        struct coord dest = {xposi,yposi};
-		        paintLine(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		        pencil(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 		        actualise_image(im,0,0,im->width,im->height);
 		        gtk_image_set_from_pixbuf(ui->area,im->pb);
 		    }
+
+      /*
+	    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush)))
+		    if( event->state & GDK_BUTTON1_MASK ){
+		         //struct timeval actual;
+		        //gettimeofday(&actual,NULL);
+		        g_print("%s\n",my_string);
+		        int pastx = -ui->xpos + ui->xmouse;
+		        int pasty = -ui->ypos + ui->ymouse;
+		        struct coord src= {pastx,pasty};
+		        struct coord dest = {xposi,yposi};
+		        brush(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		        actualise_image(im,0,0,im->width,im->height);
+		        gtk_image_set_from_pixbuf(ui->area,im->pb);
+		    }
+
+	    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->specialBrush)))
+		    if( event->state & GDK_BUTTON1_MASK ){
+		         //struct timeval actual;
+		        //gettimeofday(&actual,NULL);
+		        g_print("%s\n",my_string);
+		        int pastx = -ui->xpos + ui->xmouse;
+		        int pasty = -ui->ypos + ui->ymouse;
+		        struct coord src= {pastx,pasty};
+		        struct coord dest = {xposi,yposi};
+		        special_brushes(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		        actualise_image(im,0,0,im->width,im->height);
+		        gtk_image_set_from_pixbuf(ui->area,im->pb);
+		    }
+        */
     }
 
 	if( event->state & GDK_BUTTON2_MASK ){
