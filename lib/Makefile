@@ -5,7 +5,7 @@ all: build_lib
 build_lib: update_submodules libalgo
 
 update_submodules:
-	@git submodule update --init --recursive
+	@git submodule update --init --recursive --quiet
 
 libalgo:
 	@[ -d $(LIBALGO_DIR) ] || mkdir $(LIBALGO_DIR)
