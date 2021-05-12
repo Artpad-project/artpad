@@ -37,6 +37,7 @@ typedef struct UserInterface
     GtkWindow* window;              // Main window
     GtkFixed *drawarea;
     GtkStack *stack_used;
+    GtkListBox *layers;
 
     GtkEventBox* eb_draw;
 
@@ -165,6 +166,7 @@ void apply_auto_color_balance(GtkButton *button,gpointer user_data){
         gtk_image_set_from_pixbuf(ui->area,im->pb);
     }
 }
+
 
 
 
@@ -537,6 +539,45 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 	g_print("color : %i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue);
 }
 
+void show_hide_layer(GtkButton *button,gpointer user_data){
+    GtkListBoxRow *lbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
+    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(lbr)));
+    if(gtk_list_box_row_is_selected (lbr))
+         gtk_list_box_unselect_row (lb,lbr);
+    else
+         gtk_list_box_select_row (lb,lbr);
+
+    g_print("%i\n",gtk_list_box_row_get_index (lbr));
+}
+
+void add_layer(GtkButton *useless,gpointer user_data){
+    UserInterface *ui = user_data;
+    GtkListBoxRow * nbr = GTK_LIST_BOX_ROW(gtk_list_box_row_new ());
+    
+    GtkEntryBuffer * buffer = gtk_entry_buffer_new("new layer",9);
+    GtkWidget *name = gtk_entry_new_with_buffer (buffer);
+    GtkWidget *button = gtk_button_new_with_label ("show?");
+    GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL,5);
+ 
+    gtk_container_add (GTK_CONTAINER(box),button);
+    gtk_container_add (GTK_CONTAINER(box),name);
+
+
+    gtk_container_add (GTK_CONTAINER(nbr),box);
+    GtkSelectionMode mode = gtk_list_box_get_selection_mode (ui->layers);
+    g_print("%i\n",mode);
+    gtk_list_box_insert (ui->layers,GTK_WIDGET(nbr),0);
+    gtk_list_box_select_row (ui->layers,nbr);
+    //gtk_widget_hide (GTK_WIDGET(ui->layers));
+    gtk_widget_show_all(GTK_WIDGET(ui->layers));
+    g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), &ui);
+
+
+
+
+}
+
+
 int main ()
 {
 
@@ -568,7 +609,7 @@ int main ()
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
     
     GtkAdjustment* draw_size =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "draw_size"));  
-
+    GtkListBox * layers = GTK_LIST_BOX(gtk_builder_get_object(builder,"Layers"));
 
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
 
@@ -642,14 +683,13 @@ int main ()
                 .window = window,
                 .drawarea = drawarea,
                 .stack_used = stack_used,
-		
+		        .layers = layers,
                 .eb_draw = eb_draw,
 
                 .area = area,
                 .start_button = start_button,
                 .curserpos = curser_position,
-		.drawbuffer = drawbuffer,
-
+		        .drawbuffer = drawbuffer, 
                 .SAT_value = SAT_value_cursor,
                 .CB_value = CB_value_cursor,
                 .ROT_value = ROT_value_cursor,
@@ -658,15 +698,15 @@ int main ()
                 .drawzone = {0,0,0,0},
                 .width_print = print_width_value,
                 .height_print = print_height_value,
-		.xpos = 0,
-	        .ypos = 0,
+		        .xpos = 0,
+	             .ypos = 0,
                 .xmouse = 0,
                 .ymouse = 0,
 
-       		.draw_color = draw_color,
-	        .actual_color = pixel,
-
-		.pencil = pencil,
+       		    .draw_color = draw_color,
+	            .actual_color = pixel,
+        
+	        	.pencil = pencil,
 		.fill = flood_fill,
 
 		.brush1 = brush1,
@@ -709,6 +749,8 @@ int main ()
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);   
 
+    g_signal_connect(start_button, "clicked", G_CALLBACK(add_layer), &ui);
+
 
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
     g_signal_connect(saver, "clicked", G_CALLBACK(on_save), &ui);
@@ -718,7 +760,7 @@ int main ()
 
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "button_press_event",G_CALLBACK (mouse_clicked), &ui);
-
+   
     //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
     //
     g_signal_connect(draw_color,"color-set",G_CALLBACK(color_updated),&ui);
