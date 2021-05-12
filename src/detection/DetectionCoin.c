@@ -40,7 +40,8 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
         memset(BitMapA[i],0,BitMap->width*sizeof(int));
         memset(BitMapB[i],0,BitMap->width*sizeof(int));
         memset(BitMapC[i],0,BitMap->width*sizeof(int));
-        memset(BitMapSkip[i],1,BitMap->width*sizeof(int));
+        memset(BitMapSkip[i],0,BitMap->width*sizeof(int));
+	for(int j = 0 ; j<BitMap->width;j++ )BitMapSkip[i][j]=1;
         memset(BitMapCoin[i],0,BitMap->width*sizeof(int));
 
     }
@@ -107,24 +108,24 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
             if(C > treshold) BitMapSkip[i][j] = 0;
         }
     }
-
+    
     /* ----------------------- Maximum Isolation -------------------------- */
 
     int radius = coeffgauss2*2;
-    for (int i = radius; i < BitMap->height-radius-1 ; ++i)
+    for (int i = radius; i < BitMap->height-radius ; ++i)
     {
         int j = radius;
-        while (j < BitMap->width-radius-1 && (BitMapSkip[i][j] ||  BitMapF[i][j-1] >= BitMapF[i][j]))
+        while (j < BitMap->width-radius && (BitMapSkip[i][j] ||  BitMapF[i][j-1] >= BitMapF[i][j]))
         {
             j++;
         }
-        while (j < BitMap->width-radius-1)
+        while (j < BitMap->width-radius)
         {
-            while(j < BitMap->width-radius-1 && (BitMapSkip[i][j] ||  BitMapF[i][j+1] >= BitMapF[i][j]))
+            while(j < BitMap->width-radius && (BitMapSkip[i][j] ||  BitMapF[i][j+1] >= BitMapF[i][j]))
             {
                 j++;
             }
-            if(j < BitMap->width-radius-1)
+            if(j < BitMap->width-radius)
             {
                 int p1 = j+2;
                 while(p1 <= j + radius && BitMapF[i][p1] < BitMapF[i][j])
@@ -135,13 +136,13 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
                 if(p1 > j + radius)
                 {
                     int p2 = j-1;
-                    while(p2 >= j-radius && BitMapF[i][p2] < BitMapF[i][j])
+                    while(p2 >= j-radius && BitMapF[i][p2] <= BitMapF[i][j])
                     {
                         p2--;
                     }
                     if(p2 < j-radius)
                     {
-                        int k = i+radius;
+                        int k = i + radius;
                         int found = 0;
                         while(!found && k > i)
                         {
@@ -165,7 +166,7 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
                             }
                             k++;
                         }
-                        if(!found) BitMapCoin[i][j];
+                        if(!found) BitMapCoin[i][j]=1;
                     }
                 }
                 j = p1;
@@ -182,8 +183,9 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
             printf("%d",BitMapCoin[i][j]);
         }
         printf("\n");
-    }
+	}
 
+    
     for (int i = 0; i < BitMap->height; ++i)
     {
         free(BitMapGray[i]);
