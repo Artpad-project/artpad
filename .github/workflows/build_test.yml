@@ -19,5 +19,3 @@ jobs:
       - name: Build project
         run: make
       - uses: actions/checkout@master
-        with:
-          submodules: true
