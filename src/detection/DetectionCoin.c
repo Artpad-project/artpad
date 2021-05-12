@@ -118,14 +118,17 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
             {
                 BitMapF[i][j]=BitMapFT[i][j];
             }
-            int DX = 0.5 * (BitMapFT[i+1][j] - BitMapFT[i-1][j]);
-            int DY = 0.5 * (BitMapFT[i][j+1] - BitMapFT[i][j-1]);
-            int DX2 = BitMapFT[i+1][j] + BitMapFT[i-1][j] - 2 * BitMapFT[i][j];
-            int DY2 = BitMapFT[i][j+1] + BitMapFT[i][j-1] - 2 * BitMapFT[i][j];
-            int DXY = 0.25 * (BitMapFT[i+1][j+1] + BitMapFT[i-1][j-1] - BitMapFT[i+1][j-1] - BitMapFT[i-1][j+1]);
-            int C = BitMapFT[i][j] + DX + DY + 0.5* (DX2 + DY2 + DXY);
-            BitMapF[i][j] = C;
-            if(C > treshold) BitMapSkip[i][j] = 0;
+	    else
+	    {
+	      int DX = 0.5 * (BitMapFT[i+1][j] - BitMapFT[i-1][j]);
+	      int DY = 0.5 * (BitMapFT[i][j+1] - BitMapFT[i][j-1]);
+	      int DX2 = BitMapFT[i+1][j] + BitMapFT[i-1][j] - 2 * BitMapFT[i][j];
+	      int DY2 = BitMapFT[i][j+1] + BitMapFT[i][j-1] - 2 * BitMapFT[i][j];
+	      int DXY = 0.25 * (BitMapFT[i+1][j+1] + BitMapFT[i-1][j-1] - BitMapFT[i+1][j-1] - BitMapFT[i-1][j+1]);
+	      int C = BitMapFT[i][j] + DX + DY + 0.5* (DX2 + DY2 + DXY);
+	      BitMapF[i][j] = C;
+	      if(C > treshold) BitMapSkip[i][j] = 0;
+	    }
         }
     }
 
