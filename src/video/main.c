@@ -1,5 +1,5 @@
 #include <err.h>
-#include "video.h"
+#include "../../include/video.h"
 
 int main(int argc, char** argv)
 {

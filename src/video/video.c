@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#include "video.h"
+#include "../../include/video.h"
 
 size_t get_frame_number(char *file)
 {

@@ -3,7 +3,7 @@
  * stack with vector implementation code, derived from EPITA
 */
 
-#include "stack.h"
+#include "../../include/stack.h"
 #include <err.h>
 
 stack *new_stack()

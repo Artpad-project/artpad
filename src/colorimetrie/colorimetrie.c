@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <err.h>
-#include "colorimetrie.h"
-#include "../image/image.h"
-#include "stack.h"
+#include "../../include/colorimetrie.h"
+#include "../../include/image.h"
+#include "../../include/stack.h"
 #include <math.h>
 
 typedef struct coord coord;

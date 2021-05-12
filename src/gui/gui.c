@@ -13,16 +13,16 @@
 #include <gtk/gtk.h>
 #include <time.h>
 
-#include "../image/image.h"
-#include "../image/image_scaling.h"
-#include "../puissancen/PuissanceN.h"
-#include "../balanceauto/BalanceAuto.h"
-#include "../saturation/Saturation.h"
-#include "../rotation/Rotation.h"
-#include "../colorimetrie/colorimetrie.h"
-#include "../colorimetrie/stack.h"
-#include "../contrastsimple/ContrastSimple.h"
-#include "../flip/Flip.h"
+#include "../../include/image.h"
+#include "../../include/image_scaling.h"
+#include "../../include/PuissanceN.h"
+#include "../../include/BalanceAuto.h"
+#include "../../include/Saturation.h"
+#include "../../include/Rotation.h"
+#include "../../include/colorimetrie.h"
+#include "../../include/stack.h"
+#include "../../include/ContrastSimple.h"
+#include "../../include/Flip.h"
 
 // Structure of the graphical user interface.
 

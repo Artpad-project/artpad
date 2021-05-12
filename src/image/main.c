@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "image.h"
-#include "image_scaling.h"
+#include "../../include/image.h"
+#include "../../include/image_scaling.h"
 
 int main() {
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "rotoscopie.h"
-#include "../image/image.h"
-#include "../video/video.h"
+#include "../../include/rotoscopie.h"
+#include "../../include/image.h"
+#include "../../include/video.h"
 
 int main(int argc, char *argv[])
 {

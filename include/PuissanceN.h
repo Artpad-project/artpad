@@ -5,7 +5,7 @@
 #ifndef ARTPAD_PUISSANCEN_H
 #define ARTPAD_PUISSANCEN_H
 
-#include "../image/image.h"
+#include "image.h"
 
 void BalanceAbsolue(Image* Bitmap, double coeflum);
 

@@ -8,7 +8,7 @@
  *  3/9/2021 - image loading
  */
 
-#include "image.h"
+#include "../../include/image.h"
 #include <stdlib.h>
 #include <string.h>
 

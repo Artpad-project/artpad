@@ -5,10 +5,12 @@
   </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="artpad" targetName="gui" />
-      <config projectName="artpad" targetName="magic_wand" />
+      <config projectName="artpad" targetName="clean_all" />
+      <config projectName="artpad" targetName="build" />
       <config projectName="artpad" targetName="all" />
-      <config projectName="artpad" targetName="image" />
+      <config projectName="artpad" targetName="clean_tests" />
+      <config projectName="artpad" targetName="cleanall" />
+      <config projectName="artpad" targetName="help" />
       <config projectName="artpad" targetName="artpad" />
     </generated>
   </component>
@@ -18,9 +20,26 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="">
+    <list default="true" id="a93b16b0-2f72-44c9-b0bc-23e4a54278b3" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libalgo-c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/libalgo-c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libalgo-c/test/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/lib/libalgo-c/test/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/gui.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/gui.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/filter.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/filter.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/image.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/image.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/image_scaling.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/image_scaling.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/image/mask.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/image/mask.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/puissancen/PuissanceN.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/puissancen/PuissanceN.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/puissancen/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/puissancen/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rotoscopie/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/rotoscopie/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/rotoscopie/main_video.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/rotoscopie/main_video.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rotoscopie/rotoscopie.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/rotoscopie/rotoscopie.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/rotoscopie/rotoscopie_video.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/rotoscopie/rotoscopie_video.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utils.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utils.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,13 +57,8 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitSEFilterConfiguration">
-    <file-type-list>
-      <filtered-out-file-type name="LOCAL_BRANCH" />
-      <filtered-out-file-type name="REMOTE_BRANCH" />
-      <filtered-out-file-type name="TAG" />
-      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
-    </file-type-list>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="lx6ysos0" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="availableProjects">
@@ -73,7 +87,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectId" id="1qG1CUnCB2x1mB9rgtPCE1fDCKS" />
+  <component name="ProjectId" id="1sQrbW71AISx0F6am9FS1WNq4iY" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -86,16 +100,14 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
-    <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/rotoscopie" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../TP" />
   </component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Makefile Application.magic_wand">
+  <component name="RunManager" selected="Makefile Application.clean_tests">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -106,65 +118,59 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="gui" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="gui" CONFIG_NAME="gui" version="1">
+    <configuration name="build" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="build" CONFIG_NAME="build" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="image" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="image" CONFIG_NAME="image" version="1">
+    <configuration name="clean_all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="clean_all" CONFIG_NAME="clean_all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="magic_wand" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="rectangle.png 12 12" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$/src/rotoscopie" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="magic_wand" CONFIG_NAME="magic_wand" version="1" RUN_PATH="$PROJECT_DIR$/src/rotoscopie/test">
+    <configuration name="clean_tests" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="clean_tests" CONFIG_NAME="clean_tests" version="1">
       <method v="2">
-        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_magic_wand" />
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="cleanall" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="cleanall" CONFIG_NAME="cleanall" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="help" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="artpad" TARGET_NAME="help" CONFIG_NAME="help" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Makefile Application.all" />
       <item itemvalue="Makefile Application.artpad" />
-      <item itemvalue="Makefile Application.gui" />
-      <item itemvalue="Makefile Application.image" />
-      <item itemvalue="Makefile Application.magic_wand" />
+      <item itemvalue="Makefile Application.build" />
+      <item itemvalue="Makefile Application.clean_tests" />
+      <item itemvalue="Makefile Application.cleanall" />
+      <item itemvalue="Makefile Application.all" />
+      <item itemvalue="Makefile Application.clean_all" />
+      <item itemvalue="Makefile Application.help" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="dea4654d-4fea-4b2e-abc0-797092d66a8b" name="Default Changelist" comment="" />
-      <created>1616690984870</created>
+      <changelist id="a93b16b0-2f72-44c9-b0bc-23e4a54278b3" name="Default Changelist" comment="" />
+      <created>1620815729469</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1616690984870</updated>
-      <workItem from="1616690991631" duration="42000" />
-      <workItem from="1616691044467" duration="15000" />
-      <workItem from="1620148284315" duration="3764000" />
-      <workItem from="1620152395328" duration="1944000" />
-      <workItem from="1620197193539" duration="7041000" />
-      <workItem from="1620209641214" duration="6334000" />
-      <workItem from="1620218129771" duration="1275000" />
-      <workItem from="1620231353394" duration="1873000" />
+      <updated>1620815729469</updated>
+      <workItem from="1620815738360" duration="22000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="VIDEO: Saving a video&#10;&#10;FIX: The frames are loaded in the wrong order, we just need to get the&#10;number of frames before allocating the array and find which frame it is&#10;from the file name." />
-    <MESSAGE value="VIDEO: Load video from pipe using ffmpeg" />
   </component>
 </project>

@@ -1,4 +1,4 @@
-#include "BalanceAuto.h"
+#include "../../include/BalanceAuto.h"
 
 int main()
 {
