@@ -19,17 +19,17 @@ void Detection(Image* BitMap)
 
     for (int i = 0; i<BitMap->height; i++)
     {
-        BitMapGray[i] = malloc(BitMap->width * sizeof *BitMapGray[i]);
-        BitMapF[i] = malloc(BitMap->width * sizeof *BitMapF[i]);
-        BitMapA[i] = malloc(BitMap->width * sizeof *BitMapA[i]);
-        BitMapB[i] = malloc(BitMap->width * sizeof *BitMapB[i]);
-        BitMapC[i] = malloc(BitMap->width * sizeof *BitMapC[i]);
+        BitMapGray[i] = malloc(BitMap->width *sizeof(int));
+        BitMapF[i] = malloc(BitMap->width *sizeof(int));
+        BitMapA[i] = malloc(BitMap->width *sizeof(int));
+        BitMapB[i] = malloc(BitMap->width *sizeof(int));
+        BitMapC[i] = malloc(BitMap->width *sizeof(int));
 
-        memset(BitMapGray[i],0,BitMap->width);
-        memset(BitMapF[i],0,BitMap->width);
-        memset(BitMapA[i],0,BitMap->width);
-        memset(BitMapB[i],0,BitMap->width);
-        memset(BitMapC[i],0,BitMap->width);
+        memset(BitMapGray[i],0,BitMap->width*sizeof(int));
+        memset(BitMapF[i],0,BitMap->width*sizeof(int));
+        memset(BitMapA[i],0,BitMap->width*sizeof(int));
+        memset(BitMapB[i],0,BitMap->width*sizeof(int));
+        memset(BitMapC[i],0,BitMap->width*sizeof(int));
 
     }
 
@@ -37,7 +37,7 @@ void Detection(Image* BitMap)
 
     for (int i = 0; i < BitMap->height; ++i) {
         for (int j = 0; j < BitMap->width; ++j) {
-            BitMapGray[j][i] = (int)
+            BitMapGray[i][j] = (int)
                     (BitMap->pixels[j][i].red*0.2126 + BitMap->pixels[j][i].green*0.7152 + BitMap->pixels[j][i].blue*0.0722);
         }
     }
@@ -48,31 +48,31 @@ void Detection(Image* BitMap)
         for (int j = 0; j < BitMap->width; ++j) {
             if(i == 0 || j == 0 || i == BitMap->height-1 || j == BitMap->width-1)
             {
-                BitMapA[j][i] = 0;
-                BitMapB[j][i] = 0;
-                BitMapC[j][i] = 0;
+                BitMapA[i][j] = 0;
+                BitMapB[i][j] = 0;
+                BitMapC[i][j] = 0;
             }
             else
             {
-               BitMapA[j][i] = (int)(pow(BitMapGray[j+1][i] - BitMapGray[j-1][i],2));
-               BitMapB[j][i] = (int)(pow(BitMapGray[j][i+1] - BitMapGray[j][i-1],2));
-               BitMapC[j][i] = (BitMapGray[j+1][i] - BitMapGray[j-1][i])*(BitMapGray[j][i+1] - BitMapGray[j][i-1]);
+               BitMapA[i][j] = (int)(pow(BitMapGray[i+1][j] - BitMapGray[i-1][j],2));
+               BitMapB[i][j] = (int)(pow(BitMapGray[i][j+1] - BitMapGray[i][j-1],2));
+               BitMapC[i][j] = (BitMapGray[i+1][j] - BitMapGray[i-1][j])*(BitMapGray[i][j+1] - BitMapGray[i][j-1]);
             }
         }
     }
 
     /* -------------------------- Gauss Filter ----------------------------- */
 
-    for (int i = 0; i < BitMap->height; ++i) {
+    /*for (int i = 0; i < BitMap->height; ++i) {
         for (int j = 0; j < BitMap->width; ++j) {
             if (i > 1 && j > 1 && i < BitMap->height - 3 && j < BitMap->width - 3)
             {
-                BitMapA[j][i] = GaussPxl(i,j,BitMapA);
-                BitMapB[j][i] = GaussPxl(i,j,BitMapB);
-                BitMapC[j][i] = GaussPxl(i,j,BitMapC);
+                BitMapA[i][j] = GaussPxl(i,j,BitMapA);
+                BitMapB[i][j] = GaussPxl(i,j,BitMapB);
+                BitMapC[i][j] = GaussPxl(i,j,BitMapC);
             }
         }
-    }
+	}*/
 
     /* -------------------------- Final Matrix ----------------------------- */
 
@@ -80,18 +80,19 @@ void Detection(Image* BitMap)
         for (int j = 0; j < BitMap->width; ++j) {
             if(i == 0 || j == 0 || i == BitMap->height-1 || j == BitMap->width-1)
             {
-                BitMapF[j][i] = 0;
+                BitMapF[i][j] = 0;
             }
             else
             {
-                int C = (int)((double)(BitMapA[j][i] * BitMapB[j][i] - BitMapC[j][i])*2 - 0.05 * (BitMapA[j][i] + BitMapB[j][i]) *2);
-                if(C > 106)
+	      int C = ABS(BitMapA[i][j] * BitMapB[i][j] - pow(BitMapC[i][j],2) - 0.05 * pow((BitMapA[i][j] + BitMapB[i][j]),2));
+	      //printf("%d ",C);
+                if(C > 25000)
                 {
-                    BitMapF[j][i] = C;
+                    BitMapF[i][j] = 1;
                 }
                 else
                 {
-                    BitMapF[j][i] = 0;
+                    BitMapF[i][j] = 0;
                 }
             }
 
@@ -114,10 +115,10 @@ void Detection(Image* BitMap)
     {
         for (int j = 0; j < BitMap->width; ++j)
         {
-            printf("%d ",BitMapF[j][i]);
+            printf("%d",BitMapF[i][j]);
         }
         printf("\n");
-    }
+	}
 }
 
 
@@ -125,15 +126,17 @@ int GaussPxl(int x, int y,int** Bitmap)
 {
     double gray_prime = 0;
     int convo = 0;
-    for(int i = x-3; i <= x+3 ; ++i )
+    for(int i = x-2; i <= x+2 ; ++i )
     {
-        for(int j = y-3; j <= y+3; ++j)
+        for(int j = y-2; j <= y+2; ++j)
         {
             double coef = GaussMatrix[convo];
-            gray_prime += Bitmap[j][i]*coef;
+            gray_prime += Bitmap[i][j]*coef;
             ++convo;
         }
     }
     gray_prime *= 0.004;
     return (int)gray_prime;
 }
+
+

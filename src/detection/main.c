@@ -2,9 +2,9 @@
 
 int main()
 {
-  Image* Bitmap = load_image("Test/yiff.jpg");
+  Image* Bitmap = load_image("Test/gruik2.jpg");
   Detection(Bitmap);
-  //save_image(Bitmap,"result","jpeg");
+  //save_image(Bitmap,"result","png");
   free_image(Bitmap);
   return 0;
 }
