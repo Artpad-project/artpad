@@ -1,0 +1,3 @@
+[submodule "lib/libalgo-c"]
+	path = lib/libalgo-c
+	url = https://github.com/d4ilyrun/libalgo-c
