@@ -1,14 +1,35 @@
-all:
-	$(MAKE) -C src/
-artpad:
-	$(MAKE) -C src/ artpad
-image:
-	$(MAKE) -C src/ image
-gui:
-	$(MAKE) -C src/ gui
-magic_wand:
-	$(MAKE) -C src/ magic_wand
-clean:
-	$(MAKE) -C src/ clean
+SRC_DIR := src
+BIN_DIR := bin
+TEST_DIR := test
+OUT := artpad
 
-.POHNY: clean all
+MAKE += --no-print-directory
+
+all: $(OUT)
+
+.PHONY: build $(OUT) test%
+build:
+	@echo "Compiling executable into $(BIN_DIR)..."
+	@$(MAKE) -C $(SRC_DIR) build BIN_DIR=../$(BIN_DIR) 
+	@echo "Built sucessfuly !"
+
+$(OUT):
+	@$(MAKE) -C $(SRC_DIR) BIN_DIR=../$(BIN_DIR) 
+	@echo "Compiled sucessfuly !"
+
+test%:
+	@$(MAKE) -C $(TEST_DIR) $@ BIN_DIR=../$(BIN_DIR)
+
+.PHONY: clean clean_tests cleanall
+clean:
+	@$(MAKE) -C $(SRC_DIR) clean BIN_DIR=../$(BIN_DIR) 
+
+clean_tests:
+	@$(MAKE) -C $(TEST_DIR) clean 
+
+clean_all: clean clean_tests
+
+help:
+	@$(MAKE) -C $(SRC_DIR) help 
+	@$(MAKE) -C $(TEST_DIR) help 
+	@rm -rf cmake-build-debug/

@@ -1,7 +1,7 @@
 #ifndef SRC_VIDEO_H
 #define SRC_VIDEO_H
 
-#include "../image/image.h"
+#include "image.h"
 
 typedef struct {
     int width, height;

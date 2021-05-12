@@ -2,10 +2,10 @@
 #include <string.h>
 #include <err.h>
 
-#include "../video/video.h"
-#include "../colorimetrie/stack.h"
-#include "../utils/utils.h"
-#include "rotoscopie.h"
+#include "../../include/video.h"
+#include "../../include/stack.h"
+#include "../../include/utils.h"
+#include "../../include/rotoscopie.h"
 
 #define FRAMES_TO_CHECK 3
 

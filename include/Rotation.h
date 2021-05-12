@@ -1,7 +1,7 @@
 #ifndef ARTPAD_ROTATION_H
 #define ARTPAD_ROTATION_H
 
-#include "../image/image.h"
+#include "image.h"
 
 int Rotate(Image* BitMap, float angle);
 
