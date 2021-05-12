@@ -11,18 +11,18 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <time.h>
+
 #include "../image/image.h"
 #include "../image/image_scaling.h"
 #include "../puissancen/PuissanceN.h"
 #include "../balanceauto/BalanceAuto.h"
-
 #include "../saturation/Saturation.h"
-#include "../rotation/Rotation.c"
+#include "../rotation/Rotation.h"
 #include "../colorimetrie/colorimetrie.h"
 #include "../colorimetrie/stack.h"
 #include "../contrastsimple/ContrastSimple.h"
 #include "../flip/Flip.h"
-#include <time.h>
 
 // Structure of the graphical user interface.
 
