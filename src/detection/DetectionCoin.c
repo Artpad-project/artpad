@@ -22,6 +22,7 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
     int** BitMapB = malloc(BitMap->height * sizeof (int*));
     int** BitMapC = malloc(BitMap->height * sizeof (int*));
     int** BitMapF = malloc(BitMap->height * sizeof (int*));
+    int** BitMapFT = malloc(BitMap->height * sizeof (int*));
     int** BitMapSkip = malloc(BitMap->height * sizeof (int*));
     int** BitMapCoin = malloc(BitMap->height * sizeof (int*));
 
@@ -29,6 +30,7 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
     {
         BitMapGray[i] = malloc(BitMap->width *sizeof(int));
         BitMapF[i] = malloc(BitMap->width *sizeof(int));
+        BitMapFT[i] = malloc(BitMap->width *sizeof(int));
         BitMapA[i] = malloc(BitMap->width *sizeof(int));
         BitMapB[i] = malloc(BitMap->width *sizeof(int));
         BitMapC[i] = malloc(BitMap->width *sizeof(int));
@@ -37,11 +39,11 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
 
         memset(BitMapGray[i],0,BitMap->width*sizeof(int));
         memset(BitMapF[i],0,BitMap->width*sizeof(int));
+        memset(BitMapFT[i],0,BitMap->width*sizeof(int));
         memset(BitMapA[i],0,BitMap->width*sizeof(int));
         memset(BitMapB[i],0,BitMap->width*sizeof(int));
         memset(BitMapC[i],0,BitMap->width*sizeof(int));
-        memset(BitMapSkip[i],0,BitMap->width*sizeof(int));
-	for(int j = 0 ; j<BitMap->width;j++ )BitMapSkip[i][j]=1;
+        for(int j = 0 ; j<BitMap->width;j++ )BitMapSkip[i][j]=1;
         memset(BitMapCoin[i],0,BitMap->width*sizeof(int));
 
     }
@@ -103,12 +105,30 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
     for (int i = 0; i < BitMap->height; ++i) {
         for (int j = 0; j < BitMap->width; ++j)
         {
-            int C = (BitMapA[i][j] * BitMapB[i][j] - pow(BitMapC[i][j],2) - (harriscoef * pow((BitMapA[i][j] + BitMapB[i][j]),2)));
+            BitMapFT[i][j] = (BitMapA[i][j] * BitMapB[i][j] - pow(BitMapC[i][j],2) - (harriscoef * pow((BitMapA[i][j] + BitMapB[i][j]),2)));
+        }
+    }
+
+    /* ----------------------- SubPixel Accuracy -------------------------- */
+
+    for (int i = 0; i < BitMap->height; ++i) {
+        for (int j = 0; j < BitMap->width; ++j)
+        {
+            if(i == 0 || j == 0 || i == BitMap->height-1 || j == BitMap->width-1)
+            {
+                BitMapF[i][j]=BitMapFT[i][j];
+            }
+            int DX = 0.5 * (BitMapFT[i+1][j] - BitMapFT[i-1][j]);
+            int DY = 0.5 * (BitMapFT[i][j+1] - BitMapFT[i][j-1]);
+            int DX2 = BitMapFT[i+1][j] + BitMapFT[i-1][j] - 2 * BitMapFT[i][j];
+            int DY2 = BitMapFT[i][j+1] + BitMapFT[i][j-1] - 2 * BitMapFT[i][j];
+            int DXY = 0.25 * (BitMapFT[i+1][j+1] + BitMapFT[i-1][j-1] - BitMapFT[i+1][j-1] - BitMapFT[i-1][j+1]);
+            int C = BitMapFT[i][j] + DX + DY + 0.5* (DX2 + DY2 + DXY);
             BitMapF[i][j] = C;
             if(C > treshold) BitMapSkip[i][j] = 0;
         }
     }
-    
+
     /* ----------------------- Maximum Isolation -------------------------- */
 
     int radius = coeffgauss2*2;
@@ -183,9 +203,9 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
             printf("%d",BitMapCoin[i][j]);
         }
         printf("\n");
-	}
+    }
 
-    
+
     for (int i = 0; i < BitMap->height; ++i)
     {
         free(BitMapGray[i]);
@@ -193,6 +213,7 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
         free(BitMapB[i]);
         free(BitMapC[i]);
         free(BitMapF[i]);
+        free(BitMapFT[i]);
         free(BitMapSkip[i]);
         free(BitMapCoin[i]);
     }
@@ -201,6 +222,7 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
     free(BitMapB);
     free(BitMapC);
     free(BitMapF);
+    free(BitMapFT);
     free(BitMapSkip);
     free(BitMapCoin);
 }
@@ -221,5 +243,3 @@ int GaussPxl(int x, int y,int** Bitmap,double coefgauss2)
     }
     return (int)gray_prime;
 }
-
-
