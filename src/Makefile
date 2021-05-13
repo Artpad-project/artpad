@@ -1,46 +1,47 @@
-OUT = artpad $(wildcard *.out)
-CFLAGS = -Wall -Wextra
-CC = gcc
-CPPFLAGS =
+MAKE = make --no-print-directory
+OUT = artpad
+BIN_DIR = ../bin
 
-# LIBS
-LIBS =
-GTKLIBS = $(shell pkg-config --libs gtk+-3.0)
-GTKFLAGS = $(shell pkg-config --cflags gtk+-3.0)
+-include variables.mk
 
-IMG_OBJ := 			image/image.o \
-					image/image_scaling.o \
-					image/mask.o \
-					image/filter.o
-GUI_OBJ := 			$(IMG_OBJ) \
-					$(PUISSANCE_N_OBJ) \
-					$(MAGIC_WAND_OBJ)
-PUISSANCE_N_OBJ := 	puissancen/PuissanceN.o \
-					$(IMG_OBJ)
-MAGIC_WAND_OBJ 	:= 	rotoscopie/rotoscopie.o \
-					$(IMG_OBJ)
+ifdef DEBUG
+	CFLAGS += -g -fsanitize=address #-DNDEBUG
+endif
 
-OBJ = 				$(IMG_OBJ) \
-					$(GUI_OBJ) \
-					$(PUISSANCE_N_OBJ) \
-					$(MAGIC_WAND_OBJ) \
-					$(wildcard */main.o) \
-					gui/gui.o
+OBJS = $(patsubst %.c,$(BIN_DIR)/%.o,$(SRC))
 
-all:artpad
-artpad:
-	$(CC) main.c -o $@
-image: $(IMG_OBJ) image/main.o
-	$(CC) $(GTKLIBS) $^ -o image.out
-gui: $(GUI_OBJ) gui/gui.o
-	$(CC) $(GTKLIBS) $^ -o gui.out
-magic_wand: $(IMG_OBJ) rotoscopie/main.o
-	$(CC) $(GTKLIBS) $^ -o magic_wand.out
+######## PUBLIC RULES #########
 
-%.o: %.c
-	@$(CC) $(CPPFLAGS) $(CFLAGS) $(GTKFLAGS) -c $< -o $@
+all: $(OUT)
+$(OUT): build #$(BIN_DIR)/main.o
+	$(CC) $(CFLAGS) $(LDLIB) $(OBJS) -o ../$@
+
+build: build_libs build_dir $(OBJS)
 
 clean:
-	rm -f $(OBJ) $(OUT)
+	@$(MAKE) -C ../lib clean
+	rm -rf ../$(OUT) $(BIN_DIR)
 
-.PHONY: clean all
+help:
+	@echo "List of rules:"
+	@echo "-- all : default rule ($(OUT))"
+	@echo "-- $(OUT) : build the project and create an executable"
+	@echo "-- build : build all source files into $(BIN_DIR)"
+	@echo "-- clean : remove executable and $(BIN_DIR)"
+	@echo "Available ptions:"
+	@echo "-- DEBUG"
+
+.PHONY: clean all build
+
+######## PRIVATE RULES ########
+
+build_dir:
+	@[ -d $(BIN_DIR) ] || mkdir $(BIN_DIR)	
+
+$(BIN_DIR)/%.o: %.c
+	@echo "-- $< -> $@"
+	@mkdir -p $(shell dirname $@)
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(GTKFLAGS) -c $< -o $@
+
+build_libs:
+	@$(MAKE) -C ../lib

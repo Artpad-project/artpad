@@ -14,187 +14,62 @@
  *  - https://www.losingfight.com/blog/2007/08/28/how-to-implement-a-magic-wand-tool/
  */
 
-#include "rotoscopie.h"
+#include <stdlib.h>
+#include <string.h>
+#include <err.h>
 
-struct cords {
-    int x;
-    int y;
-};
+#include "../../include/image.h"
+#include "../../include/stack.h"
+#include "../../include/utils.h"
+#include "../../include/rotoscopie.h"
 
-struct line_segment {
-    struct cords start;
-    struct cords end;
-};
+static int check_pixel(struct Pixel px, struct Pixel origin)
+{
+    return  ((double)ABS(origin.red - px.red) / 255 <= MAGIC_WAND_THRESHOLD) &&
+            ((double)ABS(origin.green - px.green) / 255 <= MAGIC_WAND_THRESHOLD) &&
+            ((double)ABS(origin.blue - px.blue) / 255 <= MAGIC_WAND_THRESHOLD);
+}
 
-struct args {
-    Stack *segment_stack;
-    ImageMask mask;
-    Pixel origin;
+ImageMask magic_wand(struct Image *img, int x, int y)
+{
+    struct coord c = {x, y};
+    stack *s = new_stack();
+    ImageMask mask = init_mask(img);
     uint8_t *buf;
-    struct cords pixel;
-};
+    Pixel px;
 
-typedef struct thread_info {
-    int nprocs, nthreads;
-    pthread_t *threads;
-    struct args args;
-}thread_info;
+    ASSERT(x >= 0 && y >= 0 && x < img->width && y <img->height, mask);
 
-static void * magic_wand_rec(void *arg);
-static void magic_wand_async(thread_info t_info);
-static int check_pixel(Pixel origin, Pixel pixel);
-static void line_search(struct args *args);
+    stack_push(s, c);
+    buf = malloc(img->width * img->height * sizeof(uint8_t));
+    memset(buf, 0, img->height * img->width * sizeof(uint8_t));
 
-ImageMask 
-magic_wand(Image *im, int x, int y) {
-    ImageMask mask;
-    Pixel base;
-    uint8_t *buf;
-    pthread_t *threads;
-    thread_info t_info;
-    int nprocs;
+    while(!stack_IsEmpty(s))
+    {
+        c = stack_pop(s);
+        x = c.x;
+        y = c.y;
 
-    mask = init_mask(im);
-    ASSERT(x >= 0 && y >= 0 && x < im->width && y <im->height, mask);
+        edit_mask(mask, x, y, TRUE);
+        buf[y * img->width + x] = 1;
+        px = img->pixels[x][y];
 
-    base = im->pixels[x][y];
-    buf = malloc(im->width * im->height * sizeof(uint8_t));
-    nprocs = get_nprocs();
-
-    struct args args = (struct args){NULL, mask, base, buf, (struct cords){x, y}};
-
-    // FIXME: empty stack when using different threads
-    if (nprocs < 4 || 1) {
-        args.segment_stack = create_stack();
-        line_search(&args);
-        magic_wand_rec((void *)&args);
-    }
-    else {
-        nprocs = nprocs >= 8 ? 8 : 4;
-        threads = malloc(nprocs * sizeof(pthread_t));
-        t_info = (thread_info){nprocs, 0, threads, args};
-        magic_wand_async(t_info);
-        for (int i = 0; i < nprocs; ++i)
-            pthread_join(threads[i], NULL);
+        if (x+1 < img->width && !buf[y * img->width + x + 1] &&
+                check_pixel(img->pixels[x + 1][y], px))
+            stack_push(s, (struct coord){x+1, y});
+        if (x-1 >= 0 && !buf[y * img->width + x - 1] &&
+                check_pixel(img->pixels[x - 1][y], px))
+            stack_push(s, (struct coord){x-1, y});
+        if (y+1 < img->height && !buf[(y+1)*img->width + x] &&
+                check_pixel(img->pixels[x][y + 1], px))
+            stack_push(s, (struct coord){x, y+1});
+        if (y-1 >= 0 && !buf[(y-1)*img->width + x] &&
+                check_pixel(img->pixels[x][y - 1], px))
+            stack_push(s, (struct coord){x, y-1});
     }
 
+    stack_free(s);
     free(buf);
+
     return mask;
 }
-
-static void *
-magic_wand_rec(void *arg) {
-    struct args args = *(struct args *)arg;
-
-    ImageMask mask = args.mask;
-    int line;
-    struct line_segment *current_segment;
-
-    // For each line segment:
-    //  - walk the points directly above and below it repeating the line search
-    //  - map already encountered pixels to avoid infinite recursion
-    while(!is_stack_empty(args.segment_stack)) {
-        current_segment = (struct line_segment *)pop_from_stack(&args.segment_stack);
-        line = current_segment->start.y;
-        for (int x = current_segment->start.x; x <= current_segment->end.x; ++x) {
-            if (line > 0) {
-                args.pixel.y = line - 1;
-                if (check_pixel(args.origin, mask.image->pixels[x][args.pixel.y]))
-                    line_search(&args);
-            }
-            if (line < args.mask.height - 1) {
-                args.pixel.y = line + 1;
-                if (check_pixel(args.origin, mask.image->pixels[x][args.pixel.y]))
-                    line_search(&args);
-            }
-        }
-        free(current_segment);
-    }
-
-    return (void *)EXIT_SUCCESS;
-}
-
-/*
- * To make it faster we can execute on different threads. 
- * The number of threads depends on the actual number of cores of the CPU and can be either 4 or 8. 
- * We check the eight pixels surrounding the starting point and create a thread for each of them (or 2 by 2 if we are only using 4 cores).
- */
-static void
-magic_wand_async(thread_info t_info){
-    struct args args = t_info.args;
-    struct cords tmp = args.pixel;
-    int nb_thread;
-
-    for (int x = -1; x <= 1; ++x) {
-        for (int y = -1; y <= 1; ++y) {
-            if (x != 0 || y != 0) {
-                args.segment_stack = create_stack();
-                args.pixel.x = tmp.x + x;
-                args.pixel.y = tmp.y + y;
-                line_search(&args);
-                nb_thread = t_info.nthreads % t_info.nprocs;
-                pthread_create(&t_info.threads[nb_thread], NULL, magic_wand_rec, (void *)&args);
-                t_info.nthreads += 1;
-            }
-        }
-    }
-}
-
-#pragma region utils
-
-static int
-check_pixel(Pixel origin, Pixel pixel) {
-    float sum_origin = (float)(origin.red + origin.green + origin.blue);
-    float sum_pixel = (float)(pixel.red + pixel.green + pixel.blue);
-    float difference = ABS(sum_origin - sum_pixel) / (3*255);
-    int check = difference <= MAGIC_WAND_THRESHOLD;
-
-    return check;
-}
-
-/*
- * Search left and right to construct a line segment then push it onto the stack.
- */
-void line_search(struct args *args) {
-    ASSERT(args->pixel.y >= 0 && args->pixel.y < args->mask.height);
-    ASSERT(args->pixel.x >= 0 && args->pixel.x < args->mask.width);
-
-    int line_offset = args->pixel.y * args->mask.width;
-    if (args->buf[line_offset + args->pixel.x])
-        return;
-
-    struct line_segment *segment = malloc(sizeof (struct line_segment));
-    *segment = (struct line_segment){args->pixel, args->pixel};
-
-    segment->end.x += 1;
-
-    while (segment->start.x >= -1) {
-        if (!segment->start.x ||
-            args->buf[line_offset + segment->start.x] ||
-            !check_pixel(args->origin, args->mask.image->pixels[segment->start.x][segment->start.y]))
-        {
-            segment->start.x += 1;
-            break;
-        }
-        args->buf[line_offset + segment->start.x] = 1;
-        edit_mask(args->mask, segment->start.x, segment->start.y, TRUE);
-        segment->start.x -= 1;
-    }
-    while (segment->end.x <= args->mask.width) {
-        if (segment->end.x == args->mask.width ||
-            args->buf[line_offset + segment->end.x] ||
-            !check_pixel(args->origin, args->mask.image->pixels[segment->end.x][segment->end.y]))
-        {
-            segment->end.x -= 1;
-            break;
-        }
-        args->buf[line_offset + segment->end.x] = 1;
-        edit_mask(args->mask, segment->end.x, segment->end.y, TRUE);
-        segment->end.x += 1;
-    }
-
-    if (segment->end.x != segment->start.x)
-        args->segment_stack = push_to_stack(args->segment_stack, (void *)segment);
-}
-
-#pragma endregion utils

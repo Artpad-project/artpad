@@ -8,7 +8,7 @@
  *  3/9/2021 - image loading
  */
 
-#include "image.h"
+#include "../../include/image.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -32,16 +32,9 @@ new_image(int width,int height) {
     struct Image *image = malloc(sizeof(struct Image)); 
 
     struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
-    for (int i = 0; i < width; i++)
+    for (int i = 0; i < width; i++) {
         im_pixels[i] = (struct Pixel *)malloc(height * sizeof(struct Pixel));
-    
-    for(int x=0 ;x<width;x++){
-        for(int y = 0;y<height;y++){
-            im_pixels[x][y].alpha = 255;
-            im_pixels[x][y].red = 255;
-            im_pixels[x][y].green = 255;
-            im_pixels[x][y].blue = 255;
-        }
+        memset(im_pixels[i], 256, height*sizeof(struct Pixel));
     }
     
     pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
@@ -92,8 +85,6 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
     save_image_pixels(image);
     return image;
-
-
 }
 
 
@@ -185,12 +176,15 @@ save_image_pixels(struct Image *im) {
  */
 void
 free_image(struct Image *image) {
-    for (int x = 0; x < image->width; ++x)
-        free(image->pixels[x]);
-    free(image->pixels);
-    free(image->file);
-    free(image->file_type);
-    free(image);
+    if(image){
+    	for (int x = 0; x < image->width; ++x)
+            free(image->pixels[x]);
+    	free(image->pixels);
+    	free(image->file);
+    	free(image->file_type);
+    	//free(image);
+
+    }
 }
 
 /*!
@@ -293,7 +287,6 @@ struct Image *copy_image(Image *origin, Image *copy){
 struct Image *
 create_copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
-    printf("copied\n");
     *new_image = (struct Image) {
         strdup(im->file),
         strdup(im->file_type),
@@ -310,4 +303,15 @@ create_copy_image(const struct Image *im) {
     }
 
     return new_image;
+}
+
+
+struct Pixel 
+pixel_from_GdkRGBA(GdkRGBA *col){
+	struct Pixel pixel;
+	pixel.red = col->red*255;
+	pixel.green = col->green*255;
+	pixel.blue = col->blue*255;
+	pixel.alpha = col->alpha*255;
+	return pixel;
 }
