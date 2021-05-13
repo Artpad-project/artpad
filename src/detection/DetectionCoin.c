@@ -4,10 +4,16 @@
 #include <stdio.h>
 #include <math.h>
 
-double GaussMatrix[25] = {0.03,0.16,5.98,0.16,0.03,0.16,7.7,27.8,7.7,0.16,5.98,27.8,100,27.8,5.98,0.16,7.7,27.8,7.7,0.16,0.03,0.16,5.98,0.16,0.03};
-int GaussPxl(int x, int y,int** Bitmap);
+int GaussPxl(int x, int y, int** Bitmap, double coefgauss2);
 
-void Detection(Image* BitMap)
+/* Default parameter :
+ * coefgauss1 : 1
+ * coefgauss2 : 2.5
+ * harriscoef : 0.006
+ * treshold : 130
+ * */
+
+void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harriscoef, int treshold)
 {
     /* ------------------------ Initialisation ----------------------------- */
 
@@ -42,6 +48,17 @@ void Detection(Image* BitMap)
         }
     }
 
+    /* ----------------------- Smoothing Image ---------------------------- */
+
+    for (int i = 0; i < BitMap->height; ++i) {
+        for (int j = 0; j < BitMap->width; ++j) {
+            if (i > 1 && j > 1 && i < BitMap->height - 3 && j < BitMap->width - 3)
+            {
+                BitMapGray[i][j]=GaussPxl(i,j,BitMapGray,coeffgauss1);
+            }
+        }
+    }
+
     /* --------------------------- Matrix --------------------------------- */
 
     for (int i = 0; i < BitMap->height; ++i) {
@@ -54,50 +71,36 @@ void Detection(Image* BitMap)
             }
             else
             {
-               BitMapA[i][j] = (int)(pow(BitMapGray[i+1][j] - BitMapGray[i-1][j],2));
-               BitMapB[i][j] = (int)(pow(BitMapGray[i][j+1] - BitMapGray[i][j-1],2));
-               BitMapC[i][j] = (BitMapGray[i+1][j] - BitMapGray[i-1][j])*(BitMapGray[i][j+1] - BitMapGray[i][j-1]);
+                BitMapA[i][j] = (int)(pow(BitMapGray[i+1][j] - BitMapGray[i-1][j],2));
+                BitMapB[i][j] = (int)(pow(BitMapGray[i][j+1] - BitMapGray[i][j-1],2));
+                BitMapC[i][j] = (BitMapGray[i+1][j] - BitMapGray[i-1][j])*(BitMapGray[i][j+1] - BitMapGray[i][j-1]);
             }
         }
     }
 
     /* -------------------------- Gauss Filter ----------------------------- */
 
-    /*for (int i = 0; i < BitMap->height; ++i) {
+    for (int i = 0; i < BitMap->height; ++i) {
         for (int j = 0; j < BitMap->width; ++j) {
             if (i > 1 && j > 1 && i < BitMap->height - 3 && j < BitMap->width - 3)
             {
-                BitMapA[i][j] = GaussPxl(i,j,BitMapA);
-                BitMapB[i][j] = GaussPxl(i,j,BitMapB);
-                BitMapC[i][j] = GaussPxl(i,j,BitMapC);
+                BitMapA[i][j] = GaussPxl(i,j,BitMapA,coeffgauss2);
+                BitMapB[i][j] = GaussPxl(i,j,BitMapB,coeffgauss2);
+                BitMapC[i][j] = GaussPxl(i,j,BitMapC,coeffgauss2);
             }
         }
-	}*/
+	}
 
     /* -------------------------- Final Matrix ----------------------------- */
 
     for (int i = 0; i < BitMap->height; ++i) {
-        for (int j = 0; j < BitMap->width; ++j) {
-            if(i == 0 || j == 0 || i == BitMap->height-1 || j == BitMap->width-1)
-            {
-                BitMapF[i][j] = 0;
-            }
-            else
-            {
-	      int C = ABS(BitMapA[i][j] * BitMapB[i][j] - pow(BitMapC[i][j],2) - 0.05 * pow((BitMapA[i][j] + BitMapB[i][j]),2));
-	      //printf("%d ",C);
-                if(C > 25000)
-                {
-                    BitMapF[i][j] = 1;
-                }
-                else
-                {
-                    BitMapF[i][j] = 0;
-                }
-            }
-
+        for (int j = 0; j < BitMap->width; ++j)
+        {
+            BitMapF[i][j] = (BitMapA[i][j] * BitMapB[i][j] - pow(BitMapC[i][j],2) - harriscoef * pow((BitMapA[i][j] + BitMapB[i][j]),2)) > treshold ? 1 : 0;
         }
     }
+
+
 
     for (int i = 0; i < BitMap->height; ++i)
     {
@@ -118,25 +121,23 @@ void Detection(Image* BitMap)
             printf("%d",BitMapF[i][j]);
         }
         printf("\n");
-	}
+    }
 }
 
 
-int GaussPxl(int x, int y,int** Bitmap)
+int GaussPxl(int x, int y,int** Bitmap,double coefgauss2)
 {
     double gray_prime = 0;
-    int convo = 0;
     for(int i = x-2; i <= x+2 ; ++i )
     {
+        int newx = i-x;
         for(int j = y-2; j <= y+2; ++j)
         {
-            double coef = GaussMatrix[convo];
+            int newy = j-y;
+            double coef = (1/(2*3.14*pow(coefgauss2,2)))*exp((pow(newx,2)+pow(newy,2))/(2*pow(coefgauss2,2)));
             gray_prime += Bitmap[i][j]*coef;
-            ++convo;
         }
     }
-    gray_prime *= 0.004;
     return (int)gray_prime;
 }
-
 

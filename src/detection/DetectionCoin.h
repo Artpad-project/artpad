@@ -2,8 +2,8 @@
 #define ARTPAD_DETECTIONCOIN_H
 
 #include "../image/image.h"
-#include "../utils/utils.h"
 
-void Detection(Image* Bitmap);
+void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harriscoef, int treshold);
 
 #endif //ARTPAD_DETECTIONCOIN_H
+
