@@ -1,4 +1,4 @@
-#include "ContrastSimple.h"
+#include "../../include/ContrastSimple.h"
 
 int main()
 {

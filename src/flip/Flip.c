@@ -1,4 +1,4 @@
-#include "Flip.h"
+#include "../../include/Flip.h"
 
 void FlipHorizon(Image* Bitmap)
 {

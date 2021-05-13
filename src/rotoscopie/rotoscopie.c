@@ -18,12 +18,12 @@
 #include <string.h>
 #include <err.h>
 
-#include "../image/image.h"
-#include "../colorimetrie/stack.h"
-#include "../utils/utils.h"
-#include "rotoscopie.h"
+#include "../../include/image.h"
+#include "../../include/stack.h"
+#include "../../include/utils.h"
+#include "../../include/rotoscopie.h"
 
-int check_pixel(struct Pixel px, struct Pixel origin)
+static int check_pixel(struct Pixel px, struct Pixel origin)
 {
     return  ((double)ABS(origin.red - px.red) / 255 <= MAGIC_WAND_THRESHOLD) &&
             ((double)ABS(origin.green - px.green) / 255 <= MAGIC_WAND_THRESHOLD) &&

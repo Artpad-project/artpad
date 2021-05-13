@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <err.h>
-#include "colorimetrie.h"
-#include "../image/image.h"
-#include "stack.h"
+#include "../../include/colorimetrie.h"
+#include "../../include/image.h"
+#include "../../include/stack.h"
 #include <math.h>
 
 typedef struct coord coord;
@@ -40,7 +40,8 @@ void copy_buffer(struct Image *img, struct Image *buffer, struct coord origin)
 void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int acceptance)
 {
   int x = origin.x;
-  int y = origin.x;
+  int y = origin.y;
+  g_print("%d,%d\n",x,y);
   struct Pixel px = img->pixels[x][y];
 
   if (acceptance < 100 && same_color(px, color, acceptance))

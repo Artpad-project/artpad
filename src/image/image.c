@@ -8,7 +8,7 @@
  *  3/9/2021 - image loading
  */
 
-#include "image.h"
+#include "../../include/image.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -287,7 +287,6 @@ struct Image *copy_image(Image *origin, Image *copy){
 struct Image *
 create_copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
-    printf("copied\n");
     *new_image = (struct Image) {
         strdup(im->file),
         strdup(im->file_type),
