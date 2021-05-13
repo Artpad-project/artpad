@@ -224,14 +224,14 @@ Coord* Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double ha
 
     /* ----------------------------- Free --------------------------------- */
 
-    for (int i = 0; i < BitMap->height; ++i)
+    /*for (int i = 0; i < BitMap->height; ++i)
     {
         for (int j = 0; j < BitMap->width; ++j)
         {
             printf("%d",BitMapCoin[i][j]);
         }
         printf("\n");
-    }
+	}*/
 
 
     for (int i = 0; i < BitMap->height; ++i)

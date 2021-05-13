@@ -1,24 +1,8 @@
 #ifndef ARTPAD_KLT_H
 #define ARTPAD_KLT_H
 
-struct Pixel{
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
-};
+#include "DetectionCoin.h"
 
-struct Image{
-    int width, height;
-    struct Pixel** pixels;
-};
-
-struct Coord
-        {
-    int x, y;
-        };
-
-typedef struct Coord Coord;
-typedef struct Pixel Pixel;
-typedef struct Image Image;
+void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoint);
 
 #endif //ARTPAD_KLT_H
