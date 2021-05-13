@@ -15,7 +15,8 @@ IMG_SRC := 			image/image.c \
 DRAWING_SRC :=		colorimetrie/stack.c \
 					colorimetrie/colorimetrie.c
 
-GUI_SRC :=			gui/gui.c
+GUI_SRC :=			gui/gui.c \
+				
 
 VIDEO_SRC :=		video/video.c	
 

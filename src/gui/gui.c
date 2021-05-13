@@ -13,7 +13,7 @@
 #include <gtk/gtk.h>
 #include <time.h>
 
-#include "../../include/image.h"
+
 #include "../../include/image_scaling.h"
 #include "../../include/PuissanceN.h"
 #include "../../include/BalanceAuto.h"
@@ -23,6 +23,8 @@
 #include "../../include/stack.h"
 #include "../../include/ContrastSimple.h"
 #include "../../include/Flip.h"
+
+
 
 // Structure of the graphical user interface.
 
@@ -76,6 +78,7 @@ typedef struct UserInterface
     GtkAdjustment *draw_size;
     double draw_value;
     double tolerance;
+    int nblayers;
 
 } UserInterface;
 
@@ -236,6 +239,8 @@ void apply_rotation(GtkButton *button,gpointer user_data){
 void apply_rot_right(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
+    g_print("nblayers = %i\n",ui->nblayers);
+
     //free_image(im);
     if (im){
         copy_image(im,sauv_im1);
@@ -337,6 +342,7 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 
 /* Goes back to the original image*/
 void see_original(GtkButton *useless,gpointer user_data){
+    
     if (im){
     	UserInterface* ui = user_data;
     	copy_image(im2,im);
@@ -550,27 +556,92 @@ void show_hide_layer(GtkButton *button,gpointer user_data){
     g_print("%i\n",gtk_list_box_row_get_index (lbr));
 }
 
+
+
+void up_layer(GtkButton *button,gpointer user_data){
+
+    GtkListBoxRow *actlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
+    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(actlbr)));
+    if (gtk_list_box_row_get_index (actlbr)){
+	//Todo
+	g_print("je monte");    	
+    }
+}
+
+void down_layer(GtkButton *button,gpointer user_data){
+    UserInterface *ui = user_data;
+
+    GtkListBoxRow *actlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
+    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(actlbr)));
+    g_print("nblayers = %i\n",ui->nblayers);
+
+    if (gtk_list_box_row_get_index (actlbr)<ui->nblayers-1){
+	//Todo
+	g_print("je descends\n");    	
+    }
+}
+
+void destroy_layer(GtkButton *button,gpointer user_data){
+    UserInterface *ui = user_data;
+
+    GtkListBoxRow *actlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
+    gtk_widget_destroy(GTK_WIDGET(actlbr));
+    ui->nblayers -=1;
+
+}
+
+/*gint (*GtkListBoxSortFunc) (GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
+	
+}*/
+
+
 void add_layer(GtkButton *useless,gpointer user_data){
     UserInterface *ui = user_data;
+
+   
+
+    // création de la box contenant les infos du layer
     GtkListBoxRow * nbr = GTK_LIST_BOX_ROW(gtk_list_box_row_new ());
-    
-    GtkEntryBuffer * buffer = gtk_entry_buffer_new("new layer",9);
-    GtkWidget *name = gtk_entry_new_with_buffer (buffer);
-    GtkWidget *button = gtk_button_new_with_label ("show?");
+
     GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL,5);
- 
+
+    //bouton hide/show
+    GtkWidget *button = gtk_button_new_with_label ("show?");
+    g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
     gtk_container_add (GTK_CONTAINER(box),button);
+    
+    //nom du layer
+    char *my_string;
+    int val = asprintf(&my_string,"Layer %i",ui->nblayers);
+    if(val <0)
+		errx(1,"cannot create the query");
+    GtkWidget *name = gtk_label_new(my_string);	
     gtk_container_add (GTK_CONTAINER(box),name);
 
+    //bouton up/down
+    GtkWidget *bud = gtk_box_new (GTK_ORIENTATION_VERTICAL,1);
+    GtkWidget *upbutton = gtk_button_new_with_label ("up");
+    GtkWidget *downbutton = gtk_button_new_with_label ("down");
+    gtk_button_set_relief(GTK_BUTTON(upbutton),GTK_RELIEF_NONE);
+    gtk_button_set_relief(GTK_BUTTON(downbutton),GTK_RELIEF_NONE);
+    g_signal_connect(upbutton, "clicked", G_CALLBACK(up_layer), user_data);
+    g_signal_connect(downbutton, "clicked", G_CALLBACK(down_layer), user_data);
+    gtk_container_add (GTK_CONTAINER(bud),upbutton);
+    gtk_container_add (GTK_CONTAINER(bud),downbutton);
+    gtk_container_add (GTK_CONTAINER(box),bud);
+
+    //bouton kill layer
+    GtkWidget *killbutton = gtk_button_new_with_label ("kill");
+    g_signal_connect(killbutton, "clicked", G_CALLBACK(destroy_layer), user_data);
+    gtk_container_add (GTK_CONTAINER(box),killbutton);
 
     gtk_container_add (GTK_CONTAINER(nbr),box);
-    GtkSelectionMode mode = gtk_list_box_get_selection_mode (ui->layers);
-    g_print("%i\n",mode);
+
+
     gtk_list_box_insert (ui->layers,GTK_WIDGET(nbr),0);
-    gtk_list_box_select_row (ui->layers,nbr);
     //gtk_widget_hide (GTK_WIDGET(ui->layers));
     gtk_widget_show_all(GTK_WIDGET(ui->layers));
-    g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), &ui);
+    ui->nblayers +=1;
 
 
 
@@ -591,7 +662,7 @@ int main ()
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
-    if (gtk_builder_add_from_file(builder, "prototype2.glade", &error) == 0)
+    if (gtk_builder_add_from_file(builder, "src/gui/prototype2.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
         g_clear_error(&error);
@@ -683,13 +754,13 @@ int main ()
                 .window = window,
                 .drawarea = drawarea,
                 .stack_used = stack_used,
-		        .layers = layers,
+		.layers = layers,
                 .eb_draw = eb_draw,
 
                 .area = area,
                 .start_button = start_button,
                 .curserpos = curser_position,
-		        .drawbuffer = drawbuffer, 
+		.drawbuffer = drawbuffer, 
                 .SAT_value = SAT_value_cursor,
                 .CB_value = CB_value_cursor,
                 .ROT_value = ROT_value_cursor,
@@ -698,15 +769,15 @@ int main ()
                 .drawzone = {0,0,0,0},
                 .width_print = print_width_value,
                 .height_print = print_height_value,
-		        .xpos = 0,
-	             .ypos = 0,
+		.xpos = 0,
+	        .ypos = 0,
                 .xmouse = 0,
                 .ymouse = 0,
 
-       		    .draw_color = draw_color,
-	            .actual_color = pixel,
+       		.draw_color = draw_color,
+	        .actual_color = pixel,
         
-	        	.pencil = pencil,
+	        .pencil = pencil,
 		.fill = flood_fill,
 
 		.brush1 = brush1,
@@ -715,7 +786,8 @@ int main ()
 
 		.draw_size = draw_size,
 		.draw_value  = 1,
-		.tolerance = 1
+		.tolerance = 1,
+		.nblayers = 0,
     };
     
     // Connects event handlers.
@@ -769,6 +841,8 @@ int main ()
     g_object_unref(builder);
     free_image(im);
     free(im);
+    free_image(im2);
+    free(im2);
     
     // Exits.
 

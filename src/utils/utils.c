@@ -40,6 +40,42 @@ void *pop_from_stack(Stack **stack_ptr){
 }
 
 /**
+ * Pop data on the top of a stack_ptr
+ * @param stack_ptr pointer to the top of the stack
+ */
+void *pop_from_stack(Stack **stack_ptr){
+    Stack *front = *stack_ptr;
+    void *data = NULL;
+    if (!is_stack_empty(*stack_ptr)) {
+        *stack_ptr = front->next;
+        data = front->data;
+    }
+    return data;
+}
+
+void swap_next_el(Stack **stack_ptr,int pos){ 
+	Stack *actual = *stack_ptr;
+	if (pos == 0){
+		Stack *tmpend = actual->next;
+		Stack *tmp = actual->next->next;
+		actual->next->next = actual;
+		actual->next = tmp;
+		stack_ptr = &tmpend;
+		return;
+	}
+	
+	for(;pos-1>0;pos--){
+		actual = actual->next;
+	}
+	Stack *tmpel4 = actual->next->next->next;
+	Stack *tmpel3 = actual->next->next;
+
+	actual->next->next->next = actual->next;
+	actual->next = tempel3;
+	actual->next->next->next = tmpel4; 
+}
+
+/**
  * Check if a stack is empty
  * @param stack
  * @return 1    if empty else 0
