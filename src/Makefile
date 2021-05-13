@@ -5,7 +5,7 @@ BIN_DIR = ../bin
 -include variables.mk
 
 ifdef DEBUG
-	CFLAGS += -g -fsanitize=address #-DNDEBUG
+	CFLAGS += #-DNDEBUG
 endif
 
 OBJS = $(patsubst %.c,$(BIN_DIR)/%.o,$(SRC))
@@ -14,7 +14,7 @@ OBJS = $(patsubst %.c,$(BIN_DIR)/%.o,$(SRC))
 
 all: $(OUT)
 $(OUT): build #$(BIN_DIR)/main.o
-	$(CC) $(CFLAGS) $(LDLIB) $(OBJS) -o ../$@
+	$(CC) $(OBJS) -o ../$@ $(LDLIB)
 
 build: build_libs build_dir $(OBJS)
 
