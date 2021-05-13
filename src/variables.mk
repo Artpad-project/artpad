@@ -39,5 +39,5 @@ GTKFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 CC = gcc -g -fsanitize=address
 CPPFLAGS =
 CFLAGS = -Wall -Wextra -Wno-unused-parameter $(GTKFLAGS)
-LDLIB = -ldl -lm $(GTKLIBS) -I$(L_LIBALGO)
+LDLIB =  $(GTKLIBS) -I$(L_LIBALGO) -ldl -lm
 
