@@ -14,6 +14,7 @@ Stack *create_stack();
 Stack *push_to_stack(Stack *stack, void *data);
 void *pop_from_stack(Stack **stack);
 int is_stack_empty(Stack *stack);
+void swap_next_el(Stack **stack_ptr,int pos);
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))

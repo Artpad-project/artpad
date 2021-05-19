@@ -7,7 +7,6 @@
  *  
  *  
  */
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <gtk/gtk.h>
@@ -31,6 +30,14 @@
 static Image* im ;
 Image* im2 ;
 Image* sauv_im1;
+Stack * Layers;
+
+typedef struct Layer 
+{
+    struct Image *im;
+    int show;
+    int pos;
+}Layer;
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
@@ -136,14 +143,20 @@ void prepare_drawarea(gpointer user_data){
 }
 
 void on_load(GtkFileChooser *fc,gpointer user_data){
+    
+
     UserInterface* ui = user_data;
     im = load_image((char *)gtk_file_chooser_get_filename (fc));
     sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
     im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
- 
+
+
+    
     prepare_drawarea(user_data);
+    
     actualise_image(im,0,0,im->width,im->height);
     gtk_image_set_from_pixbuf(ui->area,im->pb);
+     
 }
 
 void on_save(GtkFileChooser *fc,gpointer user_data){
@@ -342,13 +355,19 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 
 /* Goes back to the original image*/
 void see_original(GtkButton *useless,gpointer user_data){
-    
+    g_print("Stack state : ");
     if (im){
     	UserInterface* ui = user_data;
     	copy_image(im2,im);
     	actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);
    
+    } 
+    Stack * tmp = Layers;
+    while (tmp->next != NULL){
+        Layer *sus = tmp->data;
+        g_print("pos : %i\n",sus->pos);
+        tmp = tmp->next;
     }
 }
 
@@ -564,7 +583,8 @@ void up_layer(GtkButton *button,gpointer user_data){
     //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(actlbr)));
     if (gtk_list_box_row_get_index (actlbr)){
 	//Todo
-	g_print("je monte");    	
+	    g_print("je monte");
+
     }
 }
 
@@ -577,7 +597,11 @@ void down_layer(GtkButton *button,gpointer user_data){
 
     if (gtk_list_box_row_get_index (actlbr)<ui->nblayers-1){
 	//Todo
-	g_print("je descends\n");    	
+	    g_print("je descends\n");
+        Stack * tmp = Layers;
+        #todo : faire le swap au bon endroit puis le tester
+        Layer *actual = Layers->data
+        swap_next_el(&Layers,)
     }
 }
 
@@ -596,9 +620,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 
 
 void add_layer(GtkButton *useless,gpointer user_data){
-    UserInterface *ui = user_data;
-
-   
+    UserInterface *ui = user_data;   
 
     // création de la box contenant les infos du layer
     GtkListBoxRow * nbr = GTK_LIST_BOX_ROW(gtk_list_box_row_new ());
@@ -641,17 +663,19 @@ void add_layer(GtkButton *useless,gpointer user_data){
     gtk_list_box_insert (ui->layers,GTK_WIDGET(nbr),0);
     //gtk_widget_hide (GTK_WIDGET(ui->layers));
     gtk_widget_show_all(GTK_WIDGET(ui->layers));
+    
+    struct Layer *newLayer = malloc(sizeof(struct Layer));
+    newLayer->im = new_image(im->width,im->height);
+    newLayer->show = 0;
+    newLayer->pos = ui->nblayers;
     ui->nblayers +=1;
-
-
-
-
+    Layers = push_to_stack(Layers,newLayer);
 }
+
 
 
 int main ()
 {
-
     // Initializes GTK.
     gtk_init(NULL, NULL);
 
@@ -747,6 +771,7 @@ int main ()
     //copy_image(im2,im);
 
    
+    Layers = create_stack();
 
     
 
@@ -847,4 +872,4 @@ int main ()
     // Exits.
 
     return 0;
-}
+    }
