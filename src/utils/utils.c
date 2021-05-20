@@ -39,8 +39,6 @@ void *pop_from_stack(Stack **stack_ptr){
     return data;
 }
 
-<<<<<<< HEAD
-=======
 /**
  * Pop data on the top of a stack_ptr
  * @param stack_ptr pointer to the top of the stack
@@ -79,7 +77,6 @@ void *elm_at_pos(Stack **stack_ptr,int pos){
     return data;
 }
 
->>>>>>> a45353351d90160d036ed14ea417d7152378332e
 void swap_next_el(Stack **stack_ptr,int pos){ 
 	Stack *actual = *stack_ptr;
 	if (pos == 0){
