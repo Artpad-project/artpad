@@ -26,9 +26,12 @@
 
 
 // Structure of the graphical user interface.
+//a
+void add_layer(GtkButton *useless,gpointer user_data);
+void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data);
+
 
 static Image* im ;
-Image* im2 ;
 Image* sauv_im1;
 Stack * Layers;
 
@@ -36,7 +39,9 @@ typedef struct Layer
 {
     struct Image *im;
     int show;
-    int pos; 
+    int pos;
+    int relativxpos;
+    int relativypos;
 }Layer;
 
 Layer * current_layer;
@@ -88,6 +93,7 @@ typedef struct UserInterface
     double draw_value;
     double tolerance;
     int nblayers;
+    Layer * currentLayer;
 
 } UserInterface;
 
@@ -134,11 +140,7 @@ void prepare_drawarea(gpointer user_data){
 
     
     //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
-    gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),0 ,0);
-    
-    ui->xpos = 0;
-    ui->ypos = 0,
-
+    gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),ui->xpos ,ui->ypos);
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) im->width, (gint)im->height);
     
 
@@ -148,14 +150,13 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     
 
     UserInterface* ui = user_data;
-    im = load_image((char *)gtk_file_chooser_get_filename (fc));
-    sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
-    im2 = load_image((char *)gtk_file_chooser_get_filename (fc));
-    prepare_drawarea(user_data);
+    if (!ui->currentLayer){
+    	add_layer(NULL,user_data);
+    }
     
-    actualise_image(im,0,0,im->width,im->height);
-    gtk_image_set_from_pixbuf(ui->area,im->pb);
-     
+    ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
+    sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
+    set_current_layer(ui->layers,gtk_list_box_get_row_at_index (ui->layers,ui->currentLayer->pos),user_data);
 }
 
 void on_save(GtkFileChooser *fc,gpointer user_data){
@@ -175,7 +176,6 @@ void apply_auto_color_balance(GtkButton *button,gpointer user_data){
    
     if (im){
         copy_image(im,sauv_im1);
-        copy_image(im2,im);
         BalanceAuto(im);
     	actualise_image(im,0,0,im->width,im->height);
         gtk_image_set_from_pixbuf(ui->area,im->pb);
@@ -195,7 +195,7 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
    
     if (im){
         copy_image(im,sauv_im1);
-        copy_image(im2,im);
+
         BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
     	actualise_image(im,0,0,im->width,im->height);
         gtk_image_set_from_pixbuf(ui->area,im->pb);
@@ -209,7 +209,6 @@ void apply_saturation(GtkButton *button,gpointer user_data){
     //free_image(im);
     if (im){
         copy_image(im,sauv_im1);
-        copy_image(im2,im);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         SaturationAbsolue(im,gtk_adjustment_get_value(ui->SAT_value));
         actualise_image(im,0,0,im->width,im->height);
@@ -224,7 +223,6 @@ void apply_brightness(GtkButton *button,gpointer user_data){
     //free_image(im);
     if (im){
         copy_image(im,sauv_im1);
-        copy_image(im2,im);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Contrast(im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
         actualise_image(im,0,0,im->width,im->height);
@@ -240,7 +238,6 @@ void apply_rotation(GtkButton *button,gpointer user_data){
     //free_image(im);
     if (im){
         copy_image(im,sauv_im1);
-        copy_image(im2,im);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(im,(float)gtk_adjustment_get_value(ui->ROT_value));
         actualise_image(im,0,0,im->width,im->height);
@@ -357,7 +354,6 @@ void see_original(GtkButton *useless,gpointer user_data){
     g_print("Stack state : \n:");
     if (im){
     	UserInterface* ui = user_data;
-    	copy_image(im2,im);
     	actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);
    
@@ -613,10 +609,11 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     UserInterface *ui = user_data;
     Layer * current_layer = elm_at_pos(&Layers,gtk_list_box_row_get_index (listboxrow));
     im = current_layer->im;
-    im2 = current_layer->im;
     actualise_image(im,0,0,im->width,im->height);
     gtk_image_set_from_pixbuf(ui->area,im->pb);
-
+    prepare_drawarea(user_data);
+    ui->currentLayer = current_layer;
+    gtk_list_box_select_row (box,listboxrow);
 
 }
 
@@ -631,6 +628,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     free_image(dead->im);
     free(dead);
     ui->nblayers -=1;
+    
 
 }
 
@@ -692,6 +690,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     newLayer->pos = ui->nblayers;
     ui->nblayers +=1;
     Layers = push_to_stack(Layers,newLayer);
+    set_current_layer(ui->layers,nbr,user_data);
 }
 
 
@@ -835,6 +834,7 @@ int main ()
 		.draw_value  = 1,
 		.tolerance = 1,
 		.nblayers = 0,
+		.currentLayer = NULL,
     };
     
     // Connects event handlers.
