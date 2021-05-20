@@ -3,7 +3,15 @@
 
 #include "../image/image.h"
 
-void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harriscoef, int treshold);
+struct Coord
+{
+    int x, y;
+};
+
+typedef struct Coord Coord;
+
+
+Coord* Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harriscoef, int treshold);
 
 #endif //ARTPAD_DETECTIONCOIN_H
 

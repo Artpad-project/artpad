@@ -13,10 +13,12 @@ int GaussPxl(int x, int y, int** Bitmap, double coefgauss2);
  * treshold : 130
  * */
 
-void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harriscoef, int treshold)
+Coord* Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harriscoef, int treshold, int* nbPoint)
 {
     /* ------------------------ Initialisation ----------------------------- */
-
+    
+    *nbPoint = 0;
+    
     int** BitMapGray = malloc(BitMap->height * sizeof (int*));
     int** BitMapA = malloc(BitMap->height * sizeof (int*));
     int** BitMapB = malloc(BitMap->height * sizeof (int*));
@@ -118,17 +120,17 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
             {
                 BitMapF[i][j]=BitMapFT[i][j];
             }
-	    else
-	    {
-	      int DX = 0.5 * (BitMapFT[i+1][j] - BitMapFT[i-1][j]);
-	      int DY = 0.5 * (BitMapFT[i][j+1] - BitMapFT[i][j-1]);
-	      int DX2 = BitMapFT[i+1][j] + BitMapFT[i-1][j] - 2 * BitMapFT[i][j];
-	      int DY2 = BitMapFT[i][j+1] + BitMapFT[i][j-1] - 2 * BitMapFT[i][j];
-	      int DXY = 0.25 * (BitMapFT[i+1][j+1] + BitMapFT[i-1][j-1] - BitMapFT[i+1][j-1] - BitMapFT[i-1][j+1]);
-	      int C = BitMapFT[i][j] + DX + DY + 0.5* (DX2 + DY2 + DXY);
-	      BitMapF[i][j] = C;
-	      if(C > treshold) BitMapSkip[i][j] = 0;
-	    }
+            else
+            {
+                int DX = 0.5 * (BitMapFT[i+1][j] - BitMapFT[i-1][j]);
+                int DY = 0.5 * (BitMapFT[i][j+1] - BitMapFT[i][j-1]);
+                int DX2 = BitMapFT[i+1][j] + BitMapFT[i-1][j] - 2 * BitMapFT[i][j];
+                int DY2 = BitMapFT[i][j+1] + BitMapFT[i][j-1] - 2 * BitMapFT[i][j];
+                int DXY = 0.25 * (BitMapFT[i+1][j+1] + BitMapFT[i-1][j-1] - BitMapFT[i+1][j-1] - BitMapFT[i-1][j+1]);
+                int C = BitMapFT[i][j] + DX + DY + 0.5* (DX2 + DY2 + DXY);
+                BitMapF[i][j] = C;
+                if(C > treshold) BitMapSkip[i][j] = 0;
+            }
         }
     }
 
@@ -189,10 +191,33 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
                             }
                             k++;
                         }
-                        if(!found) BitMapCoin[i][j]=1;
+                        if(!found)
+                        {
+                            BitMapCoin[i][j]=1;
+                            *nbPoint +=1;
+                        }
                     }
                 }
                 j = p1;
+            }
+        }
+    }
+
+    /* -------------------------- Coord List ------------------------------ */
+
+    Coord* CoordList = malloc(*nbPoint * sizeof(Coord));
+    int temp = 0;
+    for (int i = 0; i < BitMap->height; ++i) {
+        for (int j = 0; j < BitMap->width; ++j)
+        {
+            if(BitMapCoin[i][j])
+            {
+                Coord coin = {
+                        .x = i,
+                        .y = j,
+                        };
+                CoordList[temp] = coin;
+                temp ++;
             }
         }
     }
@@ -228,6 +253,8 @@ void Detection(Image* BitMap,double coeffgauss1, double coeffgauss2, double harr
     free(BitMapFT);
     free(BitMapSkip);
     free(BitMapCoin);
+    
+    return CoordList;
 }
 
 
@@ -246,3 +273,4 @@ int GaussPxl(int x, int y,int** Bitmap,double coefgauss2)
     }
     return (int)gray_prime;
 }
+
