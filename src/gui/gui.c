@@ -23,6 +23,7 @@
 #include "../../include/stack.h"
 #include "../../include/ContrastSimple.h"
 #include "../../include/Flip.h"
+#include "../../include/queue.h"
 
 
 
@@ -31,6 +32,11 @@
 static Image* im ;
 Image* im2 ;
 Image* sauv_im1;
+
+//stack implementation of images for layers
+struct Stack layers;
+//for ctrl+z
+struct Stack temp_layers;
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
@@ -238,7 +244,7 @@ void apply_brightness(GtkButton *button,gpointer user_data){
 }
 
 
-
+//rotation function
 void apply_rotation(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -257,6 +263,7 @@ void apply_rotation(GtkButton *button,gpointer user_data){
     }
 }
 
+//right rotation funtion
 void apply_rot_right(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -276,6 +283,7 @@ void apply_rot_right(GtkButton *button,gpointer user_data){
     }
 }
 
+//left rotation function
 void apply_rot_left(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -293,6 +301,7 @@ void apply_rot_left(GtkButton *button,gpointer user_data){
     }
 }
 
+//horizontal flip function
 void apply_flip_hori(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -310,6 +319,7 @@ void apply_flip_hori(GtkButton *button,gpointer user_data){
     }
 }
 
+//vertical flip function
 void apply_flip_vert(GtkButton *button,gpointer user_data){
 
     UserInterface* ui = user_data;
@@ -328,11 +338,16 @@ void apply_flip_vert(GtkButton *button,gpointer user_data){
 }
 
 
+//undo button
 void apply_undo(GtkButton *useless,gpointer user_data){
     if (im)
     {
     	UserInterface* ui = user_data;
-    	copy_image(sauv_im1,im);
+
+      //ToDo: when clicking with an object seleted, 
+      //pushes a layer into the stack 
+      im_temp = stack_pop(layers);
+    	copy_image(im_temp,im);
 
     	actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);

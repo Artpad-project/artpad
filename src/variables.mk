@@ -9,13 +9,15 @@ IMG_SRC := 			image/image.c \
 					flip/Flip.c \
 					puissancen/PuissanceN.c \
 					rotation/Rotation.c \
-					utils/utils.c
+					utils/utils.c \
+					utils/queue.c
 
 
 DRAWING_SRC :=		colorimetrie/stack.c \
 					colorimetrie/colorimetrie.c
 
 GUI_SRC :=			gui/gui.c \
+					gui/temp_layers.c
 				
 
 VIDEO_SRC :=		video/video.c	
