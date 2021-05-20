@@ -13,8 +13,11 @@ typedef struct Stack Stack;
 Stack *create_stack();
 Stack *push_to_stack(Stack *stack, void *data);
 void *pop_from_stack(Stack **stack);
+void *pop_from_stack_at_pos(Stack **stack,int pos);
+void *elm_at_pos(Stack **stack,int pos);
 int is_stack_empty(Stack *stack);
 void swap_next_el(Stack **stack_ptr,int pos);
+void free_stack(Stack * stack_ptr);
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
