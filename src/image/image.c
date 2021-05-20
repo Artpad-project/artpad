@@ -38,7 +38,7 @@ new_image(int width,int height) {
     }
     
     pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
-    *image = (struct Image){"", "jpg", width, height, pb, im_pixels};
+    *image = (struct Image){NULL, "jpg", width, height, pb, im_pixels};
     return image;
 }
 

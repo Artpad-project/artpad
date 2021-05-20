@@ -43,12 +43,36 @@ void *pop_from_stack(Stack **stack_ptr){
  * Pop data on the top of a stack_ptr
  * @param stack_ptr pointer to the top of the stack
  */
-void *pop_from_stack(Stack **stack_ptr){
+void *pop_from_stack_at_pos(Stack **stack_ptr,int pos){
     Stack *front = *stack_ptr;
     void *data = NULL;
     if (!is_stack_empty(*stack_ptr)) {
-        *stack_ptr = front->next;
-        data = front->data;
+	if (pos == 0){
+        	*stack_ptr = front->next;
+        	data = front->data;
+		return data;
+	}
+ 	for(;pos-1>0;pos--){
+		front = front->next;
+	}
+	data = front->data;
+	front->next = front->next->next;
+    }
+    return data;
+}
+
+/**
+ * return data on the pos of a stack_ptr
+ * @param stack_ptr pointer to the top of the stack
+ */
+void *elm_at_pos(Stack **stack_ptr,int pos){
+    Stack *front = *stack_ptr;
+    void *data = NULL;
+    if (!is_stack_empty(*stack_ptr)) {
+	
+ 	for(;pos>0;pos--)
+		front = front->next;
+	data = front->data;
     }
     return data;
 }
@@ -60,7 +84,7 @@ void swap_next_el(Stack **stack_ptr,int pos){
 		Stack *tmp = actual->next->next;
 		actual->next->next = actual;
 		actual->next = tmp;
-		stack_ptr = &tmpend;
+		*stack_ptr = tmpend;
 		return;
 	}
 	
@@ -71,7 +95,7 @@ void swap_next_el(Stack **stack_ptr,int pos){
 	Stack *tmpel3 = actual->next->next;
 
 	actual->next->next->next = actual->next;
-	actual->next = tempel3;
+	actual->next = tmpel3;
 	actual->next->next->next = tmpel4; 
 }
 
