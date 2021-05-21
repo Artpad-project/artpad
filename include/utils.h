@@ -17,6 +17,7 @@ void *pop_from_stack_at_pos(Stack **stack,int pos);
 void *elm_at_pos(Stack **stack,int pos);
 int is_stack_empty(Stack *stack);
 void swap_next_el(Stack **stack_ptr,int pos);
+void swap_next_el_data(Stack **stack_ptr,int pos);
 void free_stack(Stack * stack_ptr);
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))

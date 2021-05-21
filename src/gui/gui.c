@@ -42,9 +42,28 @@ typedef struct Layer
     int pos;
     int relativxpos;
     int relativypos;
+    GtkListBoxRow * lbr;
 }Layer;
 
 Layer * current_layer;
+
+int get_index_layer(Stack* Layers,GtkListBoxRow * lbr){
+	Stack * tmp = Layers;
+	int pos = 0;
+	if (!is_stack_empty(tmp)){
+		g_print("whaouh\n");
+		while (tmp->next != NULL ){
+			Layer * act = tmp->data;
+			if (act->lbr == lbr)
+				pos = act->pos;
+			tmp = tmp->next;
+		}
+
+	}
+	return pos;
+}
+
+
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
@@ -94,46 +113,11 @@ typedef struct UserInterface
     double tolerance;
     int nblayers;
     Layer * currentLayer;
+    GtkListBoxRow *r1;
+    GtkListBoxRow *r2;
 
 } UserInterface;
 
-// Event handler for the "draw" signal of the drawing area.
-
-/*
-gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
-{
-    // Gets the 'Game' structure.
-
-    UserInterface *ui = user_data;
-    // Sets the background to white.
-
-    // cairo_set_source_rgb(cr, 1, 1, 1);
-    // cairo_paint(cr);
-
-    if (im){
-        Pixel pixel;
-        //int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-        //int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-        float r, g, b;
-        
-        for (int x = 0; x < im->width; x++) {
-            for (int y = 0; y < im->height; y++) {
-                pixel = im->pixels[x][y];
-                r = (float) pixel.red / 255;
-                g = (float) pixel.green / 255;
-                b = (float) pixel.blue / 255;
-               
-                cairo_set_source_rgb(cr, r, g, b);
-                cairo_rectangle(cr, x, y,1,1);
-                cairo_fill(cr); 
-                //cairo_push_group(cr);
-            }
-        }
-    }
-
-    // Propagates the signal.
-    return FALSE;
-}*/
 
 void prepare_drawarea(gpointer user_data){
     UserInterface* ui = user_data;
@@ -151,13 +135,17 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
 
     UserInterface* ui = user_data;
     if (!ui->currentLayer){
-    	add_layer(NULL,user_data);
+	    add_layer(NULL,user_data);
     }
+
     
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
     sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
-    set_current_layer(ui->layers,gtk_list_box_get_row_at_index (ui->layers,ui->currentLayer->pos),user_data);
-}
+    im = ui->currentLayer->im;
+    actualise_image(im,0,0,im->width,im->height);
+    gtk_image_set_from_pixbuf(ui->area,im->pb);
+    prepare_drawarea(user_data);
+ }
 
 void on_save(GtkFileChooser *fc,gpointer user_data){
     if (im)  
@@ -310,8 +298,6 @@ void apply_undo(GtkButton *useless,gpointer user_data){
 }
 
 void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
-    
-	
     	UserInterface* ui = user_data;
 
 
@@ -573,40 +559,41 @@ void show_hide_layer(GtkButton *button,gpointer user_data){
 
 
 void up_layer(GtkButton *button,gpointer user_data){
+    UserInterface *ui = user_data;
+    GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
+    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
+    int pos =  gtk_list_box_row_get_index (curlbr);
 
-    GtkListBoxRow *actlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
-    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(actlbr)));
-    if (gtk_list_box_row_get_index (actlbr)){
-	//Todo
-	g_print("je monte\n");
-	int pos =  gtk_list_box_row_get_index (actlbr);
-	swap_next_el(&Layers,pos-1);
+    if (pos){
+	g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
+
+	swap_next_el_data(&Layers,pos-1);
+    	gtk_list_box_invalidate_sort (lb);
     }
+
 }
 
 void down_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
 
-    GtkListBoxRow *actlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
-    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(actlbr)));
-    g_print("nblayers = %i\n",ui->nblayers);
+    GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
+    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
+    int pos =  gtk_list_box_row_get_index (curlbr);
 
-    if (gtk_list_box_row_get_index (actlbr)<ui->nblayers-1){
-	//Todo
+   
+    if (pos<ui->nblayers-1){
+       	g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
+	swap_next_el_data(&Layers,pos);
+ 	gtk_list_box_invalidate_sort (lb);
 
-	int pos =  gtk_list_box_row_get_index (actlbr);
-       	g_print("je descends : pos = %i \n", pos);
-
-	//todo : faire le swap au bon endroit puis le tester
-        
-	//Layer *actual = Layers->data
-        swap_next_el(&Layers,pos);
     }
 }
 
 void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data){
     
     UserInterface *ui = user_data;
+    //int pos =  gtk_list_box_row_get_index (listboxrow);
+ 
     Layer * current_layer = elm_at_pos(&Layers,gtk_list_box_row_get_index (listboxrow));
     im = current_layer->im;
     actualise_image(im,0,0,im->width,im->height);
@@ -614,16 +601,17 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     prepare_drawarea(user_data);
     ui->currentLayer = current_layer;
     gtk_list_box_select_row (box,listboxrow);
+    g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
 
 }
 
 void destroy_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
 
-    GtkListBoxRow *actlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
-    int pos =  gtk_list_box_row_get_index (actlbr);
+    GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
+    int pos =  gtk_list_box_row_get_index (curlbr);
 
-    gtk_widget_destroy(GTK_WIDGET(actlbr));
+    gtk_widget_destroy(GTK_WIDGET(curlbr));
     Layer * dead = pop_from_stack_at_pos(&Layers,pos);
     free_image(dead->im);
     free(dead);
@@ -632,9 +620,19 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 
 }
 
-/*gint (*GtkListBoxSortFunc) (GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
+gint trifunc(GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
+	UserInterface *ui = user_data;
+	int pos1 =  gtk_list_box_row_get_index (row1);
+	int pos2 =  gtk_list_box_row_get_index (row2);
+	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
+
+	pos1 = get_index_layer(Layers, row1);
+	pos2 = get_index_layer(Layers, row2);
+	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
 	
-}*/
+	return pos1>pos2 ? -1 : 1;
+
+}
 
 
 void add_layer(GtkButton *useless,gpointer user_data){
@@ -688,9 +686,11 @@ void add_layer(GtkButton *useless,gpointer user_data){
     	newLayer->im = new_image(im->width,im->height);
     newLayer->show = 0;
     newLayer->pos = ui->nblayers;
+    newLayer-> lbr = nbr;
     ui->nblayers +=1;
     Layers = push_to_stack(Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
+    
 }
 
 
@@ -726,8 +726,8 @@ int main ()
     
     GtkAdjustment* draw_size =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "draw_size"));  
     GtkListBox * layers = GTK_LIST_BOX(gtk_builder_get_object(builder,"Layers"));
-
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
+    //GtkButton* test2 = GTK_BUTTON(gtk_builder_get_object(builder, "cut"));
 
 
 
@@ -837,6 +837,8 @@ int main ()
 		.currentLayer = NULL,
     };
     
+    gtk_list_box_set_sort_func (layers,trifunc,&ui,NULL);
+
     // Connects event handlers.
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);

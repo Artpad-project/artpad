@@ -29,6 +29,41 @@
   <object class="GtkTextBuffer" id="cursor_pos">
     <property name="text" translatable="yes">X - ....  ; Y - ...</property>
   </object>
+  <object class="GtkAdjustment" id="draw_size">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">1</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkTextBuffer" id="height_draw">
+    <property name="text" translatable="yes">height</property>
+  </object>
+  <object class="GtkAdjustment" id="height_value">
+    <property name="upper">2000</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="rotation">
+    <property name="lower">-180</property>
+    <property name="upper">180</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="saturation">
+    <property name="lower">-1</property>
+    <property name="upper">1</property>
+    <property name="step-increment">0.05</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkTextBuffer" id="width_draw">
+    <property name="text" translatable="yes">width</property>
+  </object>
+  <object class="GtkAdjustment" id="width_value">
+    <property name="upper">2000</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkWindow" id="Main">
     <property name="width-request">1920</property>
     <property name="height-request">1080</property>
@@ -42,7 +77,7 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="orientation">vertical</property>
-        <property name="position">800</property>
+        <property name="position">935</property>
         <property name="position-set">True</property>
         <child>
           <object class="GtkFixed" id="everything">
@@ -1225,40 +1260,5 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkAdjustment" id="draw_size">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="value">1</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkTextBuffer" id="height_draw">
-    <property name="text" translatable="yes">height</property>
-  </object>
-  <object class="GtkAdjustment" id="height_value">
-    <property name="upper">2000</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="rotation">
-    <property name="lower">-180</property>
-    <property name="upper">180</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="saturation">
-    <property name="lower">-1</property>
-    <property name="upper">1</property>
-    <property name="step-increment">0.05</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkTextBuffer" id="width_draw">
-    <property name="text" translatable="yes">width</property>
-  </object>
-  <object class="GtkAdjustment" id="width_value">
-    <property name="upper">2000</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
   </object>
 </interface>
