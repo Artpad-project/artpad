@@ -39,7 +39,6 @@ typedef struct Layer
 {
     struct Image *im;
     int show;
-    int pos;
     int relativxpos;
     int relativypos;
     GtkListBoxRow * lbr;
@@ -54,8 +53,10 @@ int get_index_layer(Stack* Layers,GtkListBoxRow * lbr){
 		g_print("whaouh\n");
 		while (tmp->next != NULL ){
 			Layer * act = tmp->data;
-			if (act->lbr == lbr)
-				pos = act->pos;
+			if (act->lbr == lbr)			
+				break;
+
+			pos ++;
 			tmp = tmp->next;
 		}
 
@@ -344,12 +345,6 @@ void see_original(GtkButton *useless,gpointer user_data){
     	gtk_image_set_from_pixbuf(ui->area,im->pb);
    
     } 
-    Stack * tmp = Layers;
-    while (tmp->next != NULL){
-        Layer *sus = tmp->data;
-        g_print("pos : %i\n",sus->pos);
-        tmp = tmp->next;
-    }
 }
 
 
@@ -558,17 +553,34 @@ void show_hide_layer(GtkButton *button,gpointer user_data){
 
 
 
+
+
 void up_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
     GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
     GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
     int pos =  gtk_list_box_row_get_index (curlbr);
+  
 
     if (pos){
-	g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
-
+	//g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
+	
 	swap_next_el_data(&Layers,pos-1);
-    	gtk_list_box_invalidate_sort (lb);
+	
+	GtkListBoxRow * lastlbr =  GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index(lb,pos-1));
+	
+	GtkLabel *lastlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(lastlbr))),1,0));
+	const gchar* tmp = gtk_label_get_text(lastlabel);
+	char *my_string;
+    	int val = asprintf(&my_string,"%s",tmp);
+    	if(val <0)
+		errx(1,"cannot create the query");
+	GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
+	gtk_label_set_text(lastlabel,gtk_label_get_text(currentlabel));
+	gtk_label_set_text(currentlabel,my_string);
+
+
+
     }
 
 }
@@ -582,9 +594,19 @@ void down_layer(GtkButton *button,gpointer user_data){
 
    
     if (pos<ui->nblayers-1){
-       	g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
+       	//g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
 	swap_next_el_data(&Layers,pos);
- 	gtk_list_box_invalidate_sort (lb);
+	
+	GtkListBoxRow * nextlbr =  GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index(lb,pos+1));
+	GtkLabel *nextlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(nextlbr))),1,0));
+	const gchar* tmp = gtk_label_get_text(nextlabel);
+	char *my_string;
+    	int val = asprintf(&my_string,"%s",tmp);
+    	if(val <0)
+		errx(1,"cannot create the query");
+	GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
+	gtk_label_set_text(nextlabel,gtk_label_get_text(currentlabel));
+	gtk_label_set_text(currentlabel,my_string);
 
     }
 }
@@ -619,7 +641,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     
 
 }
-
+//Impossible à faire marcher
 gint trifunc(GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
 	UserInterface *ui = user_data;
 	int pos1 =  gtk_list_box_row_get_index (row1);
@@ -630,7 +652,7 @@ gint trifunc(GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
 	pos2 = get_index_layer(Layers, row2);
 	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
 	
-	return pos1>pos2 ? -1 : 1;
+	return pos1>pos2 ? 1 : -1;
 
 }
 
@@ -641,12 +663,16 @@ void add_layer(GtkButton *useless,gpointer user_data){
     // création de la box contenant les infos du layer
     GtkListBoxRow * nbr = GTK_LIST_BOX_ROW(gtk_list_box_row_new ());
    
-    GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL,5);
+    GtkGrid *box = GTK_GRID(gtk_grid_new ());
+    gtk_grid_insert_column(box,0);
+    gtk_grid_insert_column(box,0);
+    gtk_grid_insert_column(box,0);
+    gtk_grid_insert_column(box,0);
 
     //bouton hide/show
     GtkWidget *button = gtk_button_new_with_label ("show?");
     g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
-    gtk_container_add (GTK_CONTAINER(box),button);
+    gtk_grid_attach (box,button,0,0,1,1);
     
     //nom du layer
     char *my_string;
@@ -654,7 +680,8 @@ void add_layer(GtkButton *useless,gpointer user_data){
     if(val <0)
 		errx(1,"cannot create the query");
     GtkWidget *name = gtk_label_new(my_string);	
-    gtk_container_add (GTK_CONTAINER(box),name);
+    gtk_widget_set_name(name, "label");
+    gtk_grid_attach (box,name,1,0,1,1);
 
     //bouton up/down
     GtkWidget *bud = gtk_box_new (GTK_ORIENTATION_VERTICAL,1);
@@ -666,14 +693,15 @@ void add_layer(GtkButton *useless,gpointer user_data){
     g_signal_connect(downbutton, "clicked", G_CALLBACK(down_layer), user_data);
     gtk_container_add (GTK_CONTAINER(bud),upbutton);
     gtk_container_add (GTK_CONTAINER(bud),downbutton);
-    gtk_container_add (GTK_CONTAINER(box),bud);
+    gtk_grid_attach (box,bud,2,0,1,1);
+
 
     //bouton kill layer
     GtkWidget *killbutton = gtk_button_new_with_label ("kill");
     g_signal_connect(killbutton, "clicked", G_CALLBACK(destroy_layer), user_data);
-    gtk_container_add (GTK_CONTAINER(box),killbutton);
+    gtk_grid_attach (box,killbutton,3,0,1,1);
 
-    gtk_container_add (GTK_CONTAINER(nbr),box);
+    gtk_container_add (GTK_CONTAINER(nbr),GTK_WIDGET(box));
 
     gtk_list_box_insert (ui->layers,GTK_WIDGET(nbr),0);
     //gtk_widget_hide (GTK_WIDGET(ui->layers));
@@ -685,7 +713,6 @@ void add_layer(GtkButton *useless,gpointer user_data){
     else
     	newLayer->im = new_image(im->width,im->height);
     newLayer->show = 0;
-    newLayer->pos = ui->nblayers;
     newLayer-> lbr = nbr;
     ui->nblayers +=1;
     Layers = push_to_stack(Layers,newLayer);
@@ -837,7 +864,6 @@ int main ()
 		.currentLayer = NULL,
     };
     
-    gtk_list_box_set_sort_func (layers,trifunc,&ui,NULL);
 
     // Connects event handlers.
     // Runs the main loop.

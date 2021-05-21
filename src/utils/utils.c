@@ -103,7 +103,7 @@ void swap_next_el_data(Stack **stack_ptr,int pos){
 	Stack *actual = *stack_ptr;
 
 	
-	for(;pos-1>0;pos--){
+	for(;pos>0;pos--){
 		actual = actual->next;
 	}
 	void * tmp = actual->data;
