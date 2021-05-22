@@ -99,6 +99,18 @@ void swap_next_el(Stack **stack_ptr,int pos){
 	actual->next->next->next = tmpel4; 
 }
 
+void swap_next_el_data(Stack **stack_ptr,int pos){ 
+	Stack *actual = *stack_ptr;
+
+	
+	for(;pos>0;pos--){
+		actual = actual->next;
+	}
+	void * tmp = actual->data;
+	actual->data = actual->next->data;
+	actual->next->data = tmp;
+}
+
 /**
  * Check if a stack is empty
  * @param stack
