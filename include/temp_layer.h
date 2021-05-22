@@ -12,8 +12,8 @@ typedef struct temp_layer
 }temp_layer;
 
 void temp_layer_push(temp_layer* tp, int max, Image img);
-void temp_layer_undo(temp_layer *tp);
-void temp_layer_redo(temp_layer *tp);
+void temp_layer_undo(temp_layer *tp, Image *curr_img);
+void temp_layer_redo(temp_layer *tp, Image *curr_img);
 void temp_layer_update(temp_layer* tp, int max);
 
 
