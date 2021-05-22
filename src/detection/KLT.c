@@ -1,24 +1,26 @@
 #include "KLT.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 int Gray(int i, int j,Image* BitMap);
+double CoefGaussien(int x, int y);
 
 void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoint)
 {
-  int** dIm1X = malloc((2*radius+1) *sizeof(int*));
-  int** dIm1Y = malloc((2*radius+1) *sizeof(int*));
-  int** dIm1XT = malloc((2*radius+1) *sizeof(int*));
-  int** dIm1YT = malloc((2*radius+1) *sizeof(int*));
-  Coord* Deplacement  = malloc(nbPoint * sizeof(Deplacement));
-  for(int i  = 0; i < 2*radius+1; i++)
+    int** dIm1X = malloc((2*radius+1) *sizeof(int*));
+    int** dIm1Y = malloc((2*radius+1) *sizeof(int*));
+    int** dIm1XT = malloc((2*radius+1) *sizeof(int*));
+    int** dIm1YT = malloc((2*radius+1) *sizeof(int*));
+    Coord* Deplacement  = malloc(nbPoint * sizeof(Coord));
+    for(int i  = 0; i < 2*radius+1; i++)
     {
-      dIm1X[i] = malloc((2*radius +1)* sizeof(int));
-      dIm1Y[i] = malloc((2*radius +1)* sizeof(int));
-      dIm1XT[i] = malloc((2*radius +1)* sizeof(int));
-      dIm1YT[i] = malloc((2*radius +1)* sizeof(int));
+        dIm1X[i] = malloc((2*radius +1)* sizeof(int));
+        dIm1Y[i] = malloc((2*radius +1)* sizeof(int));
+        dIm1XT[i] = malloc((2*radius +1)* sizeof(int));
+        dIm1YT[i] = malloc((2*radius +1)* sizeof(int));
     }
-    
+
 
     for (int m = 0; m < nbPoint; ++m) {
         int i = ListPoint[m].x;
@@ -43,54 +45,53 @@ void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoi
                     dIm1XT[k][l] = dIm1X[(2*radius)-k][(2*radius)-l];
                     dIm1YT[k][l] = dIm1Y[(2*radius)-k][(2*radius)-l];
                 }
-		else
-		  {
-		    dIm1XT[k][l] = dIm1X[k][l];
-		    dIm1YT[k][l] = dIm1Y[k][l];
-		  }
+                else
+                {
+                    dIm1XT[k][l] = dIm1X[k][l];
+                    dIm1YT[k][l] = dIm1Y[k][l];
+                }
             }
         }
 
 /* -------------------------- Determination -------------------------------- */
-        int spx = 0;
-        int spy = 0;
-        int spxt = 0;
-        int spyt = 0;
+        int sdxdt = 0;
+        int sdydt = 0;
+        int sdx2 = 0;
+        int sdy2 = 0;
+        int sdxdy = 0;
         for(int x = i-radius; x <= i+radius ; ++x )
         {
             int newx = x - i + radius;
             for(int y = j-radius; y <= j+radius; ++y)
             {
                 int newy = y - j + radius;
-		//printf("%d %d\n",dIm1X[newx][newy],dIm1Y[newx][newy]);
-                spx += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1X[newx][newy];
-                spy += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1Y[newx][newy];
-                spxt += dIm1XT[newx][newy] * dIm1X[newx][newy];
-                spyt += dIm1YT[newx][newy] * dIm1Y[newx][newy];
+                sdxdt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1X[newx][newy] * CoefGaussien(newx - radius, newy - radius);
+                sdydt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1Y[newx][newy] * CoefGaussien(newx - radius, newy - radius);
+                sdx2 += dIm1X[newx][newy] * dIm1X[newx][newy] * CoefGaussien(newx - radius, newy - radius);
+                sdy2 += dIm1Y[newx][newy] * dIm1Y[newx][newy] * CoefGaussien(newx - radius, newy - radius);
+                sdxdy += dIm1X[newx][newy] * dIm1Y[newx][newy] * CoefGaussien(newx - radius, newy - radius);
             }
         }
 
         Coord deplacement = {
-	  .x = spxt != 0 ? spx / spxt : 0,
-	  .y = spyt != 0 ? spy / spyt : 0,
+                .x = (1/(sdx2*sdy2 - sdxdy*sdxdy))*((sdy2 - sdxdy) * (-sdxdt - sdydt)),
+                .y = (1/(sdx2*sdy2 - sdxdy*sdxdy))*((sdx2 - sdxdy) * (-sdxdt - sdydt)),
         };
         Deplacement[m] = deplacement;
-	ListPoint[m].x += deplacement.x;
-	ListPoint[m].y+= deplacement.y;
     }
 
 /* ------------------------------ Free ------------------------------------ */
 
     for (int m = 0; m < nbPoint; ++m) {
-      Pixel newpix =
-	{.red = 255,
-	 .blue = 255,
-	 .green = 255,
-	 .alpha = 255,
-	};
-      Bitmap1->pixels[ListPoint[m].y][ListPoint[m].x] = newpix;
-      Bitmap2->pixels[ListPoint[m].y+Deplacement[m].y][ListPoint[m].x+Deplacement[m].x] = newpix;
-      printf("[%i][%i] : %i , %i\n",ListPoint[m].x,ListPoint[m].y,Deplacement[m].x,Deplacement[m].y);
+        Pixel newpix =
+                {.red = 255,
+                        .blue = 255,
+                        .green = 255,
+                        .alpha = 255,
+                };
+        Bitmap1->pixels[ListPoint[m].y][ListPoint[m].x] = newpix;
+        Bitmap2->pixels[ListPoint[m].y+Deplacement[m].y][ListPoint[m].x+Deplacement[m].x] = newpix;
+        printf("[%i][%i] : %i , %i\n",ListPoint[m].x,ListPoint[m].y,Deplacement[m].x,Deplacement[m].y);
     }
 
     for (int i = 0; i < 2*radius+1; ++i) {
@@ -112,3 +113,10 @@ int Gray(int i, int j,Image* BitMap)
     int gray = BitMap->pixels[j][i].red*0.2126 + BitMap->pixels[j][i].green*0.7152 + BitMap->pixels[j][i].blue*0.0722;
     return gray;
 }
+
+double CoefGaussien(int x, int y)
+{
+    double res = (1/(2*3.14))*exp(-(pow(x,2)+pow(y,2))/(2));
+    return res;
+}
+
