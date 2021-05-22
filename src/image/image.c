@@ -168,6 +168,8 @@ save_image_pixels(struct Image *im) {
     im->pixels = im_pixels;
 }
 
+
+
 /*!
  * Proper way to free an image structure to avoid ay memory leak. 
  * Must call after you're done processing an image.
@@ -177,11 +179,15 @@ save_image_pixels(struct Image *im) {
 void
 free_image(struct Image *image) {
     if(image){
+	g_print("%i\n");
     	for (int x = 0; x < image->width; ++x)
-            free(image->pixels[x]);
+            
+	     free(image->pixels[x]);
     	free(image->pixels);
-    	free(image->file);
-    	free(image->file_type);
+    	if (image->file)
+		free(image->file);
+    	if (image->file_type)
+		free(image->file_type);
     	//free(image);
 
     }

@@ -164,7 +164,7 @@ void apply_auto_color_balance(GtkButton *button,gpointer user_data){
     //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
    
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
         BalanceAuto(im);
     	actualise_image(im,0,0,im->width,im->height);
         gtk_image_set_from_pixbuf(ui->area,im->pb);
@@ -183,7 +183,7 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
     //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
    
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
 
         BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
     	actualise_image(im,0,0,im->width,im->height);
@@ -197,7 +197,7 @@ void apply_saturation(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         SaturationAbsolue(im,gtk_adjustment_get_value(ui->SAT_value));
         actualise_image(im,0,0,im->width,im->height);
@@ -211,7 +211,7 @@ void apply_brightness(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
        // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Contrast(im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
         actualise_image(im,0,0,im->width,im->height);
@@ -226,7 +226,7 @@ void apply_rotation(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(im,(float)gtk_adjustment_get_value(ui->ROT_value));
         actualise_image(im,0,0,im->width,im->height);
@@ -241,7 +241,7 @@ void apply_rot_right(GtkButton *button,gpointer user_data){
 
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(im,(float)90);
         actualise_image(im,0,0,im->width,im->height);
@@ -254,7 +254,7 @@ void apply_rot_left(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(im,(float)-90);
         actualise_image(im,0,0,im->width,im->height);
@@ -267,7 +267,7 @@ void apply_flip_hori(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         FlipHorizon(im);
         actualise_image(im,0,0,im->width,im->height);
@@ -280,7 +280,7 @@ void apply_flip_vert(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (im){
-        copy_image(im,sauv_im1);
+        sauv_im1 = copy_image(im,sauv_im1);
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         FlipVertical(im);
         actualise_image(im,0,0,im->width,im->height);
@@ -625,6 +625,15 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     gtk_list_box_select_row (box,listboxrow);
     g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
 
+    if (!sauv_im1){
+	g_print("new image\n");
+	sauv_im1 = new_image(im->width,im->height);
+	sauv_im1 = copy_image(im,sauv_im1);
+    }
+    else{
+    	sauv_im1 = copy_image(im,sauv_im1);
+    }
+
 }
 
 void destroy_layer(GtkButton *button,gpointer user_data){
@@ -754,7 +763,7 @@ int main ()
     GtkAdjustment* draw_size =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "draw_size"));  
     GtkListBox * layers = GTK_LIST_BOX(gtk_builder_get_object(builder,"Layers"));
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
-    //GtkButton* test2 = GTK_BUTTON(gtk_builder_get_object(builder, "cut"));
+    GtkButton* add_layer_button = GTK_BUTTON(gtk_builder_get_object(builder, "add_layer"));
 
 
 
@@ -896,7 +905,7 @@ int main ()
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);   
 
-    g_signal_connect(start_button, "clicked", G_CALLBACK(add_layer), &ui);
+    g_signal_connect(add_layer_button, "clicked", G_CALLBACK(add_layer), &ui);
 
 
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
@@ -918,9 +927,18 @@ int main ()
     gtk_main();
     g_object_unref(builder);
 
-    free_image(im);
-    free(im);
+    if (im){
+
+    	free_image(im);
+    	free(im);
+    }
     /*
+    if (sauv_im1){
+    	free_image(sauv_im1);
+    	free(sauv_im1);
+    }*/
+/*
+    
     free_image(im2);
     free(im2);*/
     free_stack(Layers);
