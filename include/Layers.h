@@ -11,6 +11,7 @@
 
 #include <gtk/gtk.h>
 #include "image.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <err.h>
 
@@ -26,8 +27,8 @@ typedef struct Layer{
 	Image * image; 
 	int pos ;
 	int mode;
-};
+}Layer;
 
-int test();
+void export(Image *img, Stack *layers, int n);
 
 #endif  //LAYERS_H_
