@@ -39,6 +39,7 @@ typedef struct Layer
 {
     struct Image *im;
     int show;
+
     int relativxpos;
     int relativypos;
     GtkListBoxRow * lbr;
@@ -63,6 +64,7 @@ int get_index_layer(Stack* Layers,GtkListBoxRow * lbr){
 	}
 	return pos;
 }
+
 
 
 
@@ -147,6 +149,7 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     gtk_image_set_from_pixbuf(ui->area,im->pb);
     prepare_drawarea(user_data);
  }
+
 
 void on_save(GtkFileChooser *fc,gpointer user_data){
     if (im)  
@@ -441,7 +444,7 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 			    flood_fill(im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 			    actualise_image(im,0,0,im->width,im->height);
 	  		    gtk_image_set_from_pixbuf(ui->area,im->pb);
-		}
+		    }
     }
 }
 
@@ -578,9 +581,6 @@ void up_layer(GtkButton *button,gpointer user_data){
 	GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
 	gtk_label_set_text(lastlabel,gtk_label_get_text(currentlabel));
 	gtk_label_set_text(currentlabel,my_string);
-
-
-
     }
 
 }
@@ -629,6 +629,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
 	g_print("new image\n");
 	sauv_im1 = new_image(im->width,im->height);
 	sauv_im1 = copy_image(im,sauv_im1);
+
     }
     else{
     	sauv_im1 = copy_image(im,sauv_im1);
@@ -636,13 +637,25 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
 
 }
 
+void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data){
+    
+    UserInterface *ui = user_data;
+    Layer * current_layer = elm_at_pos(&Layers,gtk_list_box_row_get_index (listboxrow));
+    im = current_layer->im;
+    im2 = current_layer->im;
+    actualise_image(im,0,0,im->width,im->height);
+    gtk_image_set_from_pixbuf(ui->area,im->pb);
+
+
+}
+
 void destroy_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
-
     GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
     int pos =  gtk_list_box_row_get_index (curlbr);
 
     gtk_widget_destroy(GTK_WIDGET(curlbr));
+
     Layer * dead = pop_from_stack_at_pos(&Layers,pos);
     free_image(dead->im);
     free(dead);
@@ -678,6 +691,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     gtk_grid_insert_column(box,0);
     gtk_grid_insert_column(box,0);
 
+
     //bouton hide/show
     GtkWidget *button = gtk_button_new_with_label ("show?");
     g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
@@ -710,7 +724,9 @@ void add_layer(GtkButton *useless,gpointer user_data){
     g_signal_connect(killbutton, "clicked", G_CALLBACK(destroy_layer), user_data);
     gtk_grid_attach (box,killbutton,3,0,1,1);
 
+
     gtk_container_add (GTK_CONTAINER(nbr),GTK_WIDGET(box));
+
 
     gtk_list_box_insert (ui->layers,GTK_WIDGET(nbr),0);
     //gtk_widget_hide (GTK_WIDGET(ui->layers));
@@ -727,6 +743,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     Layers = push_to_stack(Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
     
+
 }
 
 
@@ -939,6 +956,7 @@ int main ()
     }*/
 /*
     
+
     free_image(im2);
     free(im2);*/
     free_stack(Layers);
