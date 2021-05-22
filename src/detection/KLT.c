@@ -33,24 +33,28 @@ void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoi
             for(int y = j-radius; y <= j+radius; ++y)
             {
                 int newy = y - j + radius;
-                dIm1X[newx][newy] = (Gray(x,y+1,Bitmap1) - Gray(x,y-1,Bitmap1))/2;
-                dIm1Y[newx][newy] = (Gray(x+1,y,Bitmap1) - Gray(x-1,y,Bitmap1))/2;
+                dIm1Y[newx][newy] = (Gray(x,y+1,Bitmap1) - Gray(x,y-1,Bitmap1))/2;
+                dIm1X[newx][newy] = (Gray(x+1,y,Bitmap1) - Gray(x-1,y,Bitmap1))/2;
+		//printf("%d ", dIm1Y[newx][newy]);
             }
+	    //printf("\n");
         }
-
+	//printf("\n");
         for (int k = 0; k < 2*radius+1 ; ++k) {
             for (int l = 0; l < 2*radius+1 ; ++l) {
                 if((k*(2*radius+1)+l)%(2*radius+2) != 0)
                 {
-                    dIm1XT[k][l] = dIm1X[(2*radius)-k][(2*radius)-l];
-                    dIm1YT[k][l] = dIm1Y[(2*radius)-k][(2*radius)-l];
+                    dIm1XT[k][l] = dIm1X[l][k];
+                    dIm1YT[k][l] = dIm1Y[l][k];
                 }
                 else
                 {
                     dIm1XT[k][l] = dIm1X[k][l];
                     dIm1YT[k][l] = dIm1Y[k][l];
                 }
+		//printf("%d ", dIm1YT[k][l]);
             }
+	    //printf("\n");
         }
 
 /* -------------------------- Determination -------------------------------- */
@@ -64,18 +68,22 @@ void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoi
             for(int y = j-radius; y <= j+radius; ++y)
             {
                 int newy = y - j + radius;
-                sdxdt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1X[newx][newy] ;
-                sdydt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1Y[newx][newy] ;
+		//printf("1: %d 2: %d , (%d - %d)/2 = %d\n",Gray(x,y,Bitmap1),Gray(x,y,Bitmap2),Gray(x,y+1,Bitmap1),Gray(x,y-1,Bitmap1),dIm1Y[newx][newy]);
+                sdxdt += (Gray(x,y,Bitmap1) - Gray(x,y,Bitmap2))*dIm1X[newx][newy] ;
+                sdydt += (Gray(x,y,Bitmap1) - Gray(x,y,Bitmap2))*dIm1Y[newx][newy] ;
                 sdxt += dIm1X[newx][newy] * dIm1XT[newx][newy] ;
                 sdyt += dIm1Y[newx][newy] * dIm1YT[newx][newy] ;
+		
             }
         }
 
         Coord deplacement = {
-                .x = sdxdt/sdxt,
-                .y = sdydt/sdyt,
+	  .x = sdxt != 0 ? sdxdt/sdxt : 0,
+          .y = sdyt != 0 ? sdydt/sdyt : 0,
         };
         Deplacement[m] = deplacement;
+
+	//printf("\n");
     }
 
 /* ------------------------------ Free ------------------------------------ */
@@ -88,8 +96,9 @@ void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoi
                         .alpha = 255,
                 };
         Bitmap1->pixels[ListPoint[m].y][ListPoint[m].x] = newpix;
-        Bitmap2->pixels[ListPoint[m].y+Deplacement[m].y][ListPoint[m].x+Deplacement[m].x] = newpix;
-        printf("[%i][%i] : %i , %i\n",ListPoint[m].x,ListPoint[m].y,Deplacement[m].x,Deplacement[m].y);
+	if(ListPoint[m].y+Deplacement[m].y > 0 && ListPoint[m].y+Deplacement[m].y < Bitmap1->width && ListPoint[m].x+Deplacement[m].x > 0 && ListPoint[m].x+Deplacement[m].x < Bitmap1->height)Bitmap2->pixels[ListPoint[m].y+Deplacement[m].y][ListPoint[m].x+Deplacement[m].x] = newpix;
+        
+        printf("[%i][%i] : %i , %i\n",ListPoint[m].x,ListPoint[m].y,Deplacement[m].y,Deplacement[m].x);
     }
 
     for (int i = 0; i < 2*radius+1; ++i) {
