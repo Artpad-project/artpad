@@ -33,8 +33,8 @@ void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoi
             for(int y = j-radius; y <= j+radius; ++y)
             {
                 int newy = y - j + radius;
-                dIm1X[newx][newy] = (Gray(x,y-1,Bitmap1) - Gray(x,y+1,Bitmap1))/2;
-                dIm1Y[newx][newy] = (Gray(x-1,y,Bitmap1) - Gray(x+1,y,Bitmap1))/2;
+                dIm1X[newx][newy] = (Gray(x,y+1,Bitmap1) - Gray(x,y-1,Bitmap1))/2;
+                dIm1Y[newx][newy] = (Gray(x+1,y,Bitmap1) - Gray(x-1,y,Bitmap1))/2;
             }
         }
 
@@ -56,26 +56,24 @@ void KLT(Image* Bitmap1, Image* Bitmap2, int radius, Coord* ListPoint, int nbPoi
 /* -------------------------- Determination -------------------------------- */
         int sdxdt = 0;
         int sdydt = 0;
-        int sdx2 = 0;
-        int sdy2 = 0;
-        int sdxdy = 0;
+        int sdxt = 0;
+        int sdyt = 0;
         for(int x = i-radius; x <= i+radius ; ++x )
         {
             int newx = x - i + radius;
             for(int y = j-radius; y <= j+radius; ++y)
             {
                 int newy = y - j + radius;
-                sdxdt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1X[newx][newy] * CoefGaussien(newx - radius, newy - radius);
-                sdydt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1Y[newx][newy] * CoefGaussien(newx - radius, newy - radius);
-                sdx2 += dIm1X[newx][newy] * dIm1X[newx][newy] * CoefGaussien(newx - radius, newy - radius);
-                sdy2 += dIm1Y[newx][newy] * dIm1Y[newx][newy] * CoefGaussien(newx - radius, newy - radius);
-                sdxdy += dIm1X[newx][newy] * dIm1Y[newx][newy] * CoefGaussien(newx - radius, newy - radius);
+                sdxdt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1X[newx][newy] ;
+                sdydt += (Gray(x,y,Bitmap2) - Gray(x,y,Bitmap1))*dIm1Y[newx][newy] ;
+                sdxt += dIm1X[newx][newy] * dIm1XT[newx][newy] ;
+                sdyt += dIm1Y[newx][newy] * dIm1YT[newx][newy] ;
             }
         }
 
         Coord deplacement = {
-                .x = (1/(sdx2*sdy2 - sdxdy*sdxdy))*((sdy2 - sdxdy) * (-sdxdt - sdydt)),
-                .y = (1/(sdx2*sdy2 - sdxdy*sdxdy))*((sdx2 - sdxdy) * (-sdxdt - sdydt)),
+                .x = sdxdt/sdxt,
+                .y = sdydt/sdyt,
         };
         Deplacement[m] = deplacement;
     }
@@ -114,9 +112,4 @@ int Gray(int i, int j,Image* BitMap)
     return gray;
 }
 
-double CoefGaussien(int x, int y)
-{
-    double res = (1/(2*3.14))*exp(-(pow(x,2)+pow(y,2))/(2));
-    return res;
-}
 
