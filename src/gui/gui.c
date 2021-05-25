@@ -38,7 +38,6 @@ typedef struct Layer
 {
     struct Image *im;
     int show;
-
     int relativxpos;
     int relativypos;
     GtkListBoxRow * lbr;
@@ -60,14 +59,14 @@ int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
 			Layer * act = tmp->data;
 			if (act->lbr == lbr)			
 				break;
-
 			pos ++;
 			tmp = tmp->next;
 		}
-
 	}
 	return pos;
 }
+
+
 
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
@@ -363,7 +362,15 @@ void see_original(GtkButton *useless,gpointer user_data){
 
     	actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);
-    } 
+    }
+    Stack *tmp = Layers;
+    int pos= 0;
+    while (tmp->next != NULL){
+	Layer * cur = tmp->data;
+    	g_print("pos : %i = %i\n",pos,cur->show);
+	tmp = tmp->next;
+	pos ++;
+    }
 }
 
 
@@ -575,6 +582,16 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
     GtkListBoxRow *lbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
     GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(lbr)));
 
+    int pos =  gtk_list_box_row_get_index (lbr);
+    Layer* current_layer = elm_at_pos(&Layers,pos);
+    if (current_layer->show){
+    	current_layer->show = 0;
+    }
+    else if (!current_layer->show){
+   	current_layer->show = 1;
+
+    }
+    
     if(gtk_list_box_row_is_selected (lbr))
          gtk_list_box_unselect_row (lb,lbr);
     else
@@ -682,6 +699,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     Layer * dead = pop_from_stack_at_pos(&Layers,pos);
     free_image(dead->im);
     free(dead);
+    
     ui->nblayers -=1;
 }
 
@@ -759,7 +777,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     else
     	newLayer->im = new_image(im->width,im->height);
 
-    newLayer->show = 0;
+    newLayer->show = 1;
     newLayer-> lbr = nbr;
     ui->nblayers +=1;
     Layers = push_to_stack(Layers,newLayer);
@@ -963,18 +981,18 @@ int main ()
 
 
     gtk_main();
-    g_object_unref(builder);
+
 
     if (im){
+//todo :  fonction de comparaison d'image
+	sauv_im1 = NULL;
     	free_image(im);
-    	free(im);
     }
-
-    /*
     if (sauv_im1){
+	g_print("susuuususususuus");
     	free_image(sauv_im1);
-    	free(sauv_im1);
-    }*/
+    }
+    g_object_unref(builder);
 /*
     
 

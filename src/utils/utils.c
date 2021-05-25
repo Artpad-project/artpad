@@ -55,7 +55,7 @@ void *pop_from_stack_at_pos(Stack **stack_ptr,int pos){
  	for(;pos-1>0;pos--){
 		front = front->next;
 	}
-	data = front->data;
+	data = front->next->data;
 	front->next = front->next->next;
     }
     return data;
