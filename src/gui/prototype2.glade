@@ -539,10 +539,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkPaned">
+                  <object class="GtkPaned" id="draw_effects">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="position">1390</property>
+                    <property name="position">750</property>
                     <property name="position-set">True</property>
                     <property name="wide-handle">True</property>
                     <child>

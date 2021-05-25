@@ -33,15 +33,10 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
     }
     else if (!current_layer->show){
    	current_layer->show = 1;
-
     }
-    
-    if(gtk_list_box_row_is_selected (lbr))
-         gtk_list_box_unselect_row (lb,lbr);
-    else
-         gtk_list_box_select_row (lb,lbr);
-
-    g_print("%i\n",gtk_list_box_row_get_index (lbr));
+    merge_from_layers(ui->Layers,ui->im);
+    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
 }
 
 
@@ -74,6 +69,10 @@ void up_layer(GtkButton *button,gpointer user_data){
         GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
         gtk_label_set_text(lastlabel,gtk_label_get_text(currentlabel));
         gtk_label_set_text(currentlabel,my_string);
+ 	merge_from_layers(ui->Layers,ui->im);
+    	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+    	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+
     }
 }
 
@@ -102,6 +101,10 @@ void down_layer(GtkButton *button,gpointer user_data){
       GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
       gtk_label_set_text(nextlabel,gtk_label_get_text(currentlabel));
       gtk_label_set_text(currentlabel,my_string);
+      merge_from_layers(ui->Layers,ui->im);
+      actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+      gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+
     }
 }
 
@@ -112,7 +115,6 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
  
     g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
     Layer * current_layer = elm_at_pos(&ui->Layers,gtk_list_box_row_get_index (listboxrow));
-    ui->im = current_layer->im;
 
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
@@ -148,9 +150,16 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 //todo : need to set the new image
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
-        set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
+    {
+	    set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
+    	    merge_from_layers(ui->Layers,ui->im);
+    	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    }
     else {ui->im = NULL;}
     ui->nblayers -=1;
+   
+
 }
 
 //Impossible à faire marcher
@@ -260,10 +269,10 @@ int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
 	int pos = 0;
 
 	if (!is_stack_empty(tmp)){
-		g_print("whaouh\n");
+		//_print("whaouh\n");
 
 		while (tmp->next != NULL )
-    {
+    		{
 			Layer * act = tmp->data;
 			if (act->lbr == lbr)			
 				break;
@@ -298,21 +307,27 @@ void merge_from_layers(Stack* Layers,struct Image* im){
            
 
     Stack* layers = Layers;
-    while (layers->next != NULL){
+    while (!is_stack_empty(layers)){
+	    
 	    Layer* cur_layer = layers->data;
-	    for(int i = 0;i<im->width;i++){
-	        for(int j = 0;j<im->height;j++){
-		        if (cur_layer->im->pixels[i][j].alpha>0){
-			        int alpha = cur_layer->im->pixels[i][j].alpha;
-                    if (im->pixels[i][j].alpha + alpha < 255)
-                        alpha = 255 - im->pixels[i][j].alpha;
-                    im->pixels[i][j].red += cur_layer->im->pixels[i][j].red * alpha;
-                    im->pixels[i][j].blue += cur_layer->im->pixels[i][j].blue * alpha;
-                    im->pixels[i][j].green += cur_layer->im->pixels[i][j].green * alpha;
-                    im->pixels[i][j].alpha += alpha;
-	    	    }
-	        }
-        }
+	    if (cur_layer->show)
+            {    
+		 for(int i = 0;i<im->width;i++){
+			for(int j = 0;j<im->height;j++){
+			    if (im->pixels[i][j].alpha<255){
+				int alpha = cur_layer->im->pixels[i][j].alpha;
+				if (im->pixels[i][j].alpha + alpha > 255)
+					alpha = 255 - im->pixels[i][j].alpha;
+				im->pixels[i][j].red += cur_layer->im->pixels[i][j].red * alpha/255;
+				im->pixels[i][j].blue += cur_layer->im->pixels[i][j].blue * alpha/255;
+				im->pixels[i][j].green += cur_layer->im->pixels[i][j].green * alpha/255;
+				im->pixels[i][j].alpha += alpha;
+			    }
+			}
+		
+		 }
+	    }
+	    layers = layers->next;
     }
 }
 

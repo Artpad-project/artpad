@@ -27,7 +27,6 @@ enum mode {IMAGE_TOOLS = 1,DRAW =2};
 //prepare to draw 
 void prepare_drawarea(gpointer user_data){
     UserInterface* ui = user_data;
-    
     //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
     gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),ui->xpos ,ui->ypos);
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) ui->im->width, (gint)ui->im->height);
@@ -45,8 +44,9 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
     ui->sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
-    ui->im = ui->currentLayer->im;
-
+    
+    
+    merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
 
@@ -66,10 +66,10 @@ void on_save(GtkFileChooser *fc,gpointer user_data){
 //ctrl+z function
 void apply_undo(GtkButton *useless,gpointer user_data){
     UserInterface* ui = user_data;
-    if (ui->im){
+    if (ui->currentLayer){
     	UserInterface* ui = user_data;
-    	copy_image(ui->sauv_im1,ui->im);
-
+    	copy_image(ui->sauv_im1,ui->currentLayer->im);
+	
     	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }
@@ -98,14 +98,14 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
     UserInterface* ui = user_data;
 
   	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-    {
-      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
-      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
+	{
+	      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
+	      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
 
-      char* size;
-      int val = asprintf(&size,"tolerance");
+	      char* size;
+	      int val = asprintf(&size,"tolerance");
 
-      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
+	      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
 	}
 	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
@@ -118,20 +118,12 @@ void see_original(GtkButton *useless,gpointer user_data){
     UserInterface* ui = user_data;
 
     g_print("Stack state : \n:");
-    if (ui->im){
+    /*if (ui->im){
     	UserInterface* ui = user_data;
 
     	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-    }
-    Stack *tmp = ui->Layers;
-    int pos= 0;
-    while (tmp->next != NULL){
-	Layer * cur = tmp->data;
-    	g_print("pos : %i = %i\n",pos,cur->show);
-	tmp = tmp->next;
-	pos ++;
-    }
+    }*/
 }
 
 
@@ -139,10 +131,11 @@ void see_original(GtkButton *useless,gpointer user_data){
 // Event handler for the "clicked" signal of the copy button.
 void on_start(GtkButton *useless,gpointer user_data)
 {
-    UserInterface *ui = user_data;
-    merge_from_layers(ui->Layers,ui->im);
-	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    /*UserInterface *ui = user_data;
+    Image* newim = new_image(500,500);
+    merge_from_layers(ui->Layers,newim);
+    actualise_image(newim,0,0,newim->width,newim->height);
+    gtk_image_set_from_pixbuf(ui->area,newim->pb);*/
 }
 
 //test on key pressing (actually doesn't work)
@@ -223,12 +216,14 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
     
-    if(ui->im && xposi >= 0  && xposi < ui->im->width && yposi>=0 && yposi < ui->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-        if(event->button == 1 && ui->im)
+    if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+        if(event->button == 1 && ui->currentLayer)
         {
+	    g_print("sus_miam");
             struct coord src = {xposi, yposi };
-            flood_fill(ui->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-            actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+            flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+            merge_from_layers(ui->Layers,ui->im);
+	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
         }
     
@@ -239,7 +234,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
     
     char *my_string;
-    if (ui->im)
+    if (ui->currentLayer)
     {
       int xposi = -ui->xpos + event->x;
       int yposi = -ui->ypos + event->y;
@@ -264,14 +259,14 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
             struct coord dest = {xposi,yposi};
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush1)))
-              pencil(ui->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+              pencil(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush2)))
-              brush(ui->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+              brush(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush3)))
-                special_brushes(ui->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-              
+                special_brushes(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+            merge_from_layers(ui->Layers,ui->im);
             actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
           }     
@@ -446,6 +441,7 @@ int main ()
       .currentLayer = NULL,
     };
     ui.Layers = create_stack();
+    ui.im = new_image(500,500);
 
     
 
