@@ -22,6 +22,8 @@
 #include "../../include/stack.h"
 #include "../../include/ContrastSimple.h"
 #include "../../include/Flip.h"
+#include "../../include/Layers.h"
+
 
 
 
@@ -34,39 +36,7 @@ static Image* im ;
 Image* sauv_im1;
 Stack * Layers;
 
-typedef struct Layer 
-{
-    struct Image *im;
-    int show;
-    int relativxpos;
-    int relativypos;
-    GtkListBoxRow * lbr;
-}Layer;
-
 Layer * current_layer;
-
-//gets layer index with the gtk window
-int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
-{
-	Stack * tmp = Layers;
-	int pos = 0;
-
-	if (!is_stack_empty(tmp)){
-		g_print("whaouh\n");
-
-		while (tmp->next != NULL )
-    {
-			Layer * act = tmp->data;
-			if (act->lbr == lbr)			
-				break;
-			pos ++;
-			tmp = tmp->next;
-		}
-	}
-	return pos;
-}
-
-
 
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
@@ -75,7 +45,6 @@ typedef struct UserInterface
 {
     GtkWindow* window;              // Main window
     GtkFixed *drawarea;
-    GtkStack *stack_used;
     GtkListBox *layers;
 
     GtkEventBox* eb_draw;
@@ -461,17 +430,16 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	UserInterface *ui = user_data;
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
-    if(strcmp((char*)gtk_stack_get_visible_child_name (ui->stack_used),"page1") == 0)
-    {
-    	if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-		    if(event->button == 1 && im)
+    
+    if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+        if(event->button == 1 && im)
         {
-			    struct coord src = {xposi, yposi };
-			    flood_fill(im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-			    actualise_image(im,0,0,im->width,im->height);
-	  	    gtk_image_set_from_pixbuf(ui->area,im->pb);
-		    }
-    }
+            struct coord src = {xposi, yposi };
+            flood_fill(im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+            actualise_image(im,0,0,im->width,im->height);
+        gtk_image_set_from_pixbuf(ui->area,im->pb);
+        }
+    
 }
 
 //on mouse moved for drawing (pencil)
@@ -494,12 +462,11 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
         errx(1,"cannot create the query");
 	    
       gtk_text_buffer_set_text(ui->curserpos,my_string,val);
-      if(strcmp((char*)gtk_stack_get_visible_child_name (ui->stack_used),"page1") == 0)
-      {
-        if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
+  
+      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
           if( event->state & GDK_BUTTON1_MASK )
           {
-            //struct timeval actual;
+             //struct timeval actual;
             //gettimeofday(&actual,NULL);
             //g_print("%s\n",my_string);
             int pastx = -ui->xpos + ui->xmouse;
@@ -518,7 +485,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
               
             actualise_image(im,0,0,im->width,im->height);
             gtk_image_set_from_pixbuf(ui->area,im->pb);
-		      }
+          }
 
       /*
 	    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush)))
@@ -549,7 +516,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 		        gtk_image_set_from_pixbuf(ui->area,im->pb);
 		    }
         */
-      }
+      
 
     if( event->state & GDK_BUTTON2_MASK )
     {
@@ -666,6 +633,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     UserInterface *ui = user_data;
     //int pos =  gtk_list_box_row_get_index (listboxrow);
  
+    g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
     Layer * current_layer = elm_at_pos(&Layers,gtk_list_box_row_get_index (listboxrow));
     im = current_layer->im;
 
@@ -676,11 +644,10 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     ui->currentLayer = current_layer;
     gtk_list_box_select_row (box,listboxrow);
 
-    g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
+    //g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
 
     if (!sauv_im1)
     {
-      g_print("new image\n");
       sauv_im1 = new_image(im->width,im->height);
       sauv_im1 = copy_image(im,sauv_im1);
     }
@@ -692,6 +659,8 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
 void destroy_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
     GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
+    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
+
     int pos =  gtk_list_box_row_get_index (curlbr);
 
     gtk_widget_destroy(GTK_WIDGET(curlbr));
@@ -699,7 +668,11 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     Layer * dead = pop_from_stack_at_pos(&Layers,pos);
     free_image(dead->im);
     free(dead);
-    
+//todo : need to set the new image
+    Layer * new = elm_at_pos(&Layers,0);
+    if (new != NULL)
+        set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
+    else {im = NULL;}
     ui->nblayers -=1;
 }
 
@@ -809,7 +782,6 @@ int main ()
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
     GtkButton* saver =  GTK_BUTTON(gtk_builder_get_object(builder, "Save"));  
 
-    GtkStack* stack_used = GTK_STACK(gtk_builder_get_object(builder,"stack1"));
       
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
@@ -891,7 +863,6 @@ int main ()
     {
       .window = window,
       .drawarea = drawarea,
-      .stack_used = stack_used,
       .layers = layers,
       .eb_draw = eb_draw,
 

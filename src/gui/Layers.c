@@ -8,11 +8,43 @@
 
 #include "../../include/Layers.h"
 #include <stdio.h>
+#include <gtk/gtk.h>
 #include <sys/stat.h>
 #include <string.h>
 
 //length of "_layers00\0"
 #define APPEND_LENGTH 10
+
+
+/* get the index of a layer in the stack from it's gtklistboxrow
+ * 
+ * @param 
+ * Layers: the stack
+ * lbr : the gtklistboxrow
+ */
+
+
+int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
+{
+	Stack * tmp = Layers;
+	int pos = 0;
+
+	if (!is_stack_empty(tmp)){
+		g_print("whaouh\n");
+
+		while (tmp->next != NULL )
+    {
+			Layer * act = tmp->data;
+			if (act->lbr == lbr)			
+				break;
+			pos ++;
+			tmp = tmp->next;
+		}
+	}
+	return pos;
+}
+
+
 
 /* saves all layers in a subdirectory layers
  * the nameplate is "{dir_name}/{img original name}_layers00.{filetype};"
@@ -21,6 +53,8 @@
  * layers: the stack of layers
  * n: the number of layers in the stack
  */
+
+
 void export(Image *img, Stack *layers, int n)
 {
   char *buffer;

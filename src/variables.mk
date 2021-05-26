@@ -11,6 +11,7 @@ IMG_SRC := 			image/image.c \
 					rotation/Rotation.c \
 					utils/utils.c \
 					utils/queue.c 
+					
 
 
 DRAWING_SRC :=		colorimetrie/stack.c \
