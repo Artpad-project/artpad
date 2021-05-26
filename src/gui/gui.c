@@ -11,17 +11,8 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include <time.h>
+#include "../../include/gui.h"
 
-
-#include "../../include/image_scaling.h"
-#include "../../include/PuissanceN.h"
-#include "../../include/BalanceAuto.h"
-#include "../../include/Saturation.h"
-#include "../../include/Rotation.h"
-#include "../../include/colorimetrie.h"
-#include "../../include/stack.h"
-#include "../../include/ContrastSimple.h"
-#include "../../include/Flip.h"
 
 
 
@@ -30,109 +21,19 @@ void add_layer(GtkButton *useless,gpointer user_data);
 void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data);
 
 
-static Image* im ;
-Image* sauv_im1;
-Stack * Layers;
-
-typedef struct Layer 
-{
-    struct Image *im;
-    int show;
-
-    int relativxpos;
-    int relativypos;
-    GtkListBoxRow * lbr;
-}Layer;
-
-Layer * current_layer;
-
-//gets layer index with the gtk window
-int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
-{
-	Stack * tmp = Layers;
-	int pos = 0;
-
-	if (!is_stack_empty(tmp)){
-		g_print("whaouh\n");
-
-		while (tmp->next != NULL )
-    {
-			Layer * act = tmp->data;
-			if (act->lbr == lbr)			
-				break;
-
-			pos ++;
-			tmp = tmp->next;
-		}
-
-	}
-	return pos;
-}
-
 
 enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
-typedef struct UserInterface
-{
-    GtkWindow* window;              // Main window
-    GtkFixed *drawarea;
-    GtkStack *stack_used;
-    GtkListBox *layers;
-
-    GtkEventBox* eb_draw;
-
-    GtkImage* area;           // Drawing area
-    GtkButton* start_button;        // Start button
-    GtkTextBuffer *curserpos;
-    GtkTextBuffer *drawbuffer;
-    GtkAdjustment *SAT_value;
-    GtkAdjustment *CB_value;
-    GtkAdjustment *ROT_value;
-    GtkAdjustment *BRI_value;
-    GtkAdjustment *CON_value;
-
-
-
-    GdkRectangle drawzone;
-    GtkAdjustment *width_print;
-    GtkAdjustment *height_print;
-
-    
-    int xpos;
-    int ypos;
-    gdouble xmouse;
-    gdouble ymouse;
-
-    GtkColorChooser* draw_color;
-    struct Pixel actual_color;
-    GtkRadioButton* pencil;
-    GtkRadioButton* fill;
-    GtkRadioButton* brush1;
-    GtkRadioButton* brush2;
-    GtkRadioButton* brush3;
-
-
-
-    GtkAdjustment *draw_size;
-    double draw_value;
-    double tolerance;
-    int nblayers;
-    Layer * currentLayer;
-    GtkListBoxRow *r1;
-    GtkListBoxRow *r2;
-
-} UserInterface;
-
-
-// to prepare drawing box
+//prepare to draw 
 void prepare_drawarea(gpointer user_data){
     UserInterface* ui = user_data;
-    
     //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
     gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),ui->xpos ,ui->ypos);
-    gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) im->width, (gint)im->height);
+    gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) ui->im->width, (gint)ui->im->height);
 }
 
+
+// to load a file 
 void on_load(GtkFileChooser *fc,gpointer user_data){
     
 
@@ -142,184 +43,41 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
 
     
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
-    sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
-    im = ui->currentLayer->im;
-
-    actualise_image(im,0,0,im->width,im->height);
-    gtk_image_set_from_pixbuf(ui->area,im->pb);
+    ui->sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
+    
+    
+    merge_from_layers(ui->Layers,ui->im);
+    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
 
     prepare_drawarea(user_data);
  }
 
 
 void on_save(GtkFileChooser *fc,gpointer user_data){
-    if (im)  
-    	save_image(im,NULL,NULL);
-}
-
-
-/* Automatically put the color balance*/
-void apply_auto_color_balance(GtkButton *button,gpointer user_data){
-
     UserInterface* ui = user_data;
-    //free_image(im);
 
-    //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
-   
-    if (im){
-        sauv_im1 = copy_image(im,sauv_im1);
-        BalanceAuto(im);
-
-        actualise_image(im,0,0,im->width,im->height);
-        gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
+    if (ui->im)  
+    	save_image(ui->im,NULL,NULL);
 }
 
-
-
-
-/* Put the color balance*/
-void apply_color_balance(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-
-    //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
-   
-    if (im){
-        sauv_im1 = copy_image(im,sauv_im1);
-        BalanceAbsolue(im,gtk_adjustment_get_value(ui->CB_value));
-
-    	  actualise_image(im,0,0,im->width,im->height);
-        gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-/* Put saturation*/
-void apply_saturation(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      SaturationAbsolue(im,gtk_adjustment_get_value(ui->SAT_value));
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-//brightness function
-void apply_brightness(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      Contrast(im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-
-//rotation function
-void apply_rotation(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      Rotate(im,(float)gtk_adjustment_get_value(ui->ROT_value));
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-//right rotation
-void apply_rot_right(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    g_print("nblayers = %i\n",ui->nblayers);
-
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      Rotate(im,(float)90);
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-//left rotation
-void apply_rot_left(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      Rotate(im,(float)-90);
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-//horizontal flip
-void apply_flip_hori(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      FlipHorizon(im);
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
-
-//vertical flip
-void apply_flip_vert(GtkButton *button,gpointer user_data){
-
-    UserInterface* ui = user_data;
-    //free_image(im);
-    if (im){
-      sauv_im1 = copy_image(im,sauv_im1);
-      //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-      FlipVertical(im);
-
-      actualise_image(im,0,0,im->width,im->height);
-      gtk_image_set_from_pixbuf(ui->area,im->pb);
-    }
-}
 
 
 //ctrl+z function
 void apply_undo(GtkButton *useless,gpointer user_data){
-    if (im){
+    UserInterface* ui = user_data;
+    if (ui->currentLayer){
     	UserInterface* ui = user_data;
-    	copy_image(sauv_im1,im);
-
-    	actualise_image(im,0,0,im->width,im->height);
-    	gtk_image_set_from_pixbuf(ui->area,im->pb);
+    	copy_image(ui->sauv_im1,ui->currentLayer->im);
+	
+    	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+    	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }
 }
 
 //changes to pencil mode in draw section
 void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
-    	UserInterface* ui = user_data;
-
-
+	UserInterface* ui = user_data;
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
@@ -340,14 +98,14 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
     UserInterface* ui = user_data;
 
   	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-    {
-      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
-      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
+	{
+	      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
+	      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
 
-      char* size;
-      int val = asprintf(&size,"tolerance");
+	      char* size;
+	      int val = asprintf(&size,"tolerance");
 
-      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
+	      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
 	}
 	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
@@ -357,30 +115,33 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 
 /* Goes back to the original image*/
 void see_original(GtkButton *useless,gpointer user_data){
+    UserInterface* ui = user_data;
+
     g_print("Stack state : \n:");
-    if (im){
+    /*if (ui->im){
     	UserInterface* ui = user_data;
 
-    	actualise_image(im,0,0,im->width,im->height);
-    	gtk_image_set_from_pixbuf(ui->area,im->pb);
-    } 
+    	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+    	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    }*/
 }
 
 
-/*
-// Event handler for the "clicked" signal of the copy button.
-void on_start(gpointer user_data)
-{
-    UserInterface *ui = user_data;
-    ui->selectzone.x += 100;
-    g_print("%i\n",ui->selectzone.x);
 
-}*/
+// Event handler for the "clicked" signal of the copy button.
+void on_start(GtkButton *useless,gpointer user_data)
+{
+    /*UserInterface *ui = user_data;
+    Image* newim = new_image(500,500);
+    merge_from_layers(ui->Layers,newim);
+    actualise_image(newim,0,0,newim->width,newim->height);
+    gtk_image_set_from_pixbuf(ui->area,newim->pb);*/
+}
 
 //test on key pressing (actually doesn't work)
-void on_key_press(GtkWindow oof,GdkEventKey *event,gpointer user_data){
-    UserInterface *ui = user_data;
-    /*g_print("%s\n",((char*)gdk_keyval_name(event->keyval)));
+/*void on_key_press(GtkWindow oof,GdkEventKey *event,gpointer user_data){
+    //UserInterface *ui = user_data;
+    g_print("%s\n",((char*)gdk_keyval_name(event->keyval)));
     switch (event->keyval)
     {
         case GDK_KEY_Z:
@@ -408,8 +169,8 @@ void on_key_press(GtkWindow oof,GdkEventKey *event,gpointer user_data){
 
     if(strcmp(gdk_keyval_name(event->keyval), "Z") == 0){
         g_print("controle z");
-    }*/
-}
+    }
+}*/
 
 /*
 void set_new_width(GtkAdjustment *buffer,gpointer user_data){
@@ -454,17 +215,18 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	UserInterface *ui = user_data;
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
-    if(strcmp((char*)gtk_stack_get_visible_child_name (ui->stack_used),"page1") == 0)
-    {
-    	if(im && xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-		    if(event->button == 1 && im)
+    
+    if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+        if(event->button == 1 && ui->currentLayer)
         {
-			    struct coord src = {xposi, yposi };
-			    flood_fill(im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-			    actualise_image(im,0,0,im->width,im->height);
-	  	    gtk_image_set_from_pixbuf(ui->area,im->pb);
-		    }
-    }
+	    g_print("sus_miam");
+            struct coord src = {xposi, yposi };
+            flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+            merge_from_layers(ui->Layers,ui->im);
+	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        }
+    
 }
 
 //on mouse moved for drawing (pencil)
@@ -472,13 +234,13 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
     
     char *my_string;
-    if (im)
+    if (ui->currentLayer)
     {
       int xposi = -ui->xpos + event->x;
       int yposi = -ui->ypos + event->y;
       int val = 0;
 
-      if (xposi >= 0  && xposi < im->width && yposi>=0 && yposi < im->height)
+      if (xposi >= 0  && xposi < ui->im->width && yposi>=0 && yposi < ui->im->height)
         val = asprintf(&my_string,"X: %i,Y: %i",xposi,yposi);
       else 
         val = asprintf(&my_string,"X: -,Y: -");
@@ -487,62 +249,27 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
         errx(1,"cannot create the query");
 	    
       gtk_text_buffer_set_text(ui->curserpos,my_string,val);
-      if(strcmp((char*)gtk_stack_get_visible_child_name (ui->stack_used),"page1") == 0)
-      {
-        if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
+  
+      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
           if( event->state & GDK_BUTTON1_MASK )
           {
-            //struct timeval actual;
-            //gettimeofday(&actual,NULL);
-            //g_print("%s\n",my_string);
             int pastx = -ui->xpos + ui->xmouse;
             int pasty = -ui->ypos + ui->ymouse;
             struct coord src= {pastx,pasty};
             struct coord dest = {xposi,yposi};
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush1)))
-              pencil(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+              pencil(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush2)))
-              brush(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+              brush(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush3)))
-                special_brushes(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-              
-            actualise_image(im,0,0,im->width,im->height);
-            gtk_image_set_from_pixbuf(ui->area,im->pb);
-		      }
-
-      /*
-	    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush)))
-		    if( event->state & GDK_BUTTON1_MASK ){
-		         //struct timeval actual;
-		        //gettimeofday(&actual,NULL);
-		        g_print("%s\n",my_string);
-		        int pastx = -ui->xpos + ui->xmouse;
-		        int pasty = -ui->ypos + ui->ymouse;
-		        struct coord src= {pastx,pasty};
-		        struct coord dest = {xposi,yposi};
-		        brush(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-		        actualise_image(im,0,0,im->width,im->height);
-		        gtk_image_set_from_pixbuf(ui->area,im->pb);
-		    }
-
-	    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->specialBrush)))
-		    if( event->state & GDK_BUTTON1_MASK ){
-		         //struct timeval actual;
-		        //gettimeofday(&actual,NULL);
-		        g_print("%s\n",my_string);
-		        int pastx = -ui->xpos + ui->xmouse;
-		        int pasty = -ui->ypos + ui->ymouse;
-		        struct coord src= {pastx,pasty};
-		        struct coord dest = {xposi,yposi};
-		        pencil(im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-		        actualise_image(im,0,0,im->width,im->height);
-		        gtk_image_set_from_pixbuf(ui->area,im->pb);
-		    }
-        */
-      }
+                special_brushes(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+            merge_from_layers(ui->Layers,ui->im);
+            actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+          }     
 
     if( event->state & GDK_BUTTON2_MASK )
     {
@@ -570,201 +297,7 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 	g_print("color : %i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue);
 }
 
-void show_hide_layer(GtkButton *button,gpointer user_data)
-{
-    GtkListBoxRow *lbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
-    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(lbr)));
 
-    if(gtk_list_box_row_is_selected (lbr))
-         gtk_list_box_unselect_row (lb,lbr);
-    else
-         gtk_list_box_select_row (lb,lbr);
-
-    g_print("%i\n",gtk_list_box_row_get_index (lbr));
-}
-
-
-
-
-
-void up_layer(GtkButton *button,gpointer user_data){
-    UserInterface *ui = user_data;
-    GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
-    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
-    int pos =  gtk_list_box_row_get_index (curlbr);
-  
-
-  if (pos)
-  {
-    //g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
-    
-    swap_next_el_data(&Layers,pos-1);
-    
-    GtkListBoxRow * lastlbr =  GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index(lb,pos-1));
-    GtkLabel *lastlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(lastlbr))),1,0));
-
-    const gchar* tmp = gtk_label_get_text(lastlabel);
-    char *my_string;
-    int val = asprintf(&my_string,"%s",tmp);
-
-    if(val <0)
-      errx(1,"cannot create the query");
-
-    GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
-    gtk_label_set_text(lastlabel,gtk_label_get_text(currentlabel));
-    gtk_label_set_text(currentlabel,my_string);
-  }
-}
-
-void down_layer(GtkButton *button,gpointer user_data){
-    UserInterface *ui = user_data;
-
-    GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button)))));
-    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
-    int pos =  gtk_list_box_row_get_index (curlbr);
-
-   
-    if (pos<ui->nblayers-1)
-    {
-      //g_print("\n-------------pos : %i,nblayers = %i---------------\n",pos,ui->nblayers);
-      swap_next_el_data(&Layers,pos);
-	
-      GtkListBoxRow * nextlbr =  GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index(lb,pos+1));
-      GtkLabel *nextlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(nextlbr))),1,0));
-
-      const gchar* tmp = gtk_label_get_text(nextlabel);
-      char *my_string;
-      int val = asprintf(&my_string,"%s",tmp);
-          if(val <0)
-        errx(1,"cannot create the query");
-
-      GtkLabel * currentlabel = GTK_LABEL(gtk_grid_get_child_at(GTK_GRID(gtk_bin_get_child(GTK_BIN(curlbr))),1,0));
-      gtk_label_set_text(nextlabel,gtk_label_get_text(currentlabel));
-      gtk_label_set_text(currentlabel,my_string);
-    }
-}
-
-void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data){
-    
-    UserInterface *ui = user_data;
-    //int pos =  gtk_list_box_row_get_index (listboxrow);
- 
-    Layer * current_layer = elm_at_pos(&Layers,gtk_list_box_row_get_index (listboxrow));
-    im = current_layer->im;
-
-    actualise_image(im,0,0,im->width,im->height);
-    gtk_image_set_from_pixbuf(ui->area,im->pb);
-
-    prepare_drawarea(user_data);
-    ui->currentLayer = current_layer;
-    gtk_list_box_select_row (box,listboxrow);
-
-    g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
-
-    if (!sauv_im1)
-    {
-      g_print("new image\n");
-      sauv_im1 = new_image(im->width,im->height);
-      sauv_im1 = copy_image(im,sauv_im1);
-    }
-
-    else
-    	sauv_im1 = copy_image(im,sauv_im1);
-}
-
-void destroy_layer(GtkButton *button,gpointer user_data){
-    UserInterface *ui = user_data;
-    GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
-    int pos =  gtk_list_box_row_get_index (curlbr);
-
-    gtk_widget_destroy(GTK_WIDGET(curlbr));
-
-    Layer * dead = pop_from_stack_at_pos(&Layers,pos);
-    free_image(dead->im);
-    free(dead);
-    ui->nblayers -=1;
-}
-
-//Impossible à faire marcher
-gint trifunc(GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
-	UserInterface *ui = user_data;
-	int pos1 =  gtk_list_box_row_get_index (row1);
-	int pos2 =  gtk_list_box_row_get_index (row2);
-	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
-
-	pos1 = get_index_layer(Layers, row1);
-	pos2 = get_index_layer(Layers, row2);
-	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
-	
-	return pos1>pos2 ? 1 : -1;
-}
-
-
-void add_layer(GtkButton *useless,gpointer user_data){
-    UserInterface *ui = user_data;   
-
-    // création de la box contenant les infos du layer
-    GtkListBoxRow * nbr = GTK_LIST_BOX_ROW(gtk_list_box_row_new ());
-   
-    GtkGrid *box = GTK_GRID(gtk_grid_new ());
-    gtk_grid_insert_column(box,0);
-    gtk_grid_insert_column(box,0);
-    gtk_grid_insert_column(box,0);
-    gtk_grid_insert_column(box,0);
-
-
-    //bouton hide/show
-    GtkWidget *button = gtk_button_new_with_label ("show?");
-    g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
-    gtk_grid_attach (box,button,0,0,1,1);
-    
-    //nom du layer
-    char *my_string;
-    int val = asprintf(&my_string,"Layer %i",ui->nblayers);
-    if(val <0)
-		  errx(1,"cannot create the query");
-    GtkWidget *name = gtk_label_new(my_string);	
-    gtk_widget_set_name(name, "label");
-    gtk_grid_attach (box,name,1,0,1,1);
-
-    //bouton up/down
-    GtkWidget *bud = gtk_box_new (GTK_ORIENTATION_VERTICAL,1);
-    GtkWidget *upbutton = gtk_button_new_with_label ("up");
-    GtkWidget *downbutton = gtk_button_new_with_label ("down");
-    gtk_button_set_relief(GTK_BUTTON(upbutton),GTK_RELIEF_NONE);
-    gtk_button_set_relief(GTK_BUTTON(downbutton),GTK_RELIEF_NONE);
-    g_signal_connect(upbutton, "clicked", G_CALLBACK(up_layer), user_data);
-    g_signal_connect(downbutton, "clicked", G_CALLBACK(down_layer), user_data);
-    gtk_container_add (GTK_CONTAINER(bud),upbutton);
-    gtk_container_add (GTK_CONTAINER(bud),downbutton);
-    gtk_grid_attach (box,bud,2,0,1,1);
-
-
-    //bouton kill layer
-    GtkWidget *killbutton = gtk_button_new_with_label ("kill");
-    g_signal_connect(killbutton, "clicked", G_CALLBACK(destroy_layer), user_data);
-    gtk_grid_attach (box,killbutton,3,0,1,1);
-
-
-    gtk_container_add (GTK_CONTAINER(nbr),GTK_WIDGET(box));
-
-
-    gtk_list_box_insert (ui->layers,GTK_WIDGET(nbr),0);
-    //gtk_widget_hide (GTK_WIDGET(ui->layers));
-    gtk_widget_show_all(GTK_WIDGET(ui->layers));
-    
-    struct Layer *newLayer = malloc(sizeof(struct Layer));
-    if(!im)
-	    newLayer->im = new_image(500,500);
-    else
-    	newLayer->im = new_image(im->width,im->height);
-
-    newLayer->show = 0;
-    newLayer-> lbr = nbr;
-    ui->nblayers +=1;
-    Layers = push_to_stack(Layers,newLayer);
-    set_current_layer(ui->layers,nbr,user_data);
-}
 
 
 
@@ -791,7 +324,6 @@ int main ()
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
     GtkButton* saver =  GTK_BUTTON(gtk_builder_get_object(builder, "Save"));  
 
-    GtkStack* stack_used = GTK_STACK(gtk_builder_get_object(builder,"stack1"));
       
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
     GtkAdjustment* print_width_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "width_value"));  
@@ -865,15 +397,13 @@ int main ()
     //copy_image(im2,im);
 
    
-    Layers = create_stack();
-
+   
     
 
     UserInterface ui =
     {
       .window = window,
       .drawarea = drawarea,
-      .stack_used = stack_used,
       .layers = layers,
       .eb_draw = eb_draw,
 
@@ -910,6 +440,9 @@ int main ()
       .nblayers = 0,
       .currentLayer = NULL,
     };
+    ui.Layers = create_stack();
+    ui.im = new_image(500,500);
+
     
 
     // Connects event handlers.
@@ -933,6 +466,7 @@ int main ()
 
 
     g_signal_connect(pencil,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+    g_signal_connect(start_button,"clicked", G_CALLBACK(on_start), &ui);
 
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
 
@@ -949,7 +483,7 @@ int main ()
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
     g_signal_connect(saver, "clicked", G_CALLBACK(on_save), &ui);
 
-    g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
+    //g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
     //g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
 
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
@@ -963,24 +497,22 @@ int main ()
 
 
     gtk_main();
-    g_object_unref(builder);
 
-    if (im){
-    	free_image(im);
-    	free(im);
+
+    if (ui.im){
+//todo :  fonction de comparaison d'image
+	    ui.sauv_im1 = NULL;
+    	free_image(ui.im);
     }
-
+    if (ui.sauv_im1){
+	    g_print("susuuususususuus");
+    	free_image(ui.sauv_im1);
+    }
+    g_object_unref(builder);
     /*
-    if (sauv_im1){
-    	free_image(sauv_im1);
-    	free(sauv_im1);
-    }*/
-/*
-    
-
     free_image(im2);
     free(im2);*/
-    free_stack(Layers);
+    free_stack(ui.Layers);
     // Exits.
 
     return 0;

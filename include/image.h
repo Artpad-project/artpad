@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <err.h>
 
+
 // image.c
 
 #define BLACK (Pixel){0, 0, 0, 255};

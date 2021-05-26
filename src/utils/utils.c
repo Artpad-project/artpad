@@ -47,16 +47,17 @@ void *pop_from_stack_at_pos(Stack **stack_ptr,int pos){
     Stack *front = *stack_ptr;
     void *data = NULL;
     if (!is_stack_empty(*stack_ptr)) {
-	if (pos == 0){
+	    if (pos == 0){
+
         	*stack_ptr = front->next;
         	data = front->data;
-		return data;
-	}
- 	for(;pos-1>0;pos--){
-		front = front->next;
-	}
-	data = front->data;
-	front->next = front->next->next;
+		    return data;
+	    }
+ 	    for(;pos-1>0;pos--){
+		    front = front->next;
+	    }
+	    data = front->next->data;
+	    front->next = front->next->next;
     }
     return data;
 }
