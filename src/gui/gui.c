@@ -511,28 +511,28 @@ int main ()
 //todo :  fonction de comparaison d'image
     	free_image(ui.im);
     }
-    g_object_unref(builder);
+
 
     //todo :  this free is not working 
     if (!is_stack_empty(ui.Layers)){
     	g_print("youhou");
 	Stack *tmp = ui.Layers;
     	while(!is_stack_empty(tmp)){
-		Stack * cur_stack = pop_from_stack(&tmp);
-		Layer * cur_layer = cur_stack->data;
-		if(cur_layer && cur_layer->im != NULL)
+		Layer * cur_layer = pop_from_stack(&tmp);
+		g_print("cur_layer.show : %i\n",cur_layer->show);
+		if(cur_layer)
 			free_image(cur_layer->im);
 		free(cur_layer);
 
     	}
 
     }
-    free_stack(ui.Layers);
+    free(ui.Layers);
+    g_object_unref(builder);
    
     /*
     free_image(im2);
     free(im2);*/
-    free_stack(ui.Layers);
     // Exits.
 
     return 0;

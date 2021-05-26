@@ -353,6 +353,8 @@ void merge_from_layers(Stack* Layers,struct Image* im){
 }
 
 void free_layer(Layer* dead){
+    if (dead->lbr)
+	gtk_widget_destroy(GTK_WIDGET(dead->lbr));
     if (dead->im)
     	free_image(dead->im);
     free(dead);
