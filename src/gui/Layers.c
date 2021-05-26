@@ -300,9 +300,9 @@ void merge_from_layers(Stack* Layers,struct Image* im){
     for(int i = 0;i<im->width;i++)
         for(int j = 0;j<im->height;j++){
             im->pixels[i][j].alpha = 0;
-            im->pixels[i][j].blue = 0;
-            im->pixels[i][j].green = 0;
-            im->pixels[i][j].red = 0;
+            im->pixels[i][j].blue = 255;
+            im->pixels[i][j].green = 255;
+            im->pixels[i][j].red = 255;
         }
            
 
@@ -318,9 +318,9 @@ void merge_from_layers(Stack* Layers,struct Image* im){
 				int alpha = cur_layer->im->pixels[i][j].alpha;
 				if (im->pixels[i][j].alpha + alpha > 255)
 					alpha = 255 - im->pixels[i][j].alpha;
-				im->pixels[i][j].red += cur_layer->im->pixels[i][j].red * alpha/255;
-				im->pixels[i][j].blue += cur_layer->im->pixels[i][j].blue * alpha/255;
-				im->pixels[i][j].green += cur_layer->im->pixels[i][j].green * alpha/255;
+				im->pixels[i][j].red -= (255-cur_layer->im->pixels[i][j].red) * alpha/255;
+				im->pixels[i][j].blue -= (255-cur_layer->im->pixels[i][j].blue) * alpha/255;
+				im->pixels[i][j].green -= (255-cur_layer->im->pixels[i][j].green) * alpha/255;
 				im->pixels[i][j].alpha += alpha;
 			    }
 			}
