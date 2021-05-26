@@ -1,4 +1,3 @@
-
 /*!
  *  File created on 3/5/2021 by tom.aubert
  *  Contributors : tom aubert
@@ -78,15 +77,15 @@ void apply_undo(GtkButton *useless,gpointer user_data){
 //changes to pencil mode in draw section
 void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
 	UserInterface* ui = user_data;
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
+	//if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
 
 		char* size;
-    int val = asprintf(&size,"size");
+    		int val = asprintf(&size,"size");
 
 		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
-	}
+	//}
    	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
     
@@ -97,8 +96,8 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 	
     UserInterface* ui = user_data;
 
-  	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
-	{
+  	//if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
+	
 	      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 	      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
 
@@ -106,7 +105,7 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 	      int val = asprintf(&size,"tolerance");
 
 	      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
-	}
+	//}
 	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
 }
@@ -120,7 +119,6 @@ void see_original(GtkButton *useless,gpointer user_data){
     g_print("Stack state : \n:");
     /*if (ui->im){
     	UserInterface* ui = user_data;
-
     	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }*/
@@ -166,7 +164,6 @@ void on_start(GtkButton *useless,gpointer user_data)
             }
             break;
     }
-
     if(strcmp(gdk_keyval_name(event->keyval), "Z") == 0){
         g_print("controle z");
     }
@@ -185,10 +182,8 @@ void set_new_width(GtkAdjustment *buffer,gpointer user_data){
     ui->drawzone.y = draw_height/2 - im->height/2;
     ui->drawzone.width = im->width;
     ui->drawzone.height = im->height;
-
     prepare_drawarea(user_data);  
 }
-
 void set_new_height(GtkAdjustment *buffer,gpointer user_data){
     g_print("change height\n") ;  
 }*/
@@ -197,14 +192,12 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
 void scroll_callback(GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
      g_print("c'est la merguez\n");
-
     if (ui->shift_pressed){
         g_print("merguez partie\n");
         im2 = rescale_image(im,150);
         im = im2;
         //prepare_drawarea(user_data);
         //gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,500,500);
-
     }
    
   }
@@ -236,6 +229,8 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     char *my_string;
     if (ui->currentLayer)
     {
+	
+          
       int xposi = -ui->xpos + event->x;
       int yposi = -ui->ypos + event->y;
       int val = 0;
@@ -250,7 +245,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
 	    
       gtk_text_buffer_set_text(ui->curserpos,my_string,val);
   
-      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
+      //if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
           if( event->state & GDK_BUTTON1_MASK )
           {
             int pastx = -ui->xpos + ui->xmouse;
@@ -378,7 +373,7 @@ int main ()
     GtkColorChooser* draw_color = GTK_COLOR_CHOOSER(gtk_builder_get_object(builder, "Colorconar"));
     GtkTextBuffer* drawbuffer = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "buffer_draw"));
 
-    GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
+    //GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
     GtkRadioButton* flood_fill = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "fill"));
 
     GtkRadioButton* brush1 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush1"));
@@ -427,7 +422,7 @@ int main ()
       .draw_color = draw_color,
       .actual_color = pixel,
         
-      .pencil = pencil,
+      //.pencil = pencil,
       .fill = flood_fill,
 
       .brush1 = brush1,
@@ -440,7 +435,7 @@ int main ()
       .nblayers = 0,
       .currentLayer = NULL,
     };
-    ui.Layers = create_stack();
+
     ui.im = new_image(500,500);
 
     
@@ -465,7 +460,7 @@ int main ()
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
 
 
-    g_signal_connect(pencil,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+    //g_signal_connect(pencil,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
     g_signal_connect(start_button,"clicked", G_CALLBACK(on_start), &ui);
 
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
@@ -516,4 +511,4 @@ int main ()
     // Exits.
 
     return 0;
-    }
+}

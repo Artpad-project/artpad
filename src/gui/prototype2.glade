@@ -124,58 +124,27 @@
                                 <child>
                                   <object class="GtkFixed" id="Dra">
                                     <property name="width-request">100</property>
-                                    <property name="height-request">80</property>
+                                    <property name="height-request">500</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <child>
-                                      <!-- n-columns=3 n-rows=6 -->
-                                      <object class="GtkGrid">
-                                        <property name="width-request">244</property>
-                                        <property name="height-request">170</property>
+                                      <!-- n-columns=3 n-rows=2 -->
+                                      <object class="GtkGrid" id="drawing tools">
+                                        <property name="width-request">100</property>
+                                        <property name="height-request">100</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="halign">start</property>
                                         <property name="row-spacing">1</property>
                                         <child>
-                                          <object class="GtkScale">
-                                            <property name="width-request">242</property>
-                                            <property name="height-request">14</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="adjustment">draw_size</property>
-                                            <property name="digits">0</property>
-                                            <property name="draw-value">False</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">3</property>
-                                            <property name="width">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkTextView">
-                                            <property name="width-request">83</property>
-                                            <property name="height-request">44</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="wrap-mode">char</property>
-                                            <property name="justification">center</property>
-                                            <property name="top-margin">15</property>
-                                            <property name="buffer">buffer_draw</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">2</property>
-                                            <property name="width">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
                                           <object class="GtkBox">
+                                            <property name="width-request">200</property>
                                             <property name="height-request">59</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="homogeneous">True</property>
                                             <child>
-                                              <object class="GtkRadioButton" id="pencil">
+                                              <object class="GtkRadioButton" id="brush1">
+                                                <property name="width-request">50</property>
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
                                                 <property name="receives-default">False</property>
@@ -192,179 +161,7 @@
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkRadioButton" id="fill">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">Bucket fill</property>
-                                                <property name="draw-indicator">False</property>
-                                                <property name="group">pencil</property>
-                                                <child>
-                                                  <object class="GtkImage">
-                                                    <property name="visible">True</property>
-                                                    <property name="can-focus">False</property>
-                                                    <property name="pixbuf">icons/fill.png</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkColorButton" id="Colorconar">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="receives-default">True</property>
-                                                <property name="use-alpha">True</property>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">2</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">0</property>
-                                            <property name="width">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkSpinButton">
-                                            <property name="height-request">50</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="text" translatable="yes">1</property>
-                                            <property name="adjustment">draw_size</property>
-                                            <property name="value">1</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">2</property>
-                                            <property name="top-attach">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkSeparator">
-                                            <property name="height-request">5</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">4</property>
-                                            <property name="width">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <!-- n-columns=3 n-rows=1 -->
-                                          <object class="GtkGrid" id="all_drawables">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="column-homogeneous">True</property>
-                                            <child>
-                                              <object class="GtkRadioButton" id="draw_line">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">line</property>
-                                                <property name="draw-indicator">False</property>
-                                                <property name="group">pencil</property>
-                                                <child>
-                                                  <object class="GtkImage">
-                                                    <property name="visible">True</property>
-                                                    <property name="can-focus">False</property>
-                                                    <property name="pixbuf">icons/line.png</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="left-attach">0</property>
-                                                <property name="top-attach">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkRadioButton" id="draw_rectangle">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">rectangle</property>
-                                                <property name="draw-indicator">False</property>
-                                                <property name="group">pencil</property>
-                                                <child>
-                                                  <object class="GtkImage">
-                                                    <property name="visible">True</property>
-                                                    <property name="can-focus">False</property>
-                                                    <property name="pixbuf">icons/rectangle.png</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="left-attach">1</property>
-                                                <property name="top-attach">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkRadioButton" id="draw_circle">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">cercle</property>
-                                                <property name="draw-indicator">False</property>
-                                                <property name="group">pencil</property>
-                                                <child>
-                                                  <object class="GtkImage">
-                                                    <property name="visible">True</property>
-                                                    <property name="can-focus">False</property>
-                                                    <property name="pixbuf">icons/cercle.png</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="left-attach">2</property>
-                                                <property name="top-attach">0</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">5</property>
-                                            <property name="width">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkBox">
-                                            <property name="height-request">59</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="homogeneous">True</property>
-                                            <child>
-                                              <object class="GtkRadioButton" id="brush1">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">Pencil</property>
-                                                <property name="active">True</property>
-                                                <property name="draw-indicator">False</property>
-                                                <child>
-                                                  <object class="GtkImage">
-                                                    <property name="visible">True</property>
-                                                    <property name="can-focus">False</property>
-                                                    <property name="pixbuf">icons/pinceau.png</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">True</property>
+                                                <property name="fill">False</property>
                                                 <property name="position">0</property>
                                               </packing>
                                             </child>
@@ -373,7 +170,8 @@
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
                                                 <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">Bucket fill</property>
+                                                <property name="tooltip-text" translatable="yes">feather</property>
+                                                <property name="active">True</property>
                                                 <property name="draw-indicator">False</property>
                                                 <property name="group">brush1</property>
                                                 <child>
@@ -386,7 +184,7 @@
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="fill">True</property>
+                                                <property name="fill">False</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
@@ -395,7 +193,8 @@
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
                                                 <property name="receives-default">False</property>
-                                                <property name="tooltip-text" translatable="yes">Bucket fill</property>
+                                                <property name="tooltip-text" translatable="yes">Broken pencil</property>
+                                                <property name="active">True</property>
                                                 <property name="draw-indicator">False</property>
                                                 <property name="group">brush1</property>
                                                 <child>
@@ -415,11 +214,178 @@
                                           </object>
                                           <packing>
                                             <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                            <property name="width">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="height-request">59</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <child>
+                                              <placeholder/>
+                                            </child>
+                                            <child>
+                                              <object class="GtkRadioButton" id="rubber">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="receives-default">False</property>
+                                                <property name="tooltip-text" translatable="yes">feather</property>
+                                                <property name="active">True</property>
+                                                <property name="draw-indicator">False</property>
+                                                <property name="group">brush1</property>
+                                                <child>
+                                                  <object class="GtkImage">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="pixbuf">icons/gomme.png</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkRadioButton" id="fill">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="receives-default">False</property>
+                                                <property name="tooltip-text" translatable="yes">Bucket fill</property>
+                                                <property name="active">True</property>
+                                                <property name="draw-indicator">False</property>
+                                                <property name="group">brush1</property>
+                                                <child>
+                                                  <object class="GtkImage">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="pixbuf">icons/fill.png</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
                                             <property name="top-attach">1</property>
                                             <property name="width">3</property>
                                           </packing>
                                         </child>
                                       </object>
+                                    </child>
+                                    <child>
+                                      <!-- n-columns=2 n-rows=2 -->
+                                      <object class="GtkGrid" id="draw_size_grid">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <child>
+                                          <object class="GtkSpinButton">
+                                            <property name="width-request">165</property>
+                                            <property name="height-request">50</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="text" translatable="yes">1</property>
+                                            <property name="adjustment">draw_size</property>
+                                            <property name="value">1</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkTextView">
+                                            <property name="width-request">83</property>
+                                            <property name="height-request">44</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="wrap-mode">char</property>
+                                            <property name="justification">center</property>
+                                            <property name="top-margin">15</property>
+                                            <property name="buffer">buffer_draw</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkScale">
+                                            <property name="width-request">242</property>
+                                            <property name="height-request">14</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="adjustment">draw_size</property>
+                                            <property name="digits">0</property>
+                                            <property name="draw-value">False</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">1</property>
+                                            <property name="width">2</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="y">250</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <!-- n-columns=2 n-rows=1 -->
+                                      <object class="GtkGrid" id="Draw_color">
+                                        <property name="width-request">100</property>
+                                        <property name="height-request">80</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <child>
+                                          <object class="GtkColorButton" id="Colorconar">
+                                            <property name="width-request">166</property>
+                                            <property name="height-request">50</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">True</property>
+                                            <property name="use-alpha">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="picker">
+                                            <property name="width-request">80</property>
+                                            <property name="height-request">60</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="tooltip-text" translatable="yes">Bucket fill</property>
+                                            <property name="draw-indicator">False</property>
+                                            <property name="group">brush1</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="pixbuf">icons/broken_pencil.png</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="y">406</property>
+                                      </packing>
                                     </child>
                                   </object>
                                 </child>
@@ -865,6 +831,7 @@
                                     <property name="can-focus">True</property>
                                     <property name="focus-on-click">False</property>
                                     <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes">left rotation</property>
                                     <property name="relief">none</property>
                                     <child>
                                       <object class="GtkImage">
@@ -886,6 +853,7 @@
                                     <property name="can-focus">True</property>
                                     <property name="focus-on-click">False</property>
                                     <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes">right rotation</property>
                                     <property name="relief">none</property>
                                     <child>
                                       <object class="GtkImage">
@@ -919,6 +887,7 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes">vertical flip</property>
                                     <property name="relief">none</property>
                                     <child>
                                       <object class="GtkImage">
@@ -940,6 +909,7 @@
                                     <property name="can-focus">True</property>
                                     <property name="focus-on-click">False</property>
                                     <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes">horizontal flip</property>
                                     <property name="relief">none</property>
                                     <child>
                                       <object class="GtkImage">
@@ -1275,7 +1245,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="tooltip-text" translatable="yes">Save</property>
+                    <property name="tooltip-text" translatable="yes">Export</property>
                     <child>
                       <object class="GtkImage">
                         <property name="visible">True</property>
@@ -1318,7 +1288,7 @@
                     <property name="can-focus">True</property>
                     <property name="focus-on-click">False</property>
                     <property name="receives-default">True</property>
-                    <property name="tooltip-text" translatable="yes">Undo</property>
+                    <property name="tooltip-text" translatable="yes">Redo</property>
                     <child>
                       <object class="GtkImage">
                         <property name="width-request">-1</property>

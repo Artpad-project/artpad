@@ -113,13 +113,16 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     UserInterface *ui = user_data;
     //int pos =  gtk_list_box_row_get_index (listboxrow);
  
-    g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
+    //g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
     Layer * current_layer = elm_at_pos(&ui->Layers,gtk_list_box_row_get_index (listboxrow));
-
+    
+    merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
 
     prepare_drawarea(user_data);
+
+
     ui->currentLayer = current_layer;
     gtk_list_box_select_row (box,listboxrow);
 
@@ -156,7 +159,14 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }
-    else {ui->im = NULL;}
+    else {
+	    merge_from_layers(ui->Layers,ui->im);
+    	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+
+	    ui->currentLayer = NULL;
+    }
+
     ui->nblayers -=1;
    
 
@@ -241,6 +251,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     gtk_widget_show_all(GTK_WIDGET(ui->layers));
     
     struct Layer *newLayer = malloc(sizeof(struct Layer));
+    //todo : optmise this sheat
     if(!ui->im)
 	    newLayer->im = new_image(500,500);
     else
@@ -249,6 +260,11 @@ void add_layer(GtkButton *useless,gpointer user_data){
     newLayer->show = 1;
     newLayer-> lbr = nbr;
     ui->nblayers +=1;
+    if (is_stack_empty(ui->Layers))
+    {
+	g_print("vide\n");
+	ui->Layers = create_stack();
+    }
     ui->Layers = push_to_stack(ui->Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
 }

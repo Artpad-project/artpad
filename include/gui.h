@@ -53,7 +53,7 @@ typedef struct UserInterface
 
     GtkColorChooser* draw_color;
     struct Pixel actual_color;
-    GtkRadioButton* pencil;
+    //GtkRadioButton* pencil;
     GtkRadioButton* fill;
     GtkRadioButton* brush1;
     GtkRadioButton* brush2;
