@@ -755,6 +755,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     ui->nblayers +=1;
     Layers = push_to_stack(Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
+    //gtk_editable_set_editable(GTK_EDITABLE(entry), TRUE);
 }
 
 
