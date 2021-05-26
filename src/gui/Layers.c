@@ -29,9 +29,24 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
     int pos =  gtk_list_box_row_get_index (lbr);
     Layer* current_layer = elm_at_pos(&ui->Layers,pos);
     if (current_layer->show){
+	GError* err = NULL;
+    	GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/pasvue.png",&err);
+    	if (buf == NULL)
+		errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
+	GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+    	gtk_button_set_image(GTK_BUTTON(button),vue);
+
     	current_layer->show = 0;
     }
     else if (!current_layer->show){
+	GError* err = NULL;
+    	GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/vue.png",&err);
+    	if (buf == NULL)
+		errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
+    	GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+    	gtk_button_set_image(GTK_BUTTON(button),vue);
+
+
    	current_layer->show = 1;
     }
     merge_from_layers(ui->Layers,ui->im);
@@ -127,15 +142,6 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     gtk_list_box_select_row (box,listboxrow);
 
     //g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
-
-    if (!ui->sauv_im1)
-    {
-      ui->sauv_im1 = new_image(ui->im->width,ui->im->height);
-      ui->sauv_im1 = copy_image(ui->im,ui->sauv_im1);
-    }
-
-    else
-    	ui->sauv_im1 = copy_image(ui->im,ui->sauv_im1);
 }
 
 void destroy_layer(GtkButton *button,gpointer user_data){
@@ -148,8 +154,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     gtk_widget_destroy(GTK_WIDGET(curlbr));
 
     Layer * dead = pop_from_stack_at_pos(&ui->Layers,pos);
-    free_image(dead->im);
-    free(dead);
+    free_layer(dead);
 //todo : need to set the new image
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
@@ -163,13 +168,10 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 	    merge_from_layers(ui->Layers,ui->im);
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-
 	    ui->currentLayer = NULL;
     }
 
     ui->nblayers -=1;
-   
-
 }
 
 //Impossible à faire marcher
@@ -201,8 +203,16 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
 
     //bouton hide/show
-    GtkWidget *button = gtk_button_new_with_label ("show?");
+    GtkWidget *button = gtk_button_new();
+
+    GError* err = NULL;
+    GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/vue.png",&err);
+    if (buf == NULL)
+	    g_print("deuuuuuh\n");
+    GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+    gtk_button_set_image(GTK_BUTTON(button),vue);
     g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
+    g_object_unref(buf);
     gtk_grid_attach (box,button,0,0,1,1);
     
     //nom du layer
@@ -260,11 +270,6 @@ void add_layer(GtkButton *useless,gpointer user_data){
     newLayer->show = 1;
     newLayer-> lbr = nbr;
     ui->nblayers +=1;
-    if (is_stack_empty(ui->Layers))
-    {
-	g_print("vide\n");
-	ui->Layers = create_stack();
-    }
     ui->Layers = push_to_stack(ui->Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
 }
@@ -347,6 +352,12 @@ void merge_from_layers(Stack* Layers,struct Image* im){
     }
 }
 
+void free_layer(Layer* dead){
+    if (dead->im)
+    	free_image(dead->im);
+    free(dead);
+
+}
 
 
 /* saves all layers in a subdirectory layers

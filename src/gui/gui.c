@@ -32,6 +32,23 @@ void prepare_drawarea(gpointer user_data){
 }
 
 
+void color_updated(GtkColorChooser* cc,gpointer user_data){
+	UserInterface* ui = user_data;
+	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->eraser))){
+		struct _GdkRGBA* col = malloc(sizeof(struct _GdkRGBA));
+		col->red = 0;
+		col ->blue = 0;
+		col->green = 0;
+		col->alpha = 0;
+		gtk_color_chooser_get_rgba(cc,col);
+		ui->actual_color = pixel_from_GdkRGBA(col);
+		g_print("color : %i,%i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue,ui->actual_color.alpha);
+		gdk_rgba_free(col);
+
+	}
+}
+
+
 // to load a file 
 void on_load(GtkFileChooser *fc,gpointer user_data){
     
@@ -41,9 +58,7 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
 	    add_layer(NULL,user_data);
 
     
-    ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
-    ui->sauv_im1 =  load_image((char *)gtk_file_chooser_get_filename (fc));
-    
+    ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));    
     
     merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
@@ -62,22 +77,36 @@ void on_save(GtkFileChooser *fc,gpointer user_data){
 
 
 
-//ctrl+z function
+//ctrl+z function --- POUR LOWEN---
 void apply_undo(GtkButton *useless,gpointer user_data){
-    UserInterface* ui = user_data;
-    if (ui->currentLayer){
-    	UserInterface* ui = user_data;
-    	copy_image(ui->sauv_im1,ui->currentLayer->im);
-	
-    	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-    }
+  
 }
 
-//changes to pencil mode in draw section
-void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
+//fonction pour faire ton Redo -- LOWEN ---
+void apply_redo(GtkButton *useless,gpointer user_data){
+}
+
+void apply_eraser(GtkRadioButton *useless,gpointer user_data){
 	UserInterface* ui = user_data;
-	//if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil))){
+	ui->actual_color.alpha = 0;
+	if (ui->last_use == ui->fill){
+		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
+		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
+
+		char* size;
+    		int val = asprintf(&size,"size");
+		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
+	}
+	ui->last_use = useless;
+}
+
+
+//changes to pencil mode in draw section
+void apply_swap_draw_mode(GtkRadioButton *useless,gpointer user_data){
+	UserInterface* ui = user_data;
+	if (ui->last_use == ui->eraser)
+		color_updated(ui->draw_color, user_data);
+	if (ui->last_use == ui->fill){
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
 
@@ -85,18 +114,20 @@ void apply_swap_draw_mode(GtkButton *useless,gpointer user_data){
     		int val = asprintf(&size,"size");
 
 		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
-	//}
+		
+	}
    	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
-    
+    	ui->last_use = useless;
 }
 
 //changes to flood_fill mode in draw section
-void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
+void apply_swap_fill_mode(GtkRadioButton *useless,gpointer user_data){
 	
     UserInterface* ui = user_data;
-
-  	//if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
+	if (ui->last_use == ui->eraser)
+		color_updated(ui->draw_color, user_data);
+  	if (ui->last_use != ui->fill){
 	
 	      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 	      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
@@ -105,25 +136,29 @@ void apply_swap_fill_mode(GtkButton *useless,gpointer user_data){
 	      int val = asprintf(&size,"tolerance");
 
 	      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
-	//}
+	 
+	}
 	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
+ 	ui->last_use = useless;
+
 }
 
 
 
 /* Goes back to the original image*/
+/*
 void see_original(GtkButton *useless,gpointer user_data){
     UserInterface* ui = user_data;
 
     g_print("Stack state : \n:");
-    /*if (ui->im){
+    if (ui->im){
     	UserInterface* ui = user_data;
     	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-    }*/
+    }
 }
-
+*/
 
 
 // Event handler for the "clicked" signal of the copy button.
@@ -212,7 +247,6 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
     if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
         if(event->button == 1 && ui->currentLayer)
         {
-	    g_print("sus_miam");
             struct coord src = {xposi, yposi };
             flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
             merge_from_layers(ui->Layers,ui->im);
@@ -253,7 +287,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
             struct coord src= {pastx,pasty};
             struct coord dest = {xposi,yposi};
 
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush1)))
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush1)) ||gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->eraser)))
               pencil(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush2)))
@@ -278,20 +312,6 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     ui->ymouse = event->y;
   }
 }
-
-void color_updated(GtkColorChooser* cc,gpointer user_data){
-	UserInterface* ui = user_data;
-
-	struct _GdkRGBA* col = malloc(sizeof(struct _GdkRGBA));
-	col->red = 0;
-	col ->blue = 0;
-	col->green = 0;
-	col->alpha = 0;
-	gtk_color_chooser_get_rgba(cc,col);
-	ui->actual_color = pixel_from_GdkRGBA(col);
-	g_print("color : %i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue);
-}
-
 
 
 
@@ -327,6 +347,7 @@ int main ()
     GtkAdjustment* draw_size =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "draw_size"));  
     GtkListBox * layers = GTK_LIST_BOX(gtk_builder_get_object(builder,"Layers"));
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
+    GtkButton* Redo_button = GTK_BUTTON(gtk_builder_get_object(builder, "Redo"));
     GtkButton* add_layer_button = GTK_BUTTON(gtk_builder_get_object(builder, "add_layer"));
 
 
@@ -366,7 +387,7 @@ int main ()
     GtkButton* ROTLEFT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rot_left_go"));
 
     GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
-    GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
+    //GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
 
  
 // ------------------------------ DRAW BUTTONS---------------------------------//
@@ -375,26 +396,14 @@ int main ()
 
     //GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
     GtkRadioButton* flood_fill = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "fill"));
+    GtkRadioButton* eraser = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "eraser"));
 
     GtkRadioButton* brush1 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush1"));
     GtkRadioButton* brush2 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush2"));
     GtkRadioButton* brush3 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush3"));
 
 
-    struct _GdkRGBA *col = malloc(sizeof(struct _GdkRGBA));
-    col->red = 0;
-    col->blue = 0;
-    col->green = 0;
-    col->alpha = 255;
-    gtk_color_chooser_set_rgba(draw_color,col);
     struct Pixel pixel = {0,0,0,255};
-    //im = new_image(1650,900);
-    //copy_image(im2,im);
-
-   
-   
-    
-
     UserInterface ui =
     {
       .window = window,
@@ -424,10 +433,11 @@ int main ()
         
       //.pencil = pencil,
       .fill = flood_fill,
-
+      .eraser = eraser,
       .brush1 = brush1,
       .brush2 = brush2,
       .brush3 = brush3,
+      .last_use = brush1,
 
       .draw_size = draw_size,
       .draw_value  = 1,
@@ -437,8 +447,7 @@ int main ()
     };
 
     ui.im = new_image(500,500);
-
-    
+    ui.Layers = create_stack();
 
     // Connects event handlers.
     // Runs the main loop.
@@ -449,7 +458,7 @@ int main ()
     //g_signal_connect(print_width_value, "value_changed", G_CALLBACK(set_new_width), &ui);
     //g_signal_connect(print_height_value, "value_changed" , G_CALLBACK(set_new_height), &ui);
      
-    g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
+    //g_signal_connect(print_ori_button, "clicked", G_CALLBACK(see_original), &ui);
     g_signal_connect(SAT_button,"clicked", G_CALLBACK(apply_saturation), &ui);
     g_signal_connect(CB_auto,"clicked", G_CALLBACK(apply_auto_color_balance), &ui);
     g_signal_connect(BRI_button,"clicked", G_CALLBACK(apply_brightness), &ui);
@@ -459,15 +468,19 @@ int main ()
     g_signal_connect(FLIPVERT_button,"clicked", G_CALLBACK(apply_flip_vert), &ui);
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
 
+    g_signal_connect(eraser,"clicked", G_CALLBACK(apply_eraser), &ui);
+    g_signal_connect(brush1,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+    g_signal_connect(brush2,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+    g_signal_connect(brush3,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
 
-    //g_signal_connect(pencil,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
+
     g_signal_connect(start_button,"clicked", G_CALLBACK(on_start), &ui);
 
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
 
 
     g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
-
+    g_signal_connect(Redo_button,"clicked", G_CALLBACK(apply_redo), &ui);
 
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);   
@@ -496,14 +509,26 @@ int main ()
 
     if (ui.im){
 //todo :  fonction de comparaison d'image
-	    ui.sauv_im1 = NULL;
     	free_image(ui.im);
     }
-    if (ui.sauv_im1){
-	    g_print("susuuususususuus");
-    	free_image(ui.sauv_im1);
-    }
     g_object_unref(builder);
+
+    //todo :  this free is not working 
+    if (!is_stack_empty(ui.Layers)){
+    	g_print("youhou");
+	Stack *tmp = ui.Layers;
+    	while(!is_stack_empty(tmp)){
+		Stack * cur_stack = pop_from_stack(&tmp);
+		Layer * cur_layer = cur_stack->data;
+		if(cur_layer && cur_layer->im != NULL)
+			free_image(cur_layer->im);
+		free(cur_layer);
+
+    	}
+
+    }
+    free_stack(ui.Layers);
+   
     /*
     free_image(im2);
     free(im2);*/

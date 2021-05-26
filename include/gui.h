@@ -54,10 +54,15 @@ typedef struct UserInterface
     GtkColorChooser* draw_color;
     struct Pixel actual_color;
     //GtkRadioButton* pencil;
+
     GtkRadioButton* fill;
+    GtkRadioButton* eraser;
     GtkRadioButton* brush1;
     GtkRadioButton* brush2;
     GtkRadioButton* brush3;
+   
+    GtkRadioButton* last_use;
+
 
 
 
@@ -69,8 +74,7 @@ typedef struct UserInterface
     GtkListBoxRow *r1;
     GtkListBoxRow *r2;
 
-    Image* im ;
-    Image* sauv_im1;
+    Image* im;
     Stack * Layers;
 
 
@@ -100,6 +104,7 @@ void down_layer(GtkButton *button,gpointer user_data);
 void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data);
 void destroy_layer(GtkButton *button,gpointer user_data);
 void add_layer(GtkButton *useless,gpointer user_data);
+void free_layer(Layer* dead);
 
 
 
