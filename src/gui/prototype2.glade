@@ -608,7 +608,6 @@
                                     <property name="height-request">39</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="editable">False</property>
                                     <property name="justification">center</property>
                                     <property name="top-margin">13</property>
                                     <property name="buffer">Effectts</property>

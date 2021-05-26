@@ -37,7 +37,7 @@ new_image(int width,int height) {
     struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
     for (int i = 0; i < width; i++) {
         im_pixels[i] = (struct Pixel *)malloc(height * sizeof(struct Pixel));
-        memset(im_pixels[i], 0, height*sizeof(struct Pixel));
+        memset(im_pixels[i],0, height*sizeof(struct Pixel));
     }
     
     char *file_type ;
@@ -93,30 +93,6 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
     save_image_pixels(image);
     return image;
-}
-
-/*!
- *   give the render of all the selected layers
- */
-
-void merge_from_layers(Stack* Layers, Image* im){
-
-    int** matrix = malloc(im->width * sizeof(int*));
-    for (int i = 0; i < im->width; i++) {
-	 matrix[i] = malloc(im->height * sizeof(int)); 
-    	 memset(im->pixels[i], 255, im->height*sizeof(struct Pixel));
-    }
-    while (Layers->next != NULL){
-	
-	for(int i = 0;i<im->width;i++){
-	    for(int j = 0;j<im->height;j++){
-		if (matrix[i][j]>0){
-			g_print("todo");
-		}
-	    }
-	}
-    }
-
 }
 
 
