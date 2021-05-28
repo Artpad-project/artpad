@@ -29,6 +29,7 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
     int pos =  gtk_list_box_row_get_index (lbr);
     Layer* current_layer = elm_at_pos(&ui->Layers,pos);
     if (current_layer->show){
+
 	GError* err = NULL;
     	GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/pasvue.png",&err);
     	if (buf == NULL)
@@ -45,7 +46,6 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
 		errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
     	GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
     	gtk_button_set_image(GTK_BUTTON(button),vue);
-
 
    	current_layer->show = 1;
     }
@@ -127,16 +127,16 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     
     UserInterface *ui = user_data;
     //int pos =  gtk_list_box_row_get_index (listboxrow);
- 
+
     //g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
     Layer * current_layer = elm_at_pos(&ui->Layers,gtk_list_box_row_get_index (listboxrow));
     
     merge_from_layers(ui->Layers,ui->im);
+
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
 
     prepare_drawarea(user_data);
-
 
     ui->currentLayer = current_layer;
     gtk_list_box_select_row (box,listboxrow);
@@ -155,6 +155,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 
     Layer * dead = pop_from_stack_at_pos(&ui->Layers,pos);
     free_layer(dead);
+
 //todo : need to set the new image
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
@@ -164,6 +165,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }
+
     else {
 	    merge_from_layers(ui->Layers,ui->im);
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
@@ -172,6 +174,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     }
 
     ui->nblayers -=1;
+
 }
 
 //Impossible à faire marcher
@@ -203,6 +206,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
 
     //bouton hide/show
+
     GtkWidget *button = gtk_button_new();
 
     GError* err = NULL;
@@ -213,6 +217,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
     gtk_button_set_image(GTK_BUTTON(button),vue);
     g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
     g_object_unref(buf);
+
     gtk_grid_attach (box,button,0,0,1,1);
     
     //nom du layer
@@ -261,7 +266,9 @@ void add_layer(GtkButton *useless,gpointer user_data){
     gtk_widget_show_all(GTK_WIDGET(ui->layers));
     
     struct Layer *newLayer = malloc(sizeof(struct Layer));
+
     //todo : optmise this sheat
+
     if(!ui->im)
 	    newLayer->im = new_image(500,500);
     else
@@ -329,28 +336,28 @@ void merge_from_layers(Stack* Layers,struct Image* im){
 
     Stack* layers = Layers;
     while (!is_stack_empty(layers)){
-	    
 	    Layer* cur_layer = layers->data;
 	    if (cur_layer->show)
-            {    
-		 for(int i = 0;i<im->width;i++){
-			for(int j = 0;j<im->height;j++){
-			    if (im->pixels[i][j].alpha<255){
-				int alpha = cur_layer->im->pixels[i][j].alpha;
-				if (im->pixels[i][j].alpha + alpha > 255)
-					alpha = 255 - im->pixels[i][j].alpha;
-				im->pixels[i][j].red -= (255-cur_layer->im->pixels[i][j].red) * alpha/255;
-				im->pixels[i][j].blue -= (255-cur_layer->im->pixels[i][j].blue) * alpha/255;
-				im->pixels[i][j].green -= (255-cur_layer->im->pixels[i][j].green) * alpha/255;
-				im->pixels[i][j].alpha += alpha;
-			    }
-			}
-		
-		 }
+        {    
+		    for(int i = 0;i<im->width;i++){
+			    for(int j = 0;j<im->height;j++){
+			      if (im->pixels[i][j].alpha<255){
+				      int alpha = cur_layer->im->pixels[i][j].alpha;
+				      if (im->pixels[i][j].alpha + alpha > 255)
+					      alpha = 255 - im->pixels[i][j].alpha;
+
+              im->pixels[i][j].red -= (255-cur_layer->im->pixels[i][j].red) * alpha/255;
+              im->pixels[i][j].blue -= (255-cur_layer->im->pixels[i][j].blue) * alpha/255;
+              im->pixels[i][j].green -= (255-cur_layer->im->pixels[i][j].green) * alpha/255;
+              im->pixels[i][j].alpha += alpha;
+			      }
+          }
+		    }
 	    }
 	    layers = layers->next;
     }
 }
+
 
 void free_layer(Layer* dead){
     if (dead->lbr)
@@ -360,6 +367,7 @@ void free_layer(Layer* dead){
     free(dead);
 
 }
+
 
 
 /* saves all layers in a subdirectory layers

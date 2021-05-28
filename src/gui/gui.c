@@ -31,7 +31,6 @@ void prepare_drawarea(gpointer user_data){
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) ui->im->width, (gint)ui->im->height);
 }
 
-
 void color_updated(GtkColorChooser* cc,gpointer user_data){
 	UserInterface* ui = user_data;
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->eraser))){
@@ -48,7 +47,6 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 	}
 }
 
-
 // to load a file 
 void on_load(GtkFileChooser *fc,gpointer user_data){
     
@@ -56,14 +54,10 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     UserInterface* ui = user_data;
     if (!ui->currentLayer)
 	    add_layer(NULL,user_data);
-
-    
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));    
-    
     merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-
     prepare_drawarea(user_data);
  }
 
@@ -74,6 +68,7 @@ void on_save(GtkFileChooser *fc,gpointer user_data){
     if (ui->im)  
     	save_image(ui->im,NULL,NULL);
 }
+
 
 
 
@@ -131,12 +126,10 @@ void apply_swap_fill_mode(GtkRadioButton *useless,gpointer user_data){
 	
 	      ui->draw_value = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 	      gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->tolerance);
-
 	      char* size;
 	      int val = asprintf(&size,"tolerance");
 
 	      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
-	 
 	}
 	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
@@ -157,6 +150,7 @@ void see_original(GtkButton *useless,gpointer user_data){
     	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }
+
 }
 */
 
@@ -263,8 +257,6 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     char *my_string;
     if (ui->currentLayer)
     {
-	
-          
       int xposi = -ui->xpos + event->x;
       int yposi = -ui->ypos + event->y;
       int val = 0;
@@ -280,6 +272,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
       gtk_text_buffer_set_text(ui->curserpos,my_string,val);
   
       //if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->pencil)))
+
           if( event->state & GDK_BUTTON1_MASK )
           {
             int pastx = -ui->xpos + ui->xmouse;
@@ -288,6 +281,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
             struct coord dest = {xposi,yposi};
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush1)) ||gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->eraser)))
+
               pencil(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
 
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush2)))
@@ -312,9 +306,6 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     ui->ymouse = event->y;
   }
 }
-
-
-
 
 int main ()
 {
@@ -404,6 +395,7 @@ int main ()
 
 
     struct Pixel pixel = {0,0,0,255};
+
     UserInterface ui =
     {
       .window = window,
@@ -473,7 +465,6 @@ int main ()
     g_signal_connect(brush2,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
     g_signal_connect(brush3,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
 
-
     g_signal_connect(start_button,"clicked", G_CALLBACK(on_start), &ui);
 
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
@@ -506,7 +497,6 @@ int main ()
 
     gtk_main();
 
-
     if (ui.im){
 //todo :  fonction de comparaison d'image
     	free_image(ui.im);
@@ -533,6 +523,7 @@ int main ()
     /*
     free_image(im2);
     free(im2);*/
+
     // Exits.
 
     return 0;

@@ -124,6 +124,7 @@
                                 <child>
                                   <object class="GtkFixed" id="Dra">
                                     <property name="width-request">100</property>
+
                                     <property name="height-request">500</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
@@ -139,10 +140,13 @@
                                         <child>
                                           <object class="GtkBox">
                                             <property name="width-request">200</property>
+
                                             <property name="height-request">59</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
+                                            <property name="homogeneous">True</property>
                                             <child>
+
                                               <object class="GtkRadioButton" id="brush1">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
@@ -150,11 +154,13 @@
                                                 <property name="tooltip-text" translatable="yes">Pencil</property>
                                                 <property name="active">True</property>
                                                 <property name="draw-indicator">False</property>
+
                                                 <child>
                                                   <object class="GtkImage">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="pixbuf">icons/pencil.png</property>
+
                                                   </object>
                                                 </child>
                                               </object>
@@ -173,11 +179,13 @@
                                                 <property name="active">True</property>
                                                 <property name="draw-indicator">False</property>
                                                 <property name="group">brush1</property>
+
                                                 <child>
                                                   <object class="GtkImage">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="pixbuf">icons/inkpen.png</property>
+
                                                   </object>
                                                 </child>
                                               </object>
@@ -187,6 +195,19 @@
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">5</property>
+                                            <property name="width">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="height-request">59</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="homogeneous">True</property>
                                             <child>
                                               <object class="GtkRadioButton" id="brush3">
                                                 <property name="visible">True</property>
