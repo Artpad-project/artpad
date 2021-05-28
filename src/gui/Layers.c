@@ -29,9 +29,24 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
     int pos =  gtk_list_box_row_get_index (lbr);
     Layer* current_layer = elm_at_pos(&ui->Layers,pos);
     if (current_layer->show){
+
+	GError* err = NULL;
+    	GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/pasvue.png",&err);
+    	if (buf == NULL)
+		errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
+	GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+    	gtk_button_set_image(GTK_BUTTON(button),vue);
+
     	current_layer->show = 0;
     }
     else if (!current_layer->show){
+	GError* err = NULL;
+    	GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/vue.png",&err);
+    	if (buf == NULL)
+		errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
+    	GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+    	gtk_button_set_image(GTK_BUTTON(button),vue);
+
    	current_layer->show = 1;
     }
     merge_from_layers(ui->Layers,ui->im);
@@ -112,27 +127,21 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     
     UserInterface *ui = user_data;
     //int pos =  gtk_list_box_row_get_index (listboxrow);
- 
-    g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
+
+    //g_print("%i\n",gtk_list_box_row_get_index (listboxrow));
     Layer * current_layer = elm_at_pos(&ui->Layers,gtk_list_box_row_get_index (listboxrow));
+    
+    merge_from_layers(ui->Layers,ui->im);
 
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
 
     prepare_drawarea(user_data);
+
     ui->currentLayer = current_layer;
     gtk_list_box_select_row (box,listboxrow);
 
     //g_print("clicked on the %i element\n",get_index_layer(Layers,listboxrow));
-
-    if (!ui->sauv_im1)
-    {
-      ui->sauv_im1 = new_image(ui->im->width,ui->im->height);
-      ui->sauv_im1 = copy_image(ui->im,ui->sauv_im1);
-    }
-
-    else
-    	ui->sauv_im1 = copy_image(ui->im,ui->sauv_im1);
 }
 
 void destroy_layer(GtkButton *button,gpointer user_data){
@@ -145,8 +154,8 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     gtk_widget_destroy(GTK_WIDGET(curlbr));
 
     Layer * dead = pop_from_stack_at_pos(&ui->Layers,pos);
-    free_image(dead->im);
-    free(dead);
+    free_layer(dead);
+
 //todo : need to set the new image
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
@@ -156,9 +165,15 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
     }
-    else {ui->im = NULL;}
+
+    else {
+	    merge_from_layers(ui->Layers,ui->im);
+    	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	    ui->currentLayer = NULL;
+    }
+
     ui->nblayers -=1;
-   
 
 }
 
@@ -191,8 +206,18 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
 
     //bouton hide/show
-    GtkWidget *button = gtk_button_new_with_label ("show?");
+
+    GtkWidget *button = gtk_button_new();
+
+    GError* err = NULL;
+    GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/vue.png",&err);
+    if (buf == NULL)
+	    g_print("deuuuuuh\n");
+    GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+    gtk_button_set_image(GTK_BUTTON(button),vue);
     g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
+    g_object_unref(buf);
+
     gtk_grid_attach (box,button,0,0,1,1);
     
     //nom du layer
@@ -241,6 +266,9 @@ void add_layer(GtkButton *useless,gpointer user_data){
     gtk_widget_show_all(GTK_WIDGET(ui->layers));
     
     struct Layer *newLayer = malloc(sizeof(struct Layer));
+
+    //todo : optmise this sheat
+
     if(!ui->im)
 	    newLayer->im = new_image(500,500);
     else
@@ -300,35 +328,44 @@ void merge_from_layers(Stack* Layers,struct Image* im){
     for(int i = 0;i<im->width;i++)
         for(int j = 0;j<im->height;j++){
             im->pixels[i][j].alpha = 0;
-            im->pixels[i][j].blue = 0;
-            im->pixels[i][j].green = 0;
-            im->pixels[i][j].red = 0;
+            im->pixels[i][j].blue = 255;
+            im->pixels[i][j].green = 255;
+            im->pixels[i][j].red = 255;
         }
            
 
     Stack* layers = Layers;
     while (!is_stack_empty(layers)){
-	    
 	    Layer* cur_layer = layers->data;
 	    if (cur_layer->show)
-            {    
-		 for(int i = 0;i<im->width;i++){
-			for(int j = 0;j<im->height;j++){
-			    if (im->pixels[i][j].alpha<255){
-				int alpha = cur_layer->im->pixels[i][j].alpha;
-				if (im->pixels[i][j].alpha + alpha > 255)
-					alpha = 255 - im->pixels[i][j].alpha;
-				im->pixels[i][j].red += cur_layer->im->pixels[i][j].red * alpha/255;
-				im->pixels[i][j].blue += cur_layer->im->pixels[i][j].blue * alpha/255;
-				im->pixels[i][j].green += cur_layer->im->pixels[i][j].green * alpha/255;
-				im->pixels[i][j].alpha += alpha;
-			    }
-			}
-		
-		 }
+        {    
+		    for(int i = 0;i<im->width;i++){
+			    for(int j = 0;j<im->height;j++){
+			      if (im->pixels[i][j].alpha<255){
+				      int alpha = cur_layer->im->pixels[i][j].alpha;
+				      if (im->pixels[i][j].alpha + alpha > 255)
+					      alpha = 255 - im->pixels[i][j].alpha;
+
+              im->pixels[i][j].red -= (255-cur_layer->im->pixels[i][j].red) * alpha/255;
+              im->pixels[i][j].blue -= (255-cur_layer->im->pixels[i][j].blue) * alpha/255;
+              im->pixels[i][j].green -= (255-cur_layer->im->pixels[i][j].green) * alpha/255;
+              im->pixels[i][j].alpha += alpha;
+			      }
+          }
+		    }
 	    }
 	    layers = layers->next;
     }
+}
+
+
+void free_layer(Layer* dead){
+    if (dead->lbr)
+	gtk_widget_destroy(GTK_WIDGET(dead->lbr));
+    if (dead->im)
+    	free_image(dead->im);
+    free(dead);
+
 }
 
 
