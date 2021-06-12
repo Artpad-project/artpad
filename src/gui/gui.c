@@ -229,11 +229,17 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
 }*/
 
 
-void scroll_callback(GdkEventScroll* event, gpointer user_data){
+void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
-    //g_print("c'est la merguez\n");
-      
-  }
+    int val = gtk_adjustment_get_value(ui->zoom_value);
+    if (event->direction  == GDK_SCROLL_DOWN && val > 100){
+    	    gtk_adjustment_set_value(ui->zoom_value,val-5);
+    }
+	   
+    if (event->direction == GDK_SCROLL_UP && val < 200){
+	    gtk_adjustment_set_value(ui->zoom_value,val+5);
+    }
+}
 
 
 //on mouse click detected for drawing (flood_fill)
@@ -364,7 +370,7 @@ int main ()
 
  
     GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
-    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
+    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
     
@@ -508,7 +514,7 @@ int main ()
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "button_press_event",G_CALLBACK (mouse_clicked), &ui);
    
-    g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+    g_signal_connect(GTK_WIDGET(eb_draw), "scroll_event", G_CALLBACK( scroll_callback ), &ui);
     //
     g_signal_connect(draw_color,"color-set",G_CALLBACK(color_updated),&ui);
 

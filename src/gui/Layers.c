@@ -174,8 +174,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     
     merge_from_layers(ui->Layers,ui->im);
 
-    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    draw_total_image(user_data);
 
     prepare_drawarea(user_data);
 
