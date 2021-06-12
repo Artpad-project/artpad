@@ -211,6 +211,8 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 	    merge_from_layers(ui->Layers,ui->im);
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
             gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	    free_image(ui->im);
+	    ui->im = NULL;
 	    ui->currentLayer = NULL;
     }
 
@@ -309,14 +311,14 @@ void add_layer(GtkButton *useless,gpointer user_data){
     struct Layer *newLayer = malloc(sizeof(struct Layer));
 
     //todo : optmise this sheat
+	
 
     if(!ui->im){
-	    newLayer->im = new_image(500,500);
-	    ui->im = newLayer->im;
+	    newLayer->im = new_image(gtk_adjustment_get_value(ui->width_print),gtk_adjustment_get_value(ui->height_print));
+	    ui->im = create_copy_image(newLayer->im);
     }
     else
-    	newLayer->im = new_image(ui->im->width,ui->im->height);
-
+    	    newLayer->im = new_image(ui->im->width,ui->im->height);
     newLayer->show = 1;
     newLayer-> lbr = nbr;
     newLayer->button = GTK_BUTTON(button);
@@ -413,8 +415,11 @@ void apply_to_all_layers(void (*function) (void* ,void*),void* arg1,void* arg2, 
 void free_layer(Layer* dead){
     if (dead->lbr)
 	gtk_widget_destroy(GTK_WIDGET(dead->lbr));
-    if (dead->im)
-    	free_image(dead->im);
+    if (dead->im){
+    	g_print("je suis la sécurité\n");
+	free_image(dead->im);
+	free(dead->im);
+    }
     free(dead);
 
 }

@@ -41,7 +41,7 @@ new_image(int width,int height) {
     }
     
     char *file_type ;
-    int val = asprintf(&file_type,"jpg");
+    int val = asprintf(&file_type,"jpeg");
     if (val <0){
     	errx(1,"error while giving png");
     }
@@ -63,7 +63,9 @@ struct Pixel** realloc_image(Image *im, int nRows, int nCols)
     Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
     for (int i = 0; i < nCols; ++i) {
         new_pixels[i] = malloc(nRows * sizeof(Pixel));
-        free(im->pixels[i]);
+	g_print("%d",i);
+	if (i < im->width)
+        	free(im->pixels[i]);
     }
     
     free(im->pixels);
@@ -194,7 +196,7 @@ free_image(struct Image *image) {
 		      free(image->file);
     	if (image->file_type)
 		      free(image->file_type);
-    	free(image);
+    	//free(image);
     }
 }
 
@@ -261,7 +263,7 @@ struct Image *create_copy_image(const struct Image *im);
 
 /*!
  * copy an image, and put it into another image. 
- * Save a copy of the original matrix of pixel
+
  * 
  * @param origin : original image
  * @param copy : copy image
@@ -271,8 +273,8 @@ struct Image *copy_image(Image *origin, Image *copy){
      
     if (!copy)
         return create_copy_image(origin);
-
-    realloc_image(copy,origin->height,origin->width);
+    if (copy->width != origin->width || copy->height != origin->height)
+    	realloc_image(copy,origin->height,origin->width);
     copy->file = origin->file;
     copy->file_type = origin->file_type;
     copy->pb = origin->pb;
@@ -297,14 +299,22 @@ struct Image *copy_image(Image *origin, Image *copy){
  */
 struct Image *
 create_copy_image(const struct Image *im) {
+    if (!im)
+        return NULL;
+
     struct Image *new_image = malloc(sizeof(struct Image));
     *new_image = (struct Image) {
-        strdup(im->file),
-        strdup(im->file_type),
+        NULL,
+        NULL,
         im->width, im->height,
         NULL,
         NULL
     };
+
+    if (im->file)
+      new_image->file = strdup(im->file);
+    if (im->file_type)
+      new_image->file_type = strdup(im->file_type);
 
     new_image->pb = im->pb;
     new_image->pixels = malloc(new_image->width * sizeof(Pixel*));
