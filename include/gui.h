@@ -42,6 +42,7 @@ typedef struct UserInterface
 
 
     GdkRectangle drawzone;
+    GtkAdjustment *zoom_value;
     GtkAdjustment *width_print;
     GtkAdjustment *height_print;
 
@@ -69,12 +70,9 @@ typedef struct UserInterface
     int nblayers;
   
     Layer * currentLayer;
-  //useless
-    GtkListBoxRow *r1;
-  //useless
-    GtkListBoxRow *r2;
   
     Image* im;
+    Image* im_zoom;
     Stack * Layers;
 
 
@@ -82,6 +80,7 @@ typedef struct UserInterface
 
 //gui tools
 void prepare_drawarea(gpointer user_data);
+void draw_total_image(gpointer user_data);
 
 //image tools
 void apply_auto_color_balance(GtkButton *button,gpointer user_data);
