@@ -92,8 +92,6 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     int height = gdk_pixbuf_get_height(pb);
     *image = (struct Image) {NULL, NULL, width, height, pb, NULL};
     save_image_pixels(image);
-    g_print("set ew w/g = %i,%i \n",width,height);
-
     return image;
 }
 
@@ -196,7 +194,7 @@ free_image(struct Image *image) {
     	if (image->file)
 		free(image->file);
     	if (image->file_type){
-		g_print("image filetype = %s\n",image->file_type);
+
 		free(image->file_type);
 	}
     	free(image);
