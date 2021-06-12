@@ -235,14 +235,12 @@ void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_dat
     UserInterface *ui = user_data;
 
     int val = gtk_adjustment_get_value(ui->zoom_value);
-    if (event->direction  == GDK_SCROLL_DOWN && val > 100){
+    if (event->direction  == GDK_SCROLL_DOWN && val > 100)
     	    gtk_adjustment_set_value(ui->zoom_value,val-5);
-    }
 	   
-    if (event->direction == GDK_SCROLL_UP && val < 200){
+    if (event->direction == GDK_SCROLL_UP && val < 200)
 	    gtk_adjustment_set_value(ui->zoom_value,val+5);
-    }
-
+    
 }
 
 
@@ -364,9 +362,6 @@ int main ()
     GtkButton* add_layer_button = GTK_BUTTON(gtk_builder_get_object(builder, "add_layer"));
     GtkButton* show_all_layers_button = GTK_BUTTON(gtk_builder_get_object(builder, "show_all_layers"));
     GtkButton* hide_all_layers_button = GTK_BUTTON(gtk_builder_get_object(builder, "hide_all_layers"));
-
-
-    GtkAdjustment* zoom_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "zoom_value"));  
 
 
 // ------------------------------ DRAWING ------------------------------------//
