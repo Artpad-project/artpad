@@ -33,8 +33,10 @@ void prepare_drawarea(gpointer user_data){
 void draw_total_image(gpointer user_data){
         UserInterface* ui = user_data;
 	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+
 	free_image(ui->im_zoom);
 	ui->im_zoom = rescale_image(ui->im,gtk_adjustment_get_value(ui->zoom_value));
+
 	actualise_image(ui->im_zoom,0,0,ui->im_zoom->width,ui->im_zoom->height);
         gtk_image_set_from_pixbuf(ui->area,ui->im_zoom->pb);
 }
@@ -231,6 +233,7 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
 
 void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
+
     int val = gtk_adjustment_get_value(ui->zoom_value);
     if (event->direction  == GDK_SCROLL_DOWN && val > 100){
     	    gtk_adjustment_set_value(ui->zoom_value,val-5);
@@ -239,6 +242,7 @@ void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_dat
     if (event->direction == GDK_SCROLL_UP && val < 200){
 	    gtk_adjustment_set_value(ui->zoom_value,val+5);
     }
+
 }
 
 
@@ -362,6 +366,7 @@ int main ()
     GtkButton* hide_all_layers_button = GTK_BUTTON(gtk_builder_get_object(builder, "hide_all_layers"));
 
 
+    GtkAdjustment* zoom_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "zoom_value"));  
 
 
 // ------------------------------ DRAWING ------------------------------------//
@@ -483,6 +488,8 @@ int main ()
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);  
+
+    g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
 
     g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
 
