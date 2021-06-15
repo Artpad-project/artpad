@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "queue.h"
 
-queue* queue_push(queue* start, Image img)
+queue* queue_push(queue* start, Image *img)
 {
   queue* q = malloc(sizeof(queue));
   if (q == NULL)

@@ -279,6 +279,13 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
     newLayer->show = 1;
     newLayer-> lbr = nbr;
+
+    //ctlr+z and y
+    newLayer->tp = malloc(sizeof(struct temp_layer));
+    newLayer->tp->n = 0;
+    newLayer->tp->layers_z = NULL;
+    newLayer->tp->layers_y = NULL;
+
     ui->nblayers +=1;
     ui->Layers = push_to_stack(ui->Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
@@ -340,6 +347,7 @@ void merge_from_layers(Stack* Layers,struct Image* im){
     Stack* layers = Layers;
     while (!is_stack_empty(layers)){
 	    Layer* cur_layer = layers->data;
+      temp_layer_destroy(cur_layer->tp);
 	    if (cur_layer->show)
         {    
 		    for(int i = 0;i<im->width;i++){

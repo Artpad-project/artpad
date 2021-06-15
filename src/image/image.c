@@ -305,12 +305,17 @@ struct Image *
 create_copy_image(const struct Image *im) {
     struct Image *new_image = malloc(sizeof(struct Image));
     *new_image = (struct Image) {
-        strdup(im->file),
-        strdup(im->file_type),
+        NULL,
+        NULL,
         im->width, im->height,
         NULL,
         NULL
     };
+
+    if (im->file)
+      new_image->file = strdup(im->file);
+    if (im->file_type)
+      new_image->file_type = strdup(im->file_type);
 
     new_image->pb = im->pb;
     new_image->pixels = malloc(new_image->width * sizeof(Pixel*));

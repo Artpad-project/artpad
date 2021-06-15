@@ -20,6 +20,7 @@
 #include "ContrastSimple.h"
 #include "Flip.h"
 #include "Layers.h"
+#include "temp_layer.h"
 
 typedef struct UserInterface
 {
@@ -74,6 +75,7 @@ typedef struct UserInterface
     Image* im;
     Image* im_zoom;
     Stack * Layers;
+    int maxLayers;
 
 
 } UserInterface;

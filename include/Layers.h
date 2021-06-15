@@ -14,6 +14,7 @@
 #include "utils.h"
 #include <stdlib.h>
 #include <err.h>
+#include "temp_layer.h"
 
 #define Hide 0
 #define Show 1
@@ -31,6 +32,9 @@ typedef struct Layer
     int relativxpos;
     int relativypos;
     GtkListBoxRow * lbr;
+
+    //ctrl+z and y
+    temp_layer *tp;
 }Layer;
 
 int get_index_layer(Stack* Layers,GtkListBoxRow * lbr);

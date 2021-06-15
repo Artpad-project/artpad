@@ -2,7 +2,7 @@
 #include "../../include/image.h"
 
 //pushes a new value into the queue while updating number of elements
-void temp_layer_push(temp_layer* tp, int max, Image img)
+void temp_layer_push(temp_layer* tp, int max, Image *img)
 {
   if (tp->n+1 == max)
   {
@@ -26,9 +26,8 @@ void temp_layer_undo(temp_layer *tp, Image *curr_img)
   if (tp->layers_z == NULL)
     return;
 
-  Image *new_img = new_image(curr_img->width, curr_img->height);
-  new_img = copy_image(curr_img, new_img);
-  tp->layers_y = queue_push(tp->layers_y, *new_img);
+  Image *new_img = create_copy_image(curr_img);
+  tp->layers_y = queue_push(tp->layers_y, new_img);
 
   tp->layers_z = queue_pop(tp->layers_z, curr_img);
 }
@@ -39,9 +38,8 @@ void temp_layer_redo(temp_layer *tp, Image *curr_img)
   if (tp->layers_y == NULL)
     return;
 
-  Image *new_img = new_image(curr_img->width, curr_img->height);
-  new_img = copy_image(curr_img, new_img);
-  tp->layers_z = queue_push(tp->layers_z, *new_img);
+  Image *new_img = create_copy_image(curr_img);
+  tp->layers_z = queue_push(tp->layers_z, new_img);
 
   tp->layers_y = queue_pop(tp->layers_y, curr_img);
 }
@@ -57,4 +55,11 @@ void temp_layer_update(temp_layer* tp, int max)
     free_image(temp);
     tp->n -= 1;
   }
+}
+
+void temp_layer_destroy(temp_layer* tp)
+{
+  tp->n = 0;
+  queue_empty(&tp->layers_z);
+  queue_empty(&tp->layers_y);
 }
