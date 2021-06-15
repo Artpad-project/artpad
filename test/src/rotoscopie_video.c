@@ -16,10 +16,10 @@ int main(int argc, char *argv[])
     // https://drive.google.com/open?id=0B3NaVR72FYQcWUFSUVhKWE5UMVU
     // Local: "teapot.png" 1280 720 25 600 300
     video = create_video(argv[1], atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
-    rotoscopie(video, atoi(argv[5]), atoi(argv[6]), &percent);
+    rotoscopie(video, atoi(argv[5]), atoi(argv[6]));
     save_video(video, "output.mp4");
 
-    //free_video(video);
+    free_video(video);
 
     return 0;
 }
