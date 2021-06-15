@@ -22,9 +22,9 @@
 
 void show_hide_layer(GtkButton *button,gpointer user_data)
 {
-	UserInterface* ui = user_data;
+    UserInterface* ui = user_data;
     GtkListBoxRow *lbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
-    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(lbr)));
+    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(lbr)));
 
     int pos =  gtk_list_box_row_get_index (lbr);
     Layer* current_layer = elm_at_pos(&ui->Layers,pos);
@@ -50,8 +50,7 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
    	current_layer->show = 1;
     }
     merge_from_layers(ui->Layers,ui->im);
-    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    draw_total_image(user_data);
 }
 
 
@@ -151,9 +150,11 @@ void destroy_layer(GtkButton *button,gpointer user_data){
 
     int pos =  gtk_list_box_row_get_index (curlbr);
 
-    gtk_widget_destroy(GTK_WIDGET(curlbr));
 
+    gtk_widget_destroy(GTK_WIDGET(curlbr));
+   
     Layer * dead = pop_from_stack_at_pos(&ui->Layers,pos);
+    dead->lbr = 0;
     free_layer(dead);
 
 //todo : need to set the new image
@@ -269,8 +270,10 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
     //todo : optmise this sheat
 
-    if(!ui->im)
+    if(!ui->im){
 	    newLayer->im = new_image(500,500);
+	    ui->im = newLayer->im;
+    }
     else
     	newLayer->im = new_image(ui->im->width,ui->im->height);
 
@@ -385,7 +388,7 @@ void export(Image *img, Stack *layers, int n)
   size_t dir_length = 0;
 
   //creates directory
-  if (!is_stack_empty)
+  if (!is_stack_empty(layers))
   {
     asprintf(&buffer, "draft_%c", img->file);
     // write permission only
@@ -398,8 +401,11 @@ void export(Image *img, Stack *layers, int n)
   //saves directory
   while(!is_stack_empty(layers))
   {
+    // Attention, ici tu recois une struc Layers, pas une struct Image
     Image *draft_img = pop_from_stack(&layers);
-    size_t length = strlen(img->file);
+    //struct Layer * cur_layer = pop_from_stack(&layers);
+    //struct Image * draft_img = cur_layer->im;
+    size_t length = strlen(draft_img->file);
 
     //+1 accounts for the "/" separation
     char draft_path[length + APPEND_LENGTH + dir_length + 1];
@@ -412,6 +418,6 @@ void export(Image *img, Stack *layers, int n)
 
     strcat(draft_path, buffer);
 
-    save_image(draft_img, draft_path, img->file_type);
+    save_image(draft_img, draft_path, draft_img->file_type);
   }
 }

@@ -11,8 +11,7 @@ void apply_auto_color_balance(GtkButton *button,gpointer user_data){
     if (ui->im){
         BalanceAuto(ui->im);
 
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 
@@ -30,8 +29,7 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
     if (ui->im){
         BalanceAbsolue(ui->im,gtk_adjustment_get_value(ui->CB_value));
 
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 
@@ -44,8 +42,7 @@ void apply_saturation(GtkButton *button,gpointer user_data){
         // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         SaturationAbsolue(ui->im,gtk_adjustment_get_value(ui->SAT_value));
 
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 
@@ -57,9 +54,7 @@ void apply_brightness(GtkButton *button,gpointer user_data){
     if (ui->im){
         // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Contrast(ui->im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
-
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	draw_total_image(user_data);
     }
 }
 
@@ -73,8 +68,7 @@ void apply_rotation(GtkButton *button,gpointer user_data){
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
          Rotate(ui->im,(float)gtk_adjustment_get_value(ui->ROT_value));
 
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 
@@ -89,8 +83,8 @@ void apply_rot_right(GtkButton *button,gpointer user_data){
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(ui->im,(float)90);
 
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
+
     }
 }
 
@@ -102,8 +96,7 @@ void apply_rot_left(GtkButton *button,gpointer user_data){
     if (ui->im){
          //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         Rotate(ui->im,(float)-90);
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 
@@ -115,8 +108,7 @@ void apply_flip_hori(GtkButton *button,gpointer user_data){
     if (ui->im){
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         FlipHorizon(ui->im);
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 
@@ -128,8 +120,7 @@ void apply_flip_vert(GtkButton *button,gpointer user_data){
     if (ui->im){
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
         FlipVertical(ui->im);
-        actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-        gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+        draw_total_image(user_data);
     }
 }
 

@@ -26,11 +26,26 @@ enum mode {IMAGE_TOOLS = 1,DRAW =2};
 //prepare to draw 
 void prepare_drawarea(gpointer user_data){
     UserInterface* ui = user_data;
-    //gtk_widget_set_size_request (GTK_WIDGET(ui->drawarea),newwidth ,newheight);
     gtk_fixed_move (ui->drawarea, GTK_WIDGET(ui->area),ui->xpos ,ui->ypos);
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) ui->im->width, (gint)ui->im->height);
 }
 
+	
+
+void draw_total_image(gpointer user_data){
+        UserInterface* ui = user_data;
+	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+
+	ui->im_zoom = rescale_image(ui->im,gtk_adjustment_get_value(ui->zoom_value));
+
+	actualise_image(ui->im_zoom,0,0,ui->im_zoom->width,ui->im_zoom->height);
+        gtk_image_set_from_pixbuf(ui->area,ui->im_zoom->pb);
+}
+void redraw_all(GtkAdjustment *useless,gpointer user_data){
+	UserInterface* ui = user_data;
+	if(ui->im_zoom)
+		draw_total_image(user_data);
+}
 void color_updated(GtkColorChooser* cc,gpointer user_data){
 	UserInterface* ui = user_data;
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->eraser))){
@@ -43,7 +58,6 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 		ui->actual_color = pixel_from_GdkRGBA(col);
 		g_print("color : %i,%i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue,ui->actual_color.alpha);
 		gdk_rgba_free(col);
-
 	}
 }
 
@@ -217,20 +231,13 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
     g_print("change height\n") ;  
 }*/
 
-/*
+
 void scroll_callback(GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
-     g_print("c'est la merguez\n");
-    if (ui->shift_pressed){
-        g_print("merguez partie\n");
-        im2 = rescale_image(im,150);
-        im = im2;
-        //prepare_drawarea(user_data);
-        //gtk_widget_queue_draw_area(GTK_WIDGET(ui->area),0,0,500,500);
-    }
-   
+    g_print("c'est la merguez\n");
+      
   }
-*/
+
 
 //on mouse click detected for drawing (flood_fill)
 void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
@@ -259,6 +266,9 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     {
       int xposi = -ui->xpos + event->x;
       int yposi = -ui->ypos + event->y;
+
+      xposi = (int)((float)xposi * (float)100/(gtk_adjustment_get_value(ui->zoom_value)));
+      yposi = (int)((float)yposi * (float)100/(gtk_adjustment_get_value(ui->zoom_value)));
       int val = 0;
 
       if (xposi >= 0  && xposi < ui->im->width && yposi>=0 && yposi < ui->im->height)
@@ -277,6 +287,8 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
           {
             int pastx = -ui->xpos + ui->xmouse;
             int pasty = -ui->ypos + ui->ymouse;
+	    pastx = (int)((float)pastx * (float)100/(gtk_adjustment_get_value(ui->zoom_value)));
+	    pasty = (int)((float)pasty * (float)100/(gtk_adjustment_get_value(ui->zoom_value)));
             struct coord src= {pastx,pasty};
             struct coord dest = {xposi,yposi};
 
@@ -290,9 +302,8 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->brush3)))
                 special_brushes(ui->currentLayer->im,ui->actual_color,src,dest,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
             merge_from_layers(ui->Layers,ui->im);
-            actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-          }     
+	    draw_total_image(user_data);
+           }     
 
     if( event->state & GDK_BUTTON2_MASK )
     {
@@ -341,6 +352,7 @@ int main ()
     GtkButton* Redo_button = GTK_BUTTON(gtk_builder_get_object(builder, "Redo"));
     GtkButton* add_layer_button = GTK_BUTTON(gtk_builder_get_object(builder, "add_layer"));
 
+    GtkAdjustment* zoom_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "zoom_value"));  
 
 
 // ------------------------------ DRAWING ------------------------------------//
@@ -402,6 +414,7 @@ int main ()
       .drawarea = drawarea,
       .layers = layers,
       .eb_draw = eb_draw,
+      .zoom_value = zoom_value,
 
       .area = area,
       .start_button = start_button,
@@ -460,15 +473,15 @@ int main ()
     g_signal_connect(FLIPVERT_button,"clicked", G_CALLBACK(apply_flip_vert), &ui);
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
 
+    g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
+
     g_signal_connect(eraser,"clicked", G_CALLBACK(apply_eraser), &ui);
     g_signal_connect(brush1,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
     g_signal_connect(brush2,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
     g_signal_connect(brush3,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
 
     g_signal_connect(start_button,"clicked", G_CALLBACK(on_start), &ui);
-
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
-
 
     g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
     g_signal_connect(Redo_button,"clicked", G_CALLBACK(apply_redo), &ui);
@@ -488,7 +501,7 @@ int main ()
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "button_press_event",G_CALLBACK (mouse_clicked), &ui);
    
-    //g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+    g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
     //
     g_signal_connect(draw_color,"color-set",G_CALLBACK(color_updated),&ui);
 
@@ -501,6 +514,11 @@ int main ()
 //todo :  fonction de comparaison d'image
     	free_image(ui.im);
     }
+    if (ui.im_zoom){
+//todo :  fonction de comparaison d'image
+    	free_image(ui.im_zoom);
+    }
+
 
 
     //todo :  this free is not working 
