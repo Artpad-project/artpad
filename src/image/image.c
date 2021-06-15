@@ -7,9 +7,12 @@
  *  Added:
  *  3/9/2021 - image loading
  */
-
+#define _GNU_SOURCE
 #include "../../include/image.h"
+#include "../../include/utils.h"
+
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 static char * parse_image_path(char *path);
@@ -34,11 +37,16 @@ new_image(int width,int height) {
     struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
     for (int i = 0; i < width; i++) {
         im_pixels[i] = (struct Pixel *)malloc(height * sizeof(struct Pixel));
-        memset(im_pixels[i], 256, height*sizeof(struct Pixel));
+        memset(im_pixels[i],0, height*sizeof(struct Pixel));
     }
     
-    pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
-    *image = (struct Image){NULL, "jpg", width, height, pb, im_pixels};
+    char *file_type ;
+    int val = asprintf(&file_type,"jpg");
+    if (val <0){
+    	errx(1,"error while giving png");
+    }
+    pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height);
+    *image = (struct Image){NULL, file_type, width, height, pb, im_pixels};
     return image;
 }
 
@@ -82,8 +90,10 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     struct Image *image = malloc(sizeof(struct Image));
     int width = gdk_pixbuf_get_width(pb);
     int height = gdk_pixbuf_get_height(pb);
-    *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
+    *image = (struct Image) {NULL, NULL, width, height, pb, NULL};
     save_image_pixels(image);
+    g_print("set ew w/g = %i,%i \n",width,height);
+
     return image;
 }
 
@@ -179,16 +189,17 @@ save_image_pixels(struct Image *im) {
 void
 free_image(struct Image *image) {
     if(image){
-	g_print("%i\n");
     	for (int x = 0; x < image->width; ++x)
             
 	     free(image->pixels[x]);
     	free(image->pixels);
     	if (image->file)
 		free(image->file);
-    	if (image->file_type)
+    	if (image->file_type){
+		g_print("image filetype = %s\n",image->file_type);
 		free(image->file_type);
-    	//free(image);
+	}
+    	free(image);
 
     }
 }
@@ -222,7 +233,7 @@ save_image(struct Image *im, char *out, char *ftype) {
 }
 
 /*!
- * actualise image into a file.
+ * actualise the pixbuff of an image.
  * 
  * @param im the image to sav 
  * */

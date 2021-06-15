@@ -11,6 +11,7 @@ IMG_SRC := 			image/image.c \
 					rotation/Rotation.c \
 					utils/utils.c \
 					utils/queue.c 
+					
 
 
 DRAWING_SRC :=		colorimetrie/stack.c \
@@ -18,7 +19,8 @@ DRAWING_SRC :=		colorimetrie/stack.c \
 
 GUI_SRC :=			gui/gui.c \
 					gui/temp_layers.c \
-					gui/Layers.c
+					gui/Layers.c \
+					gui/image_tools.c
 				
 
 VIDEO_SRC :=		video/video.c	

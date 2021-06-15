@@ -23,11 +23,17 @@ typedef struct AllLayers{
 
 }*/
 
-typedef struct Layer{
-	Image * image; 
-	int pos ;
-	int mode;
+
+typedef struct Layer 
+{
+    struct Image *im;
+    int show;
+    int relativxpos;
+    int relativypos;
+    GtkListBoxRow * lbr;
 }Layer;
+
+int get_index_layer(Stack* Layers,GtkListBoxRow * lbr);
 
 void export(Image *img, Stack *layers, int n);
 
