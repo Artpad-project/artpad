@@ -8,22 +8,51 @@
 #include "../../include/rotoscopie.h"
 
 #define FRAMES_TO_CHECK 3
+#define FILTER_SIZE 3
 
-static int check_pixel(struct Pixel px, struct Pixel origin)
+#define APPLY_PIXEL(_foo) do { \
+    _foo(red);                  \
+    _foo(green);                \
+    _foo(blue);                 \
+} while(0)
+
+static int check_pixel(Image image, struct coord px, struct Pixel origin)
 {
-    return  ((double)ABS(origin.red - px.red) / 255 <= MAGIC_WAND_THRESHOLD) &&
-            ((double)ABS(origin.green - px.green) / 255 <= MAGIC_WAND_THRESHOLD) &&
-            ((double)ABS(origin.blue - px.blue) / 255 <= MAGIC_WAND_THRESHOLD);
+    float red = 0, green = 0, blue = 0;
+    int check = 1;
+    uint pixel_count= 0;
+    int x, y;
+
+#define SUM_PX(_px_color) _px_color += image.pixels[x][y]._px_color
+    for (int i = -FILTER_SIZE/2; i < FILTER_SIZE/2; ++i) {
+        x = px.x + i;
+        if (x < 0) continue;
+        if (x >= image.width) break;
+        for (int j = -FILTER_SIZE/2; j < FILTER_SIZE/2; ++j) {
+            y = px.y + j;
+            if (y < 0) continue;
+            if (y >= image.height) break;
+            APPLY_PIXEL(SUM_PX);
+            pixel_count++;
+        }
+    }
+
+#define MOYENNE_PX(_px_color) _px_color = _px_color / pixel_count
+    APPLY_PIXEL(MOYENNE_PX);
+
+#define CHECK(_px_color) check = check && ABS(_px_color - origin._px_color) / 255.0 <= MAGIC_WAND_THRESHOLD
+    APPLY_PIXEL(CHECK);
+
+    return check;
 }
 
 static int check_pixel_video(Video video, int frame, struct coord px, struct coord origin)
 {
     int check = 1;
-    for (int i = FRAMES_TO_CHECK; i < FRAMES_TO_CHECK && check; ++i) {
+    for (int i = 0; i < FRAMES_TO_CHECK && check; ++i) {
         if (frame+i >= video.frame_count)
             break;
-        check = check &&
-                check_pixel(video.frames[frame+i].pixels[px.x][px.y],
+        check = check_pixel(video.frames[frame+i], px,
                             video.frames[frame+i].pixels[origin.x][origin.y]);
     }
 

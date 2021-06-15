@@ -39,7 +39,7 @@ Video create_video(char *path, int w, int h, int fps)
 
     // Separate video into frames, or use already existing ones
     if (stat("frames", st) == 0)
-        printf("using already existing frames.\n");
+        printf("Using already existing frames.\n");
     else {
         // Create folder
         char *cmd = malloc(256);

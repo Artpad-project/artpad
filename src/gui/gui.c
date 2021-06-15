@@ -687,7 +687,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
 }
 
 
-int main ()
+int main_gui ()
 {
 
     // Initializes GTK.
