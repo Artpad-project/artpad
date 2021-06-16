@@ -82,7 +82,7 @@ struct param
   unsigned char *buf;
 };
 
-void* worker(void *args)
+static void* worker(void *args)
 {
   struct param *arg = args;
   unsigned char *buf = arg->buf;
@@ -113,6 +113,7 @@ void* worker(void *args)
 
       colorize(img, color, x, y);
 
+      //printf("starting to fill queue\n");
       if (x+1 < img->width && same_color(img->pixels[x+1][y], px, acceptance))
       {
           struct coord new_c = {x+1, y};

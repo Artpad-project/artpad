@@ -72,7 +72,7 @@ typedef struct param {
     int thread;
 }param;
 
-void* smooth_worker(void *args)
+static void* smooth_worker(void *args)
 {
     param *params = args;
     Video smooth_video = params->video;

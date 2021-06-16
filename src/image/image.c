@@ -308,7 +308,7 @@ struct Image *copy_image(Image *src, Image *dst){
  * @return A copy of the image
  */
 struct Image *
-create_copy_image(const struct Image *im) {
+create_copy_image(Image *im) {
     if (!im)
         return NULL;
 

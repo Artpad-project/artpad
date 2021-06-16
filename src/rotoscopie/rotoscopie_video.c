@@ -47,7 +47,7 @@ static int check_pixel(Frame frame, struct coord px, struct Pixel origin)
     uint pixel_count= 0;
     int x, y;
 
-#define SUM_PX(_px_color) _px_color += frame.pixels[x][y]._px_color
+#define SUM_PX_FUNC(_px_color) _px_color += frame.pixels[x][y]._px_color
     for (int i = -FILTER_SIZE/2; i < FILTER_SIZE/2; ++i) {
         x = px.x + i;
         if (x < 0) continue;
@@ -56,7 +56,7 @@ static int check_pixel(Frame frame, struct coord px, struct Pixel origin)
             y = px.y + j;
             if (y < 0) continue;
             if (y >= frame.height) break;
-            APPLY_PIXEL(SUM_PX);
+            APPLY_PIXEL(SUM_PX_FUNC);
             pixel_count++;
         }
     }
@@ -92,7 +92,7 @@ typedef struct{
     int x, y;
 }thread_args;
 
-void *worker(void *worker_args)
+static void *worker(void *worker_args)
 {
     thread_args *args = worker_args;
     int x = args->x, y = args->y;
