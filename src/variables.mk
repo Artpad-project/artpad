@@ -15,6 +15,7 @@ IMG_SRC := 			image/image.c \
 
 
 DRAWING_SRC :=		colorimetrie/stack.c \
+					colorimetrie/flood_fill_stack.c\
 					colorimetrie/colorimetrie.c
 
 GUI_SRC :=			gui/gui.c \

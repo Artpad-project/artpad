@@ -6,8 +6,8 @@
  * Code has been heavily influenced by online courses
  */
 
-#ifndef STACK_H
-#define STACK_H
+#ifndef FLOOD_FILL_STACK_H
+#define FLOOD_FILL_STACK_H
 
 #include<stdlib.h>
 
@@ -19,12 +19,6 @@ struct ff_coord
     char dy;
 };
 
-struct coord
-{
-  size_t x;
-  size_t y;
-};
-
 typedef  struct ff_stack
 {
     size_t capacity;
@@ -32,16 +26,16 @@ typedef  struct ff_stack
     struct ff_coord *data;
 }ff_stack;
 
-ff_stack* new_stack();
+ff_stack* f_new_stack();
 
-void double_capacity(ff_stack *s);
+void f_double_capacity(ff_stack *s);
 
-void stack_push(ff_stack *s, struct ff_coord node);
+void f_stack_push(ff_stack *s, struct ff_coord node);
 
-struct ff_coord stack_pop(ff_stack *s);
+struct ff_coord f_stack_pop(ff_stack *s);
 
-int stack_IsEmpty(ff_stack *s);
+int f_stack_IsEmpty(ff_stack *s);
 
-void stack_free(struct ff_stack* s);
+void f_stack_free(struct ff_stack* s);
 
 #endif

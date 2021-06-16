@@ -14,6 +14,7 @@
 #include <err.h>
 #include "image.h"
 #include "flood_fill_stack.h"
+#include "stack.h"
 
 void circle(struct Image *img, struct Pixel color, struct coord center, int radius, int filled);
 void rectangle(struct Image *img, struct Pixel color, struct coord c1, struct coord c2
