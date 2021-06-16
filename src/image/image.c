@@ -60,6 +60,9 @@ new_image(int width,int height) {
  */
 struct Pixel** realloc_image(Image *im, int nRows, int nCols)
 {
+    if (im->width == nCols && im->height == nRows)
+        return im->pixels;
+
     Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
     for (int i = 0; i < nCols; ++i) {
         new_pixels[i] = malloc(nRows * sizeof(Pixel));
@@ -259,38 +262,43 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
     pixels[3] = px.alpha;
 }
 
-struct Image *create_copy_image(const struct Image *im);
+struct Image *create_copy_image(Image *im);
 
 /*!
  * copy an image, and put it into another image. 
 
  * 
- * @param origin : original image
- * @param copy : copy image
+ * @param src : original image
+ * @param dst : copy image
  * 
  */
-struct Image *copy_image(Image *origin, Image *copy){
-     
-    if (!copy)
-        return create_copy_image(origin);
 
-    if (copy->width != origin->width || copy->height != origin->height)
-    	realloc_image(copy,origin->height,origin->width);
-    copy->file = origin->file;
-    copy->file_type = origin->file_type;
+struct Image *copy_image(Image *src, Image *dst){
+    if (!dst)
+        return create_copy_image(src);
 
-    copy->pb = origin->pb;
+    if (src->width != dst->width || src->height != dst->height)
+        realloc_image(dst,src->height,src->width);
+  
+    dst->file = src->file;
+    dst->file_type = src->file_type;
+    dst->pb = src->pb;
 
-
-    for(int i = 0;i<origin->width;i++)
-        for(int j = 0;j<origin->height;j++){
-            copy->pixels[i][j].red = origin->pixels[i][j].red;
-            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
-            copy->pixels[i][j].green = origin->pixels[i][j].green;
-            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
+    if (!dst->pixels) {
+        dst->pixels = malloc(dst->width * sizeof(Pixel*));
+        for (int i = 0; i < dst->width; ++i)
+            dst->pixels[i] = malloc(dst->height * sizeof(Pixel));
+    }
+  
+    for(int i = 0;i<src->width;i++)
+        for(int j = 0;j<src->height;j++){
+            dst->pixels[i][j].red = src->pixels[i][j].red;
+            dst->pixels[i][j].blue = src->pixels[i][j].blue;
+            dst->pixels[i][j].green = src->pixels[i][j].green;
+            dst->pixels[i][j].alpha = src->pixels[i][j].alpha;
         }
 
-    return copy;
+    return dst;
 }
 
 

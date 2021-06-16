@@ -511,3 +511,4 @@ void export(Image *img, Stack *layers, int n, char *path)
     save_image(draft_img, full_path, draft_img->file_type);
   }
 }
+

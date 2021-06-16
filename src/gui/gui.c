@@ -12,13 +12,6 @@
 #include <time.h>
 #include "../../include/gui.h"
 
-
-
-
-// Structure of the graphical user interface.
-
-
-
 //enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
 //prepare to draw 
@@ -28,7 +21,6 @@ void prepare_drawarea(gpointer user_data){
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) ui->im->width, (gint)ui->im->height);
 }
 
-	
 
 void draw_total_image(gpointer user_data){
         UserInterface* ui = user_data;
@@ -65,12 +57,14 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 void on_load(GtkFileChooser *fc,gpointer user_data){
     
     UserInterface* ui = user_data;
+
     Image* new = load_image((char *)gtk_file_chooser_get_filename (fc));
     gtk_adjustment_set_value(ui->width_print,new->width);
     gtk_adjustment_set_value(ui->height_print,new->height);
     free_image(new);
     if (!ui->currentLayer){
 	    add_layer(NULL,user_data);
+
     }
     free_image(ui->currentLayer->im);
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
@@ -83,6 +77,7 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
 
 void on_save(GtkButton *fc,gpointer user_data){
     UserInterface* ui = user_data;
+
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new(
         "Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
@@ -111,6 +106,7 @@ void on_save(GtkButton *fc,gpointer user_data){
 
 void on_export(GtkButton *fc,gpointer user_data){
     UserInterface* ui = user_data;
+
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new(
         "Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
@@ -132,17 +128,17 @@ void on_export(GtkButton *fc,gpointer user_data){
 	
   export(ui->im, ui->Layers, ui->nblayers, path);
         g_free(filename);
+
     }
 
     gtk_widget_destroy(dialog);
 }
 
 
-
-
 //ctrl+z function --- POUR LOWEN---a
 void apply_undo(GtkButton *useless,gpointer user_data){
   UserInterface* ui = user_data;
+
 
   temp_layer_undo(ui->currentLayer->tp, &ui->currentLayer->im);
   //g_print("total number: %d\n", ui->currentLayer->tp->n);
@@ -166,8 +162,10 @@ void apply_eraser(GtkRadioButton *useless,gpointer user_data){
 	ui->actual_color.alpha = 0;
 	if (ui->last_use == ui->fill){
 
+
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
+
 
 		char* size;
     		int val = asprintf(&size,"size");
@@ -183,15 +181,18 @@ void apply_swap_draw_mode(GtkRadioButton *useless,gpointer user_data){
 	if (ui->last_use == ui->eraser)
 		color_updated(ui->draw_color, user_data);
 	if (ui->last_use == ui->fill){
+
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
 
 		char* size;
-    		int val = asprintf(&size,"size");
+    int val = asprintf(&size,"size");
+
 
 		gtk_text_buffer_set_text(ui->drawbuffer,size,val);
 		
 	}
+
    	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
     	ui->last_use = useless;
@@ -211,29 +212,13 @@ void apply_swap_fill_mode(GtkRadioButton *useless,gpointer user_data){
 	      int val = asprintf(&size,"tolerance");
 
 	      gtk_text_buffer_set_text(ui->drawbuffer,size,val);
+
 	}
 	/*actualise_image(im,0,0,im->width,im->height);
     	gtk_image_set_from_pixbuf(ui->area,im->pb);*/  
  	ui->last_use = useless;
 
 }
-
-
-
-/* Goes back to the original image*/
-/*
-void see_original(GtkButton *useless,gpointer user_data){
-    UserInterface* ui = user_data;
-
-    g_print("Stack state : \n:");
-    if (ui->im){
-    	UserInterface* ui = user_data;
-    	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    	gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
-    }
-
-}
-*/
 
 
 // Event handler for the "clicked" signal of the copy button.
@@ -245,58 +230,6 @@ void on_start(GtkButton *useless,gpointer user_data)
     actualise_image(newim,0,0,newim->width,newim->height);
     gtk_image_set_from_pixbuf(ui->area,newim->pb);*/
 }
-
-//test on key pressing (actually doesn't work)
-/*void on_key_press(GtkWindow oof,GdkEventKey *event,gpointer user_data){
-    //UserInterface *ui = user_data;
-    g_print("%s\n",((char*)gdk_keyval_name(event->keyval)));
-    switch (event->keyval)
-    {
-        case GDK_KEY_Z:
-            g_print("key pressed: Z\n");
-            break;
-        case GDK_KEY_z:
-            g_print("key pressed: z\n");
-            break;
-        case GDK_KEY_S:
-        case GDK_KEY_s:
-            if (event->state & GDK_SHIFT_MASK)
-            {
-                printf("key pressed: %s\n", "shift + s");
-            }
-            else if (event->state & GDK_CONTROL_MASK)
-            {
-                printf("key pressed: %s\n", "ctrl + s");
-            }
-            else
-            {
-                printf("key pressed: %s\n", "s");
-            }
-            break;
-    }
-    if(strcmp(gdk_keyval_name(event->keyval), "Z") == 0){
-        g_print("controle z");
-    }
-}*/
-
-/*
-void set_new_width(GtkAdjustment *buffer,gpointer user_data){
-    g_print("change width\n");
-    UserInterface *ui = user_data;
-    im2 = new_image(gtk_adjustment_get_value(ui->width_print),gtk_adjustment_get_value(ui->height_print));
-    
-    copy_image(im2,im);
-    int draw_width= gtk_widget_get_allocated_width(GTK_WIDGET(ui->area));
-    int draw_height = gtk_widget_get_allocated_height(GTK_WIDGET(ui->area));
-    ui->drawzone.x = draw_width/2 - im->width/2;
-    ui->drawzone.y = draw_height/2 - im->height/2;
-    ui->drawzone.width = im->width;
-    ui->drawzone.height = im->height;
-    prepare_drawarea(user_data);  
-}
-void set_new_height(GtkAdjustment *buffer,gpointer user_data){
-    g_print("change height\n") ;  
-}*/
 
 
 void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
@@ -310,11 +243,15 @@ void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_dat
 }
 
 
+
 //on mouse click detected for drawing (flood_fill)
 void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
+
+  // coordinates of actual clicked position
 	UserInterface *ui = user_data;
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
+
     
     if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height)
         if(event->button == 1 && ui->currentLayer)
@@ -348,12 +285,13 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
  		    temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
       }
         }
-    
+  
 }
 //on mouse moved for drawing (pencil)
 void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
-    UserInterface *ui = user_data;
+  UserInterface *ui = user_data;
     
+
     char *my_string;
     if (ui->currentLayer)
     {
@@ -363,6 +301,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
       xposi = (int)((float)xposi * (float)100/(gtk_adjustment_get_value(ui->zoom_value)));
       yposi = (int)((float)yposi * (float)100/(gtk_adjustment_get_value(ui->zoom_value)));
       int val = 0;
+
 
       if (xposi >= 0  && xposi < ui->im->width && yposi>=0 && yposi < ui->im->height)
         val = asprintf(&my_string,"X: %i,Y: %i",xposi,yposi);
@@ -411,6 +350,7 @@ void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
   }
 }
 
+
 int main ()
 {
     // Initializes GTK.
@@ -423,6 +363,8 @@ int main ()
     // Loads the UI description.
     // (Exits if an error occurs.)
     GError* error = NULL;
+
+
     if (gtk_builder_add_from_file(builder, "src/gui/prototype2.glade", &error) == 0)
     {
         g_printerr("Error loading file: %s\n", error->message);
@@ -507,12 +449,14 @@ int main ()
     GtkRadioButton* rotoscopie = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "rotoscopie"));
 
 
+
     struct Pixel pixel = {0,0,0,255};
 
     UserInterface ui =
     {
       .window = window,
       .drawarea = drawarea,
+
       .layers = layers,
       .eb_draw = eb_draw,
       .zoom_value = zoom_value,
@@ -556,7 +500,6 @@ int main ()
 
     //ui.im = new_image(500,500);
     ui.Layers = create_stack();
-
     // Connects event handlers.
     // Runs the main loop.
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -647,6 +590,7 @@ int main ()
     }
     free(ui.Layers);
     g_object_unref(builder);
+
    
     /*
     free_image(im2);

@@ -64,6 +64,7 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+
   <object class="GtkAdjustment" id="zoom_value">
     <property name="lower">100</property>
     <property name="upper">200</property>

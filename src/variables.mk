@@ -23,9 +23,10 @@ GUI_SRC :=			gui/gui.c \
 					gui/temp_layers.c \
 					gui/Layers.c \
 					gui/image_tools.c
-				
 
-VIDEO_SRC :=		video/video.c
+VIDEO_SRC :=		video/video.c	\
+					video/smooth.c \
+					rotoscopie/rotoscopie_video.c \
 
 SRC :=	$(IMG_SRC) \
 		$(GUI_SRC) \
@@ -45,6 +46,7 @@ GTKFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 ## FLAGS
 CC = gcc -g -fsanitize=address
 CPPFLAGS =
-CFLAGS = -Wall -Wextra -Wno-unused-parameter $(GTKFLAGS)
+CFLAGS_IGNORE = -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format
+CFLAGS = -Wall -Wextra $(CFLAGS_IGNORE) $(GTKFLAGS)
 LDLIB =  $(GTKLIBS) -I$(L_LIBALGO) -ldl -lm
 

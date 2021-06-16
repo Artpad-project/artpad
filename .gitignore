@@ -27,3 +27,5 @@ src/*.mp4
 
 # TEST OUTPUTS
 test/out/
+test/test_*
+test/frames
