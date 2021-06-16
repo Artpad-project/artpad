@@ -233,14 +233,12 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
 
 void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
-
     int val = gtk_adjustment_get_value(ui->zoom_value);
     if (event->direction  == GDK_SCROLL_DOWN && val > 100)
     	    gtk_adjustment_set_value(ui->zoom_value,val-5);
 	   
     if (event->direction == GDK_SCROLL_UP && val < 200)
 	    gtk_adjustment_set_value(ui->zoom_value,val+5);
-    
 }
 
 
@@ -355,6 +353,7 @@ int main ()
 
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
     GtkButton* Redo_button = GTK_BUTTON(gtk_builder_get_object(builder, "Redo"));
+
     GtkAdjustment* zoom_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "zoom_value"));  
 
 //------------------------------- LAYERS -------------------------------------//
