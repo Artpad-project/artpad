@@ -6,7 +6,7 @@
 typedef struct queue
 {
     // image.
-    Image img;
+    Image *img;
 
     // Pointer to the next element.
     struct queue *next;
@@ -16,13 +16,13 @@ typedef struct queue
 // start = Starting address of the queue.
 // val = Value to push.
 // Returns the new starting address of the queue.
-queue* queue_push(queue* start, Image img);
+queue* queue_push(queue* start, Image *img);
 
 // Pops a value off a queue.
 // start = Starting address of the queue.
 // pval = Pointer used to return the value.
 // Returns the new starting address of the queue.
-queue* queue_pop(queue* start, Image *img);
+queue* queue_pop(queue* start, Image **img);
 
 // Removes all the elements of a queue.
 // pstart = Address that contains the starting address of the queue.

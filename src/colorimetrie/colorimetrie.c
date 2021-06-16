@@ -2,17 +2,21 @@
 #include <err.h>
 #include "../../include/colorimetrie.h"
 #include "../../include/image.h"
-#include "../../include/stack.h"
 #include <math.h>
 
 typedef struct coord coord;
 
 char same_color(struct Pixel px, struct Pixel origin, int acceptance)
 {
-    acceptance = 255 / (101 - acceptance);
+    acceptance = 255*acceptance / 100;
     return  ABS(origin.red - px.red) <= acceptance &&
             ABS(origin.green - px.green) <= acceptance &&
             ABS(origin.blue - px.blue) <= acceptance;
+}
+
+char filled(struct Pixel px, struct Pixel origin)
+{
+  return same_color(px, origin, 0);
 }
 
 void colorize(struct Image *img, struct Pixel color, int x, int y)
@@ -37,35 +41,107 @@ void copy_buffer(struct Image *img, struct Image *buffer, struct coord origin)
         colorize(img, buffer->pixels[i][j], origin.x+i, origin.y+j);
 }
 
+/* content for scanlines but overfills
+          if (!flag && !same_color(img->pixels[x][y+1], px, acceptance))
+            flag = 1;
+
+          if (flag && same_color(img->pixels[x][y+1], px, acceptance))
+          {
+            struct coord new_c = {x, y+1};
+            stack_push(s, new_c);
+            flag = 0;
+          }
+
+          flag = 0;
+
+          if (!flag && !same_color(img->pixels[x][y-1], px, acceptance))
+            flag = 1;
+
+          if (flag && same_color(img->pixels[x][y-1], px, acceptance))
+          {
+            struct coord new_c = {x, y-1};
+            stack_push(s, new_c);
+            flag = 0;
+          }
+
+
+          x+=1;
+*/
+
 void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int acceptance)
 {
   int x = origin.x;
   int y = origin.y;
-  g_print("%d,%d\n",x,y);
   struct Pixel px = img->pixels[x][y];
 
   if (acceptance < 100 && same_color(px, color, acceptance))
     return;
 
-  stack *s = new_stack();
+  ff_stack *s = new_stack();
 
-  stack_push(s, origin);
+  struct ff_coord first = {x, x, y, 1};
+  struct ff_coord second = {x, x , y-1, -1};
+
+  stack_push(s, first);
+  stack_push(s, second);
 
   unsigned char *buf = malloc(img->width*img->height);
   memset(buf,0,img->width*img->height);
 
-  struct coord c;
+  struct ff_coord c;
   while(!stack_IsEmpty(s))
   {
       //printf("popping stack\n");
       c = stack_pop(s);
-      x = c.x;
-      y = c.y;
-
+      int x1 = c.x1;
+      int x2 = c.x2;
+      int y = c.y;
+      char dy = c.dy;
+      
       if (buf[y*img->width+x])
         continue;
       buf[y*img->width+x] = 1;
 
+      int x = x1;
+      if (IsInside(img, x, y))
+      {
+        while (x-1 >= 0 && same_color(img->pixels[x-1][y], px, acceptance))
+        {
+          colorize(img, color, x, y);
+          x -= 1;
+        }
+      }
+
+      if (x < x1)
+      {
+        struct ff_coord new_c = {x, c.x1-1, y-dy, -dy};
+        stack_push(s, new_c);
+      }
+
+      while (x1 < x2)
+      {
+        while(x1 <= img->width && same_color(img->pixels[x1+1][y], px, acceptance))
+        {
+          colorize(img, color, x1, y);
+          x1 += 1;
+        }
+
+        struct ff_coord new_c = {x, x1 -1, y+dy, dy};
+        stack_push(s, new_c);
+
+        if (x1-1 > x2)
+        {
+          struct ff_coord new_c = {x2+1, x1-1, y-dy, -dy};
+          stack_push(s, new_c);
+        }
+
+        while (x1<x2 && x1 < img->width && !filled(img->pixels[x1+1][y], px))
+          x1 += 1;
+
+        x = x1;
+      }
+
+      /*
       //printf("coloring pixel\n");
       colorize(img, color, x, y);
 
@@ -93,6 +169,7 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
           struct coord new_c = {x, y-1};
           stack_push(s, new_c);
       }
+      */
   }
 
   //printf("freeing stack\n");

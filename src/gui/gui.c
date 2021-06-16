@@ -39,6 +39,7 @@ void draw_total_image(gpointer user_data){
 
 	actualise_image(ui->im_zoom,0,0,ui->im_zoom->width,ui->im_zoom->height);
         gtk_image_set_from_pixbuf(ui->area,ui->im_zoom->pb);
+
 }
 void redraw_all(GtkAdjustment *useless,gpointer user_data){
 	UserInterface* ui = user_data;
@@ -113,17 +114,30 @@ void on_save(GtkButton *fc,gpointer user_data){
 
 //ctrl+z function --- POUR LOWEN---a
 void apply_undo(GtkButton *useless,gpointer user_data){
-  
+  UserInterface* ui = user_data;
+
+  temp_layer_undo(ui->currentLayer->tp, &ui->currentLayer->im);
+  //g_print("total number: %d\n", ui->currentLayer->tp->n);
+
+  merge_from_layers(ui->Layers, ui->im);
+  draw_total_image(user_data);
 }
 
 //fonction pour faire ton Redo -- LOWEN ---
 void apply_redo(GtkButton *useless,gpointer user_data){
+  UserInterface* ui = user_data;
+
+  temp_layer_redo(ui->currentLayer->tp, &ui->currentLayer->im);
+
+  merge_from_layers(ui->Layers, ui->im);
+  draw_total_image(user_data);
 }
 
 void apply_eraser(GtkRadioButton *useless,gpointer user_data){
 	UserInterface* ui = user_data;
 	ui->actual_color.alpha = 0;
 	if (ui->last_use == ui->fill){
+
 		ui->tolerance = gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size));
 		gtk_adjustment_set_value (GTK_ADJUSTMENT(ui->draw_size),ui->draw_value);
 
@@ -259,14 +273,12 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
 
 void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
-
     int val = gtk_adjustment_get_value(ui->zoom_value);
     if (event->direction  == GDK_SCROLL_DOWN && val > 100)
     	    gtk_adjustment_set_value(ui->zoom_value,val-5);
 	   
     if (event->direction == GDK_SCROLL_UP && val < 200)
 	    gtk_adjustment_set_value(ui->zoom_value,val+5);
-    
 }
 
 
@@ -279,6 +291,8 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
     if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
         if(event->button == 1 && ui->currentLayer)
         {
+            temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
+
             struct coord src = {xposi, yposi };
             flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
             merge_from_layers(ui->Layers,ui->im);
@@ -381,6 +395,7 @@ int main ()
 
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
     GtkButton* Redo_button = GTK_BUTTON(gtk_builder_get_object(builder, "Redo"));
+
     GtkAdjustment* zoom_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "zoom_value"));  
 
 //------------------------------- LAYERS -------------------------------------//
@@ -484,6 +499,7 @@ int main ()
       .tolerance = 1,
       .nblayers = 0,
       .currentLayer = NULL,
+      .maxLayers = 10,
     };
 
     //ui.im = new_image(500,500);

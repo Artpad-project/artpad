@@ -273,10 +273,12 @@ struct Image *copy_image(Image *origin, Image *copy){
      
     if (!copy)
         return create_copy_image(origin);
+
     if (copy->width != origin->width || copy->height != origin->height)
     	realloc_image(copy,origin->height,origin->width);
     copy->file = origin->file;
     copy->file_type = origin->file_type;
+
     copy->pb = origin->pb;
 
 
