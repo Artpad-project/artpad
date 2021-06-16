@@ -8,7 +8,7 @@ queue* queue_push(queue* start, Image *img)
     if (q == NULL)
         errx(1, "queue.c: couldn't create new queue");
 
-    q->img = create_copy_image(img);
+    q->img = img;
     if (start == NULL)
     {
         q->next = q;

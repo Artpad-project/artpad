@@ -102,7 +102,35 @@ void on_save(GtkButton *fc,gpointer user_data){
 	path ++;
 	g_print("%s.%s\n",path,ui->im->file_type);
 	
-	save_image(ui->im,path,NULL);
+  save_image(ui->im,path,NULL);
+        g_free(filename);
+    }
+
+    gtk_widget_destroy(dialog);
+}
+
+void on_export(GtkButton *fc,gpointer user_data){
+    UserInterface* ui = user_data;
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new(
+        "Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
+        GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),TRUE);
+
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), "");
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
+                                      "Untitled document");
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+        char *path;
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	asprintf(&path,"%s",filename);
+	path = strrchr(path,'/');
+	path ++;
+	g_print("%s.%s\n",path,ui->im->file_type);
+	
+  export(ui->im, ui->Layers, ui->nblayers, path);
         g_free(filename);
     }
 
@@ -385,6 +413,7 @@ int main ()
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
     GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));
     GtkButton* saver =  GTK_BUTTON(gtk_builder_get_object(builder, "Save"));
+    GtkButton* exporter =  GTK_BUTTON(gtk_builder_get_object(builder, "Export"));
 
       
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
@@ -549,6 +578,7 @@ int main ()
 
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
     g_signal_connect(saver, "clicked", G_CALLBACK(on_save), &ui);
+    g_signal_connect(exporter, "clicked", G_CALLBACK(on_export), &ui);
 
     //g_signal_connect(window, "key_press_event", G_CALLBACK(on_key_press), &ui);
     //g_signal_connect(window, "key_release_event", G_CALLBACK(on_key_press), &ui);
@@ -585,6 +615,7 @@ int main ()
 		Layer * cur_layer = pop_from_stack(&tmp);
 		//g_print("cur_layer.show : %i\n",cur_layer->show);
 		if(cur_layer)
+      temp_layer_destroy(cur_layer->tp);
 			free_image(cur_layer->im);
 		free(cur_layer);
     	}

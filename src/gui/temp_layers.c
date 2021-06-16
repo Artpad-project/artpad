@@ -10,6 +10,7 @@ void temp_layer_push(temp_layer* tp, int max, Image *img)
     Image *temp = new_image(img->width, img->height);
     tp->layers_z = queue_pop(queue_push(tp->layers_z, new_img), &temp);
     free_image(temp);
+    free(temp);
   }
 
   else
@@ -30,6 +31,8 @@ void temp_layer_undo(temp_layer *tp, Image **curr_img)
   Image *new_img = create_copy_image(*curr_img);
   tp->layers_y = queue_push(tp->layers_y, new_img);
 
+  free_image(*curr_img);
+  free(*curr_img);
   tp->layers_z = queue_pop(tp->layers_z, curr_img);
 
   tp->n-=1;
@@ -44,6 +47,8 @@ void temp_layer_redo(temp_layer *tp, Image **curr_img)
   Image *new_img = create_copy_image(*curr_img);
   tp->layers_z = queue_push(tp->layers_z, new_img);
 
+  free_image(*curr_img);
+  free(*curr_img);
   tp->layers_y = queue_pop(tp->layers_y, curr_img);
   tp->n+=1;
 }
@@ -57,6 +62,7 @@ void temp_layer_update(temp_layer* tp, int max)
     Image *temp;
     tp->layers_z = queue_pop(tp->layers_z, &temp);
     free_image(temp);
+    free(temp);
     tp->n -= 1;
   }
 }

@@ -202,6 +202,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
     {
+      temp_layer_destroy(new->tp);
 	    set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
     	    merge_from_layers(ui->Layers,ui->im);
 	    draw_total_image(user_data);    	    
@@ -447,42 +448,47 @@ void free_layer(Layer* dead){
  */
 
 
-void export(Image *img, Stack *layers, int n)
+void export(Image *img, Stack *layers, int n, char *path)
 {
-  char *buffer;
-  size_t dir_length = 0;
-
   //creates directory
   if (!is_stack_empty(layers))
   {
-    asprintf(&buffer, "draft_%c", img->file);
-    // write permission only
-    if (mkdir(buffer, S_IWRITE) == -1) 
-      errx(EXIT_FAILURE, "couldn't create a directory\n");
+    //asprintf(&buffer, "draft_%c", img->file);
+    // all permissions
+    //struct stat *buf = malloc(sizeof(struct stat));
+    /*if (!stat("draft", buf))
+    {
+        if (mkdir("draft", 0700) == -1) 
+          errx(EXIT_FAILURE, "couldn't create a directory\n");
+    }*/
 
-    dir_length = strlen(buffer);
+    //dir_length = strlen(buffer);
   }
 
   //saves directory
   while(!is_stack_empty(layers))
   {
-    // Attention, ici tu recois une struc Layers, pas une struct Image
-    Image *draft_img = pop_from_stack(&layers);
-    //struct Layer * cur_layer = pop_from_stack(&layers);
-    //struct Image * draft_img = cur_layer->im;
+    char *buffer;
+    struct Layer * cur_layer = pop_from_stack(&layers);
+    struct Image * draft_img = cur_layer->im;
     size_t length = strlen(draft_img->file);
 
     //+1 accounts for the "/" separation
-    char draft_path[length + APPEND_LENGTH + dir_length + 1];
-    strncat(draft_path, buffer, dir_length);
-    strcat(draft_path, "/");
-    strncat(draft_path, img->file, dir_length);
+    //(aborted since cannot create directory)
+    //char draft_path[length + APPEND_LENGTH + dir_length];
+    //strncat(draft_path, buffer, dir_length);
+    //strcat(draft_path, "/");
+    //strncat(draft_path, img->file, dir_length);
+    //strcat(draft_path, img->file);
 
-    asprintf(&buffer, "_layers%d", n);
+
+    char *full_path;
+    //char cwd[PATH_MAX];
+    //getcwd(cwd, sizeof(cwd));
+
+    asprintf(&full_path, "%s_layers%d.%s", path, n, img->file_type);
     n--;
 
-    strcat(draft_path, buffer);
-
-    save_image(draft_img, draft_path, draft_img->file_type);
+    save_image(draft_img, full_path, draft_img->file_type);
   }
 }
