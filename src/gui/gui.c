@@ -77,8 +77,9 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     free_image(ui->currentLayer->im);
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
     if(!ui->im){
-	return;
+	    return;
     }
+
     merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
@@ -103,11 +104,12 @@ void on_save(GtkButton *fc,gpointer user_data){
         char *path;
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	asprintf(&path,"%s",filename);
+
 	//path = strrchr(path,'/');
 	//path ++;
 
-	
 	save_image(ui->im,path,"png");
+
         g_free(filename);
     }
 
@@ -592,28 +594,28 @@ int main ()
     if (ui.im){
 //todo :  fonction de comparaison d'image
     	free_image(ui.im);
-	free(ui.im);
+	    free(ui.im);
     }
     if (ui.im_zoom){
 //todo :  fonction de comparaison d'image
     	free_image(ui.im_zoom);
-	free(ui.im_zoom);
+	    free(ui.im_zoom);
     }
 
 
 
     //todo :  this free is not working 
     if (!is_stack_empty(ui.Layers)){
-    	Stack *tmp = ui.Layers;
-    	while(!is_stack_empty(tmp)){
-		Layer * cur_layer = pop_from_stack(&tmp);
-		//g_print("cur_layer.show : %i\n",cur_layer->show);
-		if(cur_layer){
-			free_image(cur_layer->im);
-		}
+    	  Stack *tmp = ui.Layers;
+    	  while(!is_stack_empty(tmp)){
+            Layer * cur_layer = pop_from_stack(&tmp);*
+		        if(cur_layer){
+			          free_image(cur_layer->im);
+                free(cur_layer->im);
 
-		free(cur_layer);
-    	}
+		        }
+		        free(cur_layer);
+    	  }
 
     }
     free(ui.Layers);

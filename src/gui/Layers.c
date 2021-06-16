@@ -308,7 +308,6 @@ void add_layer(GtkButton *useless,gpointer user_data){
     
     struct Layer *newLayer = malloc(sizeof(struct Layer));
 
-
     if(!ui->im){
 	    newLayer->im = new_image(gtk_adjustment_get_value(ui->width_print),gtk_adjustment_get_value(ui->height_print));
 	    ui->im = create_copy_image(newLayer->im);
