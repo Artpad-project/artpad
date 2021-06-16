@@ -1288,7 +1288,7 @@
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="pixbuf">icons/export.png</property>
+                        <property name="pixbuf">icons/save.png</property>
                       </object>
                     </child>
                   </object>
@@ -1332,7 +1332,7 @@
                         <property name="width-request">-1</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="pixbuf">icons/redo.png</property>
+                        <property name="pixbuf">icons/undo.png</property>
                       </object>
                     </child>
                   </object>

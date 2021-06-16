@@ -54,6 +54,7 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
 }
 
 
+
 void hide_all_layers(GtkButton* buttonuseless, gpointer user_data){
 	UserInterface* ui = user_data;
 	Stack * curlayer = ui->Layers;
@@ -225,12 +226,10 @@ gint trifunc(GtkListBoxRow *row1,GtkListBoxRow *row2,gpointer user_data){
 	UserInterface *ui = user_data;
 	int pos1 =  gtk_list_box_row_get_index (row1);
 	int pos2 =  gtk_list_box_row_get_index (row2);
-	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
-
+	
 	pos1 = get_index_layer(ui->Layers, row1);
 	pos2 = get_index_layer(ui->Layers, row2);
-	g_print("init pos1 : %i , pos2 : %i \n",pos1,pos2);
-	
+		
 	return pos1>pos2 ? 1 : -1;
 }
 
@@ -254,8 +253,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
     GError* err = NULL;
     GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/vue.png",&err);
-    if (buf == NULL)
-	    g_print("deuuuuuh\n");
+
     GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
     gtk_button_set_image(GTK_BUTTON(button),vue);
     g_signal_connect(button, "clicked", G_CALLBACK(show_hide_layer), user_data);
@@ -310,9 +308,6 @@ void add_layer(GtkButton *useless,gpointer user_data){
     
     struct Layer *newLayer = malloc(sizeof(struct Layer));
 
-    //todo : optmise this sheat
-	
-
     if(!ui->im){
 	    newLayer->im = new_image(gtk_adjustment_get_value(ui->width_print),gtk_adjustment_get_value(ui->height_print));
 	    ui->im = create_copy_image(newLayer->im);
@@ -350,7 +345,6 @@ int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
 	int pos = 0;
 
 	if (!is_stack_empty(tmp)){
-		//_print("whaouh\n");
 
 		while (tmp->next != NULL )
     		{
@@ -363,6 +357,9 @@ int get_index_layer(Stack* Layers,GtkListBoxRow * lbr)
 	}
 	return pos;
 }
+
+
+
 
 /*!
  *   give the render of all the selected layers
@@ -377,7 +374,6 @@ void merge_from_layers(Stack* Layers,struct Image* im){
     	 memset(im->pixels[i], 255, im->height*sizeof(struct Pixel));
     }*/
 
-    
     for(int i = 0;i<im->width;i++)
         for(int j = 0;j<im->height;j++){
             im->pixels[i][j].alpha = 0;
@@ -385,15 +381,14 @@ void merge_from_layers(Stack* Layers,struct Image* im){
             im->pixels[i][j].green = 255;
             im->pixels[i][j].red = 255;
         }
-           
-
-    Stack* layers = Layers;
+     
+    layers = Layers;
     while (!is_stack_empty(layers)){
 	    Layer* cur_layer = layers->data;
 	    if (cur_layer->show)
         {    
-		    for(int i = 0;i<im->width;i++){
-			    for(int j = 0;j<im->height;j++){
+		    for(int i = 0;i<cur_layer->im->width;i++){
+			    for(int j = 0;j<cur_layer->im->height;j++){
 			      if (im->pixels[i][j].alpha<255){
 				      int alpha = cur_layer->im->pixels[i][j].alpha;
 				      if (im->pixels[i][j].alpha + alpha > 255)
@@ -423,12 +418,36 @@ void free_layer(Layer* dead){
     if (dead->lbr)
 	gtk_widget_destroy(GTK_WIDGET(dead->lbr));
     if (dead->im){
-    	g_print("je suis la sécurité\n");
 	free_image(dead->im);
 	free(dead->im);
     }
     free(dead);
 
+}
+
+void merge_to_death(Stack* Layers,gpointer user_data ){
+	UserInterface * ui = user_data;
+	Image* test = new_image(ui->im->width,ui->im->height);
+	merge_from_layers(ui->Layers,test);
+	Stack *stack = ui->Layers;
+	Stack *stack_to_free = NULL;
+    	while (stack->next != NULL) {
+        	stack_to_free = stack;
+        	stack = stack->next;
+        	Layer * dead = (Layer*)stack_to_free->data;
+		free_layer(dead);
+        	free(stack_to_free);
+	}
+	ui->Layers = create_stack();
+	ui->nblayers = 0;
+
+	add_layer(NULL,user_data);
+	Layer * cur = ui->Layers->data;
+	free_image(cur->im);
+	cur->im = create_copy_image(test);
+	free_image(ui->im);
+	ui->im = create_copy_image(test);
+		
 }
 
 
