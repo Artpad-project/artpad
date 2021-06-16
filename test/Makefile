@@ -15,7 +15,7 @@ OBJS = $(patsubst %.c,$(BIN_DIR)/%.o,$(SRC))
 all: tests
 tests: $(TESTS)
 
-test_%: $(TEST_BIN_DIR)/%.o build
+test_%: $(TEST_BIN_DIR)/%.o build 
 	@$(CC) $(CFLAGS) $(LDLIB) $(OBJS) $< -o $@
 
 build:
@@ -29,6 +29,7 @@ $(TEST_BIN_DIR)/%.o: src/%.c
 
 clean:
 	@rm -rf $(TESTS) $(TEST_BIN_DIR)
+	@echo cleaned tests
 
 help:
 	@echo "Available tests:"

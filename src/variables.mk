@@ -19,6 +19,7 @@ DRAWING_SRC :=		colorimetrie/stack.c \
 GUI_SRC :=			gui/gui.c \
 
 VIDEO_SRC :=		video/video.c	\
+					video/smooth.c \
 					rotoscopie/rotoscopie_video.c \
 
 SRC :=	$(IMG_SRC) \
