@@ -12,9 +12,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <float.h>
+#include <sys/sysinfo.h>
+#include <pthread.h>
 
-#define BOX_SIZE 5
-#define FLOW_DISTANCE 5
+#define BOX_SIZE 3
+#define FLOW_DISTANCE 3
 
 /*
 
@@ -52,7 +54,7 @@ struct coord compute_vector_flow(Frame f1, int x, int y, Frame f2)
     float sum;
 
     if (x < FLOW_DISTANCE || y < FLOW_DISTANCE ||
-        x >= f1.width - FLOW_DISTANCE || y >= f1.height - FLOW_DISTANCE)
+        x >= f1.width - FLOW_DISTANCE - BOX_SIZE || y >= f1.height - FLOW_DISTANCE - BOX_SIZE)
         return (struct coord) {best_pos.x - x, best_pos.y - y};
 
     for (int dx = -FLOW_DISTANCE; dx < FLOW_DISTANCE; ++dx) {
@@ -76,41 +78,40 @@ struct coord compute_vector_flow(Frame f1, int x, int y, Frame f2)
 }
 
 #define SMOOTH_FACTOR 2
+typedef enum bool {
+    B_TRUE = 1,
+    B_FALSE = 0
+}bool;
 
-Video smooth_video(Video video)
+typedef struct param {
+    Video video;
+    bool start_padding;
+    bool end_padding;
+    int thread;
+}param;
+
+void* smooth_worker(void *args)
 {
-    printf("Entered %s\n", __func__ );
-
-    Video smooth_video;
+    param *params = args;
+    Video smooth_video = params->video;
     Frame f1, f2;
     struct coord vector_flow;
     float t_i = 0.5; // time factor used for interpolation
     int xb, yb;
     int xf, yf;
 
-    smooth_video = video;
-    smooth_video.fps = video.fps * SMOOTH_FACTOR;
-    smooth_video.frame_count = video.frame_count * ((float)smooth_video.fps / (float)video.fps) - 1;
-    smooth_video.frames = malloc(smooth_video.frame_count * sizeof(Frame));
-
-    //TODO: speed this up (please)
-    memset(smooth_video.frames, 0, smooth_video.frame_count * sizeof(Frame));
-    for (int i = smooth_video.frame_count - 1; i >= 0; i -= 2) {
-        Frame *frame = create_copy_image(&video.frames[i/2]);
-        smooth_video.frames[i] = *frame;
-        free(frame);
-    }
-    free_video(video);
-
-
     for (int frame = 0; frame < smooth_video.frame_count-2; frame+=2) {
-        printf("-- processing frame %d/%d\n", 2*frame+1, smooth_video.frame_count);
+        printf("-- [T%d] processing frame %d/%d\n", params->thread, frame/2 + 1, smooth_video.frame_count/2 );
         f1 = smooth_video.frames[frame];
         f2 = smooth_video.frames[frame+2];
-        Image *im = new_image(video.width, video.height);
-        for (int x = 0; x < video.width; ++x) {
-            for (int y = 0; y < video.height; ++y) {
-                printf("(%d,%d) \n", x, y);
+        Image *im = create_copy_image(&smooth_video.frames[frame]);
+        for (int x = 0; x < smooth_video.width; ++x) {
+            for (int y = 0; y < smooth_video.height; ++y) {
+                /*
+                 * [xb,yb] = [x,y] - tiVx,y
+                 * [xf,yf] = [x,y] + (1 - ti)Vx,y
+                 * Fi,x,y = (1 - ti)F0,xb,yb + tiF1,xf,yf
+                 */
                 vector_flow = compute_vector_flow(f1, x, y, f2);
                 xb = x - t_i*vector_flow.x;
                 yb = y - t_i*vector_flow.y;
@@ -122,10 +123,74 @@ Video smooth_video(Video video)
                         im->pixels[x][y]);
             }
         }
-        smooth_video.frames[2*frame] = f1;
-        smooth_video.frames[2*frame+1] = *im;
-        smooth_video.frames[2*(frame+1)] = f2;
+        smooth_video.frames[frame+1] = *im;
         free(im);
+    }
+
+    return (void*)params;
+}
+
+Video smooth_video(Video video)
+{
+    printf("Entered %s\n", __func__ );
+
+    Video smooth_video, excerpt;
+#ifdef NDEBUG
+    int n_threads = 1;
+#else
+    int n_threads = get_nprocs();
+#endif
+    pthread_t threads[n_threads];
+    int frame_count;
+
+    smooth_video = video;
+    smooth_video.fps = video.fps * SMOOTH_FACTOR;
+    smooth_video.frame_count = video.frame_count * SMOOTH_FACTOR - 1;
+    smooth_video.frames = malloc(smooth_video.frame_count * sizeof(Frame));
+
+    frame_count = smooth_video.frame_count / n_threads;
+    excerpt.width = video.width;
+    excerpt.height = video.height;
+    excerpt.fps = smooth_video.fps;
+
+    memset(smooth_video.frames, 0, smooth_video.frame_count * sizeof(Frame));
+    for (int i = smooth_video.frame_count - 1; i >= 0; i -= 2) {
+        smooth_video.frames[i] = video.frames[i/2];
+    }
+    free(video.frames);
+
+    for (int i = 0; i < n_threads; ++i) {
+        param *args = malloc(sizeof(param));
+        args->start_padding = args->end_padding = 0;
+        excerpt.frame_count = frame_count;
+        if (i == n_threads - 1)
+            excerpt.frame_count += smooth_video.frame_count % n_threads;
+        excerpt.frames = &smooth_video.frames[i * frame_count];
+
+        if ((i * frame_count) % 2) {
+            args->start_padding = B_TRUE;
+            excerpt.frame_count += 1;
+            excerpt.frames -= 1;
+        }
+
+        if (i != n_threads - 1 && (i * frame_count + frame_count - 1) % 2) {
+            args->end_padding = B_TRUE;
+            excerpt.frame_count += 1;
+        }
+
+        args->video = excerpt;
+        args->thread = i + 1;
+
+        pthread_create(&threads[i], NULL, smooth_worker, (void*)args);
+        printf("-- Started %s on T%d (frames at Ox%X and of size %d).\n", __func__, i+1, excerpt.frames, excerpt.frame_count);
+    }
+
+    for (int i = 0; i < n_threads; ++i) {
+        param *args;
+        pthread_join(threads[i], (void**)&args);
+
+        printf("-- T%d finished (frames at Ox%X and of size %d).\n", i+1, args->video.frames, args->video.frame_count);
+        free(args);
     }
 
     return smooth_video;
