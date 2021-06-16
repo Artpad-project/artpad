@@ -10,7 +10,8 @@ IMG_SRC := 			image/image.c \
 					puissancen/PuissanceN.c \
 					rotation/Rotation.c \
 					utils/utils.c \
-					utils/queue.c 
+					utils/queue.c \
+					rotoscopie/rotoscopie.c 
 					
 
 
@@ -23,7 +24,7 @@ GUI_SRC :=			gui/gui.c \
 					gui/image_tools.c
 				
 
-VIDEO_SRC :=		video/video.c	
+VIDEO_SRC :=		video/video.c
 
 SRC :=	$(IMG_SRC) \
 		$(GUI_SRC) \

@@ -28,10 +28,14 @@ void prepare_drawarea(gpointer user_data){
     gtk_widget_set_size_request (GTK_WIDGET(ui->area),(gint) ui->im->width, (gint)ui->im->height);
 }
 
+
 	
 
 void draw_total_image(gpointer user_data){
         UserInterface* ui = user_data;
+	if (!ui->im && !ui->currentLayer){
+		return;
+	}
 	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
 
 	free_image(ui->im_zoom);
@@ -69,11 +73,12 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
     gtk_adjustment_set_value(ui->width_print,new->width);
     gtk_adjustment_set_value(ui->height_print,new->height);
     free_image(new);
-    if (!ui->currentLayer){
-	    add_layer(NULL,user_data);
-    }
+    add_layer(NULL,user_data);
     free_image(ui->currentLayer->im);
     ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
+    if(!ui->im){
+	return;
+    }
     merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
@@ -98,11 +103,11 @@ void on_save(GtkButton *fc,gpointer user_data){
         char *path;
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	asprintf(&path,"%s",filename);
-	path = strrchr(path,'/');
-	path ++;
-	g_print("%s.%s\n",path,ui->im->file_type);
+	//path = strrchr(path,'/');
+	//path ++;
+
 	
-	save_image(ui->im,path,NULL);
+	save_image(ui->im,path,"png");
         g_free(filename);
     }
 
@@ -288,16 +293,32 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
     
-    if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+    if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height)
         if(event->button == 1 && ui->currentLayer)
         {
-            temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
+ 		    temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
-            struct coord src = {xposi, yposi };
-            flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-            merge_from_layers(ui->Layers,ui->im);
-	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+		    struct coord src = {xposi, yposi };
+		    flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		    merge_from_layers(ui->Layers,ui->im);
+		    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+		    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+
+	    }
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->rotoscopie))){
+		    Image * res = new_image(ui->im->width,ui->im->height);
+		    merge_from_layers(ui->Layers, res);
+
+		    ImageMask mask = magic_wand(res, xposi, yposi);
+		    add_layer(NULL, user_data);
+		    free_image(ui->currentLayer->im);
+		    ui->currentLayer->im = create_copy_image(mask.mask);
+
+		    merge_from_layers(ui->Layers,ui->im);
+		    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+		    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	    }
         }
     
 }
@@ -450,6 +471,8 @@ int main ()
     //GtkRadioButton* pencil = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "pencil"));
     GtkRadioButton* flood_fill = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "fill"));
     GtkRadioButton* eraser = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "eraser"));
+    GtkRadioButton* rotoscopie = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "rotoscopie"));
+
 
     GtkRadioButton* brush1 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush1"));
     GtkRadioButton* brush2 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush2"));
@@ -493,6 +516,7 @@ int main ()
       .brush2 = brush2,
       .brush3 = brush3,
       .last_use = brush1,
+      .rotoscopie = rotoscopie,
 
       .draw_size = draw_size,
       .draw_value  = 1,
@@ -584,8 +608,10 @@ int main ()
     	while(!is_stack_empty(tmp)){
 		Layer * cur_layer = pop_from_stack(&tmp);
 		//g_print("cur_layer.show : %i\n",cur_layer->show);
-		if(cur_layer)
+		if(cur_layer){
 			free_image(cur_layer->im);
+		}
+
 		free(cur_layer);
     	}
 

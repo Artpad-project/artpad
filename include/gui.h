@@ -21,6 +21,7 @@
 #include "Flip.h"
 #include "Layers.h"
 #include "temp_layer.h"
+#include "rotoscopie.h"
 
 typedef struct UserInterface
 {
@@ -63,6 +64,8 @@ typedef struct UserInterface
     GtkRadioButton* brush1;
     GtkRadioButton* brush2;
     GtkRadioButton* brush3;
+    GtkRadioButton* rotoscopie;
+
    
     GtkRadioButton* last_use;
     GtkAdjustment *draw_size;
@@ -107,6 +110,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
 void destroy_layer(GtkButton *button,gpointer user_data);
 void add_layer(GtkButton *useless,gpointer user_data);
 void free_layer(Layer* dead);
+void merge_to_death(Stack* Layers,gpointer user_data);
 
 
 
