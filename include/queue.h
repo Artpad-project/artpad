@@ -6,7 +6,7 @@
 typedef struct queue
 {
     // image.
-    Image img;
+    Image *img;
 
     // Pointer to the next element.
     struct queue *next;

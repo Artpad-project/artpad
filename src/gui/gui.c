@@ -92,14 +92,19 @@ void on_save(GtkFileChooser *fc,gpointer user_data){
 void apply_undo(GtkButton *useless,gpointer user_data){
   UserInterface* ui = user_data;
 
-  temp_layer_undo(ui->currentLayer->tp, ui->im);
+  temp_layer_undo(ui->currentLayer->tp, ui->currentLayer->im);
+  g_print("total number: %d\n", ui->currentLayer->tp->n);
+  merge_from_layers(ui->Layers, ui->im);
+  draw_total_image(user_data);
 }
 
 //fonction pour faire ton Redo -- LOWEN ---
 void apply_redo(GtkButton *useless,gpointer user_data){
   UserInterface* ui = user_data;
 
-  temp_layer_redo(ui->currentLayer->tp, ui->im);
+  temp_layer_redo(ui->currentLayer->tp, ui->currentLayer->im);
+  merge_from_layers(ui->Layers, ui->im);
+  draw_total_image(user_data);
 }
 
 void apply_eraser(GtkRadioButton *useless,gpointer user_data){
@@ -256,7 +261,7 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
     if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
         if(event->button == 1 && ui->currentLayer)
         {
-            temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+            temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
             struct coord src = {xposi, yposi };
             flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));

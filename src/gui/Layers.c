@@ -347,7 +347,6 @@ void merge_from_layers(Stack* Layers,struct Image* im){
     Stack* layers = Layers;
     while (!is_stack_empty(layers)){
 	    Layer* cur_layer = layers->data;
-      temp_layer_destroy(cur_layer->tp);
 	    if (cur_layer->show)
         {    
 		    for(int i = 0;i<im->width;i++){

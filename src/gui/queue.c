@@ -30,11 +30,13 @@ queue* queue_pop(queue* start, Image *img)
   *img = q->img;
   if (q->next == q)
   {
+    free_image(q->img);
     free(q);
     return NULL;
   }
 
   start->next = q->next;
+  free_image(q->img);
   free(q);
   return start;
 }

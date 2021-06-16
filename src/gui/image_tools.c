@@ -10,9 +10,9 @@ void apply_auto_color_balance(GtkButton *button,gpointer user_data){
    
     if (ui->im){
         
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
-        BalanceAuto(ui->im);
+        BalanceAuto(ui->currentLayer->im);
 
         draw_total_image(user_data);
     }
@@ -30,9 +30,9 @@ void apply_color_balance(GtkButton *button,gpointer user_data){
     //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->CB_value)));
    
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
-        BalanceAbsolue(ui->im,gtk_adjustment_get_value(ui->CB_value));
+        BalanceAbsolue(ui->currentLayer->im,gtk_adjustment_get_value(ui->CB_value));
 
         draw_total_image(user_data);
     }
@@ -44,10 +44,10 @@ void apply_saturation(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
         // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-        SaturationAbsolue(ui->im,gtk_adjustment_get_value(ui->SAT_value));
+        SaturationAbsolue(ui->currentLayer->im,gtk_adjustment_get_value(ui->SAT_value));
 
         draw_total_image(user_data);
     }
@@ -59,10 +59,10 @@ void apply_brightness(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
         // g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-        Contrast(ui->im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
+        Contrast(ui->currentLayer->im,gtk_adjustment_get_value(ui->CON_value),gtk_adjustment_get_value(ui->BRI_value));
 
 	draw_total_image(user_data);
     }
@@ -76,11 +76,12 @@ void apply_rotation(GtkButton *button,gpointer user_data){
     //free_image(im);
     if (ui->im){
 
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-         Rotate(ui->im,(float)gtk_adjustment_get_value(ui->ROT_value));
+         Rotate(ui->currentLayer->im,(float)gtk_adjustment_get_value(ui->ROT_value));
 
+         merge_from_layers(ui->Layers, ui->im);
         draw_total_image(user_data);
     }
 }
@@ -93,10 +94,10 @@ void apply_rot_right(GtkButton *button,gpointer user_data){
 
     //free_image(im);
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-        Rotate(ui->im,(float)90);
+        Rotate(ui->currentLayer->im,(float)90);
 
         draw_total_image(user_data);
 
@@ -109,10 +110,10 @@ void apply_rot_left(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
          //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-        Rotate(ui->im,(float)-90);
+        Rotate(ui->currentLayer->im,(float)-90);
         draw_total_image(user_data);
     }
 }
@@ -123,10 +124,10 @@ void apply_flip_hori(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-        FlipHorizon(ui->im);
+        FlipHorizon(ui->currentLayer->im);
         draw_total_image(user_data);
     }
 }
@@ -137,10 +138,10 @@ void apply_flip_vert(GtkButton *button,gpointer user_data){
     UserInterface* ui = user_data;
     //free_image(im);
     if (ui->im){
-        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->im);
+        temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
-        FlipVertical(ui->im);
+        FlipVertical(ui->currentLayer->im);
         draw_total_image(user_data);
     }
 }

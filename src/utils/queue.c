@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "../../include/queue.h"
 
-queue* queue_push(queue* start, Image img)
+queue* queue_push(queue* start, Image *img)
 {
   queue* q = malloc(sizeof(queue));
   if (q == NULL)
@@ -21,22 +21,28 @@ queue* queue_push(queue* start, Image img)
   return q;
 }
 
+//dont forget, here it functions as a stack
 queue* queue_pop(queue* start, Image *img)
 {
   if (start == NULL)
     return NULL;
 
   queue *q = start->next;
-  *img = q->img;
+  while (q->next != start)
+    q = q->next;
+
+  img = start->img;
   if (q->next == q)
   {
+    free_image(q->img);
     free(q);
     return NULL;
   }
 
-  start->next = q->next;
-  free(q);
-  return start;
+  q->next = start->next;
+  free_image(start->img);
+  free(start);
+  return q;
 }
 
 void queue_empty(queue** pstart)
