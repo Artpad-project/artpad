@@ -31,10 +31,11 @@ typedef struct Layer
     int relativxpos;
     int relativypos;
     GtkListBoxRow * lbr;
+    GtkButton * button;
 }Layer;
 
 int get_index_layer(Stack* Layers,GtkListBoxRow * lbr);
-
+void apply_to_all_layers(void (*function)(void*,void*),void* arg1,void* arg2,Stack * Layers);
 void export(Image *img, Stack *layers, int n);
 
 #endif  //LAYERS_H_

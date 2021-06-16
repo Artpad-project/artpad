@@ -190,17 +190,13 @@ void
 free_image(struct Image *image) {
     if(image){
     	for (int x = 0; x < image->width; ++x)
-            
-	     free(image->pixels[x]);
+          free(image->pixels[x]);
     	free(image->pixels);
     	if (image->file)
-		free(image->file);
-    	if (image->file_type){
-		g_print("image filetype = %s\n",image->file_type);
-		free(image->file_type);
-	}
+		      free(image->file);
+    	if (image->file_type)
+		      free(image->file_type);
     	free(image);
-
     }
 }
 
