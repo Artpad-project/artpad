@@ -2,6 +2,7 @@
 *.d
 
 # Object files
+**/build/
 *.o
 
 # Libraries
@@ -10,20 +11,21 @@
 *.la
 *.lo
 
-# Executables
+# Exectables
 *.out
 artpad
-result
-Test
-test
-gui
 
 # Images
-*.jpg
-*.png
-*.jpeg
+src/*.jpg
+src/*.png
+src/*.jpeg
+src/*.mp4
 
 # IDE settings
-.vscode/settings.json
-/.idea/.gitignore
-/src/.idea
+.idea
+.vscode
+
+# TEST OUTPUTS
+test/out/
+test/test_*
+test/frames

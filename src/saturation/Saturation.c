@@ -1,4 +1,4 @@
-#include "Saturation.h"
+#include "../../include/Saturation.h"
 #include <math.h>
 
 double max(double x, double y);
@@ -127,7 +127,7 @@ double absolu(double x)
 int Cap(double x)
 {
   if(x<0)return 0;
-  if(x>255)return 0;
+  if(x>255)return 255;
   return (int)x;
 }
 
