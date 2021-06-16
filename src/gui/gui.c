@@ -97,7 +97,7 @@ void on_save(GtkButton *fc,gpointer user_data){
         char *filename;
         char *path;
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-	asprintf(&path,"%s",filename);
+	asprintf(&path,"%s.%s",filename, ui->im->file_type);
 	path = strrchr(path,'/');
 	path ++;
 	g_print("%s.%s\n",path,ui->im->file_type);
@@ -316,20 +316,40 @@ void mouse_clicked(GtkEventBox* eb,GdkEventButton *event,gpointer user_data){
 	int xposi = -ui->xpos + ui->xmouse;
 	int yposi = -ui->ypos + ui->ymouse;
     
-    if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill)))
+    if(ui->currentLayer && xposi >= 0  && xposi < ui->currentLayer->im->width && yposi>=0 && yposi < ui->currentLayer->im->height)
         if(event->button == 1 && ui->currentLayer)
         {
-            temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->fill))){
+ 		    temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
 
-            struct coord src = {xposi, yposi };
-            flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
-            merge_from_layers(ui->Layers,ui->im);
-	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+		    struct coord src = {xposi, yposi };
+		    flood_fill(ui->currentLayer->im,ui->actual_color,src,gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->draw_size)));
+		    merge_from_layers(ui->Layers,ui->im);
+		    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+		    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+
+	    }
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ui->rotoscopie))){
+ 		    temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
+		    Image * res = new_image(ui->im->width,ui->im->height);
+		    merge_from_layers(ui->Layers, res);
+
+		    ImageMask mask = magic_wand(res, xposi, yposi);
+		    add_layer(NULL, user_data);
+		    free_image(ui->currentLayer->im);
+		    ui->currentLayer->im = create_copy_image(mask.mask);
+
+		    merge_from_layers(ui->Layers,ui->im);
+		    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
+		    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	    }
+      else
+      {
+ 		    temp_layer_push(ui->currentLayer->tp, ui->maxLayers, ui->currentLayer->im);
+      }
         }
     
 }
-
 //on mouse moved for drawing (pencil)
 void mouse_moved(GtkEventBox* eb,GdkEventMotion *event,gpointer user_data){
     UserInterface *ui = user_data;
@@ -484,6 +504,8 @@ int main ()
     GtkRadioButton* brush2 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush2"));
     GtkRadioButton* brush3 = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "brush3"));
 
+    GtkRadioButton* rotoscopie = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "rotoscopie"));
+
 
     struct Pixel pixel = {0,0,0,255};
 
@@ -522,6 +544,7 @@ int main ()
       .brush2 = brush2,
       .brush3 = brush3,
       .last_use = brush1,
+      .rotoscopie = rotoscopie,
 
       .draw_size = draw_size,
       .draw_value  = 1,
@@ -617,6 +640,7 @@ int main ()
 		if(cur_layer)
       temp_layer_destroy(cur_layer->tp);
 			free_image(cur_layer->im);
+      free(cur_layer->im);
 		free(cur_layer);
     	}
 

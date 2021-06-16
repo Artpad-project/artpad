@@ -388,7 +388,7 @@ void merge_from_layers(Stack* Layers,struct Image* im){
             im->pixels[i][j].red = 255;
         }
      
-    layers = Layers;
+    Stack *layers = Layers;
     while (!is_stack_empty(layers)){
 	    Layer* cur_layer = layers->data;
 	    if (cur_layer->show)
