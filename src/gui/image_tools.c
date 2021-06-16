@@ -81,7 +81,6 @@ void apply_rotation(GtkButton *button,gpointer user_data){
         //g_print("%f\n",gtk_adjustment_get_value (GTK_ADJUSTMENT(ui->SAT_value)));
          Rotate(ui->currentLayer->im,(float)gtk_adjustment_get_value(ui->ROT_value));
 
-         merge_from_layers(ui->Layers, ui->im);
         draw_total_image(user_data);
     }
 }
