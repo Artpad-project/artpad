@@ -15,6 +15,7 @@ struct Image*
 rescale_image(struct Image *im, int percentscale){
     int newwidth = im->width * percentscale/100;
     int newheight = im->height * percentscale/100;
+    g_print("new w/g = %i,%i \n",newwidth,newheight);
     GdkPixbuf * newbuf;
     if(!(newbuf = gdk_pixbuf_scale_simple(im->pb,newwidth,newheight,GDK_INTERP_BILINEAR)))
             err(0,"ERROR: image_scaling.c - rescale_image : couldn't rescale the pixbuf");
