@@ -137,6 +137,7 @@ void flood_fill(struct Image *img, struct Pixel color, struct coord origin, int 
 
         while (x1<x2 && x1 < img->width && !filled(img->pixels[x1+1][y], px))
           x1 += 1;
+
         x = x1;
       }
 

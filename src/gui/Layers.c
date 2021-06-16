@@ -317,6 +317,11 @@ void add_layer(GtkButton *useless,gpointer user_data){
     else
     	newLayer->im = new_image(ui->im->width,ui->im->height);
 
+    newLayer->tp = malloc(sizeof(struct temp_layer));
+    newLayer->tp->layers_y = NULL;
+    newLayer->tp->layers_z = NULL;
+    newLayer->tp->n = 0;
+
     newLayer->show = 1;
     newLayer-> lbr = nbr;
     newLayer->button = GTK_BUTTON(button);
