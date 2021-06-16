@@ -11,8 +11,11 @@
 
 #include <gtk/gtk.h>
 #include "image.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <err.h>
+#include "temp_layer.h"
+
 
 #define Hide 0
 #define Show 1
@@ -22,12 +25,22 @@ typedef struct AllLayers{
 
 }*/
 
-typedef struct Layer{
-	Image * image; 
-	int pos ;
-	int mode;
-};
 
-int test();
+typedef struct Layer 
+{
+    struct Image *im;
+    int show;
+    int relativxpos;
+    int relativypos;
+    GtkListBoxRow * lbr;
+    GtkButton * button;
+
+    temp_layer *tp;
+}Layer;
+
+int get_index_layer(Stack* Layers,GtkListBoxRow * lbr);
+void apply_to_all_layers(void (*function)(void*,void*),void* arg1,void* arg2,Stack * Layers);
+void export(Image *img, Stack *layers, int n, char *path);
+
 
 #endif  //LAYERS_H_

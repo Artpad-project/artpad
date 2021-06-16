@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <err.h>
 
+
 // image.c
 
 #define DIF_MAX(a,b) (a < b) ? b-a : a-b
@@ -68,6 +69,7 @@ typedef struct Pixel Pixel;
 struct Image *new_image(int width,int height);
 struct Image *copy_image(Image *src, Image *dst);
 struct Image *create_copy_image(Image *src);
+
 
 struct Image *load_image_from_pixbuf(GdkPixbuf *pb);
 struct Image *load_image(char *path);

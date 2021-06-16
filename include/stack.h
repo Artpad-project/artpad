@@ -17,7 +17,7 @@ struct coord
     size_t y;
 };
 
-typedef  struct stack
+typedef struct stack
 {
     size_t capacity;
     size_t size;

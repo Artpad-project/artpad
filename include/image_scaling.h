@@ -4,6 +4,6 @@
 
 #include "image.h"
  
-struct Image* rescale_image(struct Image *im, int percentscale);
+struct Image * rescale_image(struct Image *im, int percentscale);
 #endif 
 

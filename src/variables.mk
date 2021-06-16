@@ -10,13 +10,19 @@ IMG_SRC := 			image/image.c \
 					puissancen/PuissanceN.c \
 					rotation/Rotation.c \
 					utils/utils.c \
-					rotoscopie/rotoscopie.c \
+					utils/queue.c \
+					rotoscopie/rotoscopie.c 
+					
 
 
 DRAWING_SRC :=		colorimetrie/stack.c \
-					colorimetrie/colorimetrie.c \
+					colorimetrie/flood_fill_stack.c\
+					colorimetrie/colorimetrie.c
 
 GUI_SRC :=			gui/gui.c \
+					gui/temp_layers.c \
+					gui/Layers.c \
+					gui/image_tools.c
 
 VIDEO_SRC :=		video/video.c	\
 					video/smooth.c \
