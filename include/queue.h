@@ -22,7 +22,7 @@ queue* queue_push(queue* start, Image *img);
 // start = Starting address of the queue.
 // pval = Pointer used to return the value.
 // Returns the new starting address of the queue.
-queue* queue_pop(queue* start, Image *img);
+queue* queue_pop(queue* start, Image **img);
 
 // Removes all the elements of a queue.
 // pstart = Address that contains the starting address of the queue.

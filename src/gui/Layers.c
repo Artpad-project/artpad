@@ -161,6 +161,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
     {
+        temp_layer_destroy(new->tp);
 	    set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
     	    merge_from_layers(ui->Layers,ui->im);
     	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);

@@ -36,7 +36,6 @@ void draw_total_image(gpointer user_data){
         UserInterface* ui = user_data;
 	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
 
-  //pushes onto the z queue before changes
 	ui->im_zoom = rescale_image(ui->im,gtk_adjustment_get_value(ui->zoom_value));
 
 	actualise_image(ui->im_zoom,0,0,ui->im_zoom->width,ui->im_zoom->height);
@@ -92,8 +91,9 @@ void on_save(GtkFileChooser *fc,gpointer user_data){
 void apply_undo(GtkButton *useless,gpointer user_data){
   UserInterface* ui = user_data;
 
-  temp_layer_undo(ui->currentLayer->tp, ui->currentLayer->im);
-  g_print("total number: %d\n", ui->currentLayer->tp->n);
+  temp_layer_undo(ui->currentLayer->tp, &ui->currentLayer->im);
+  //g_print("total number: %d\n", ui->currentLayer->tp->n);
+
   merge_from_layers(ui->Layers, ui->im);
   draw_total_image(user_data);
 }
@@ -102,7 +102,8 @@ void apply_undo(GtkButton *useless,gpointer user_data){
 void apply_redo(GtkButton *useless,gpointer user_data){
   UserInterface* ui = user_data;
 
-  temp_layer_redo(ui->currentLayer->tp, ui->currentLayer->im);
+  temp_layer_redo(ui->currentLayer->tp, &ui->currentLayer->im);
+
   merge_from_layers(ui->Layers, ui->im);
   draw_total_image(user_data);
 }
