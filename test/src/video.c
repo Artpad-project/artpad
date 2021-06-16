@@ -6,6 +6,8 @@
 int main(int argc, char *argv[])
 {
     Video video;
+    int frame_count;
+    char title[512];
 
     if (argc != 7)
         err(1, "Usage: ./video 'video_file' width height fps x y\n");
@@ -14,11 +16,13 @@ int main(int argc, char *argv[])
     int percent = 0;
 
     // https://drive.google.com/open?id=0B3NaVR72FYQcWUFSUVhKWE5UMVU
-    // Local: "teapot.png" 1280 720 25 600 300
+    // Local: "teapot.png" 1280 720 30 600 300
     video = create_video(argv[1], atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
-    save_video(video, "output.mp4");
 
-    //free_video(video);
+    sprintf(title,  "out/test_video_%d.mp4", video.frame_count);
+    save_video(video, title);
+
+    free_video(video);
 
     return 0;
 }

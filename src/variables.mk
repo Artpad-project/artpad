@@ -19,6 +19,7 @@ DRAWING_SRC :=		colorimetrie/stack.c \
 GUI_SRC :=			gui/gui.c \
 
 VIDEO_SRC :=		video/video.c	\
+					video/smooth.c \
 					rotoscopie/rotoscopie_video.c \
 
 SRC :=	$(IMG_SRC) \
@@ -39,6 +40,7 @@ GTKFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 ## FLAGS
 CC = gcc -g -fsanitize=address
 CPPFLAGS =
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas $(GTKFLAGS)
+CFLAGS_IGNORE = -Wno-unused-parameter -Wno-unknown-pragmas -Wno-format
+CFLAGS = -Wall -Wextra $(CFLAGS_IGNORE) $(GTKFLAGS)
 LDLIB =  $(GTKLIBS) -I$(L_LIBALGO) -ldl -lm
 
