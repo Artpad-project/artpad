@@ -16,12 +16,10 @@
 
 
 // Structure of the graphical user interface.
-void add_layer(GtkButton *useless,gpointer user_data);
-void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data);
 
 
 
-enum mode {IMAGE_TOOLS = 1,DRAW =2};
+//enum mode {IMAGE_TOOLS = 1,DRAW =2};
 
 //prepare to draw 
 void prepare_drawarea(gpointer user_data){
@@ -36,6 +34,7 @@ void draw_total_image(gpointer user_data){
         UserInterface* ui = user_data;
 	actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
 
+	free_image(ui->im_zoom);
 	ui->im_zoom = rescale_image(ui->im,gtk_adjustment_get_value(ui->zoom_value));
 
 	actualise_image(ui->im_zoom,0,0,ui->im_zoom->width,ui->im_zoom->height);
@@ -57,7 +56,7 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 		col->alpha = 0;
 		gtk_color_chooser_get_rgba(cc,col);
 		ui->actual_color = pixel_from_GdkRGBA(col);
-		g_print("color : %i,%i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue,ui->actual_color.alpha);
+		//g_print("color : %i,%i,%i,%i\n",ui->actual_color.red,ui->actual_color.green,ui->actual_color.blue,ui->actual_color.alpha);
 		gdk_rgba_free(col);
 	}
 }
@@ -246,11 +245,15 @@ void set_new_height(GtkAdjustment *buffer,gpointer user_data){
 }*/
 
 
-void scroll_callback(GdkEventScroll* event, gpointer user_data){
+void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
-    g_print("c'est la merguez\n");
-      
-  }
+    int val = gtk_adjustment_get_value(ui->zoom_value);
+    if (event->direction  == GDK_SCROLL_DOWN && val > 100)
+    	    gtk_adjustment_set_value(ui->zoom_value,val-5);
+	   
+    if (event->direction == GDK_SCROLL_UP && val < 200)
+	    gtk_adjustment_set_value(ui->zoom_value,val+5);
+}
 
 
 //on mouse click detected for drawing (flood_fill)
@@ -363,12 +366,17 @@ int main ()
     GtkAdjustment* print_height_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "height_value"));  
     
     GtkAdjustment* draw_size =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "draw_size"));  
-    GtkListBox * layers = GTK_LIST_BOX(gtk_builder_get_object(builder,"Layers"));
+
     GtkButton* UNDO_button = GTK_BUTTON(gtk_builder_get_object(builder, "Undo"));
     GtkButton* Redo_button = GTK_BUTTON(gtk_builder_get_object(builder, "Redo"));
-    GtkButton* add_layer_button = GTK_BUTTON(gtk_builder_get_object(builder, "add_layer"));
 
     GtkAdjustment* zoom_value =  GTK_ADJUSTMENT(gtk_builder_get_object(builder, "zoom_value"));  
+
+//------------------------------- LAYERS -------------------------------------//
+    GtkListBox * layers = GTK_LIST_BOX(gtk_builder_get_object(builder,"Layers"));
+    GtkButton* add_layer_button = GTK_BUTTON(gtk_builder_get_object(builder, "add_layer"));
+    GtkButton* show_all_layers_button = GTK_BUTTON(gtk_builder_get_object(builder, "show_all_layers"));
+    GtkButton* hide_all_layers_button = GTK_BUTTON(gtk_builder_get_object(builder, "hide_all_layers"));
 
 
 // ------------------------------ DRAWING ------------------------------------//
@@ -377,7 +385,7 @@ int main ()
 
  
     GtkEventBox *eb_draw = GTK_EVENT_BOX(gtk_builder_get_object(builder, "pepa_humain"));
-    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );   
+    gtk_widget_add_events( GTK_WIDGET(eb_draw), GDK_SCROLL_MASK );
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_POINTER_MOTION_MASK);
     gtk_widget_add_events(GTK_WIDGET(eb_draw),GDK_KEY_PRESS_MASK);
     
@@ -489,6 +497,10 @@ int main ()
     g_signal_connect(ROTLEFT_button,"clicked", G_CALLBACK(apply_rot_left), &ui);
     g_signal_connect(FLIPVERT_button,"clicked", G_CALLBACK(apply_flip_vert), &ui);
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
+    g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
+    g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);  
+
+    g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
 
     g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
 
@@ -503,10 +515,12 @@ int main ()
     g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
     g_signal_connect(Redo_button,"clicked", G_CALLBACK(apply_redo), &ui);
 
-    g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
-    g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);   
+ 
 
     g_signal_connect(add_layer_button, "clicked", G_CALLBACK(add_layer), &ui);
+
+    g_signal_connect(hide_all_layers_button,"clicked", G_CALLBACK(hide_all_layers), &ui);
+    g_signal_connect(show_all_layers_button,"clicked", G_CALLBACK(show_all_layers), &ui);
 
 
     g_signal_connect(loader, "file_set", G_CALLBACK(on_load), &ui);
@@ -518,7 +532,7 @@ int main ()
     g_signal_connect(eb_draw, "motion-notify-event",G_CALLBACK (mouse_moved), &ui);
     g_signal_connect(eb_draw, "button_press_event",G_CALLBACK (mouse_clicked), &ui);
    
-    g_signal_connect(eb_draw, "scroll_event", G_CALLBACK( scroll_callback ), &ui);
+    g_signal_connect(GTK_WIDGET(eb_draw), "scroll_event", G_CALLBACK( scroll_callback ), &ui);
     //
     g_signal_connect(draw_color,"color-set",G_CALLBACK(color_updated),&ui);
 
@@ -540,11 +554,10 @@ int main ()
 
     //todo :  this free is not working 
     if (!is_stack_empty(ui.Layers)){
-    	g_print("youhou");
-	Stack *tmp = ui.Layers;
+    	Stack *tmp = ui.Layers;
     	while(!is_stack_empty(tmp)){
 		Layer * cur_layer = pop_from_stack(&tmp);
-		g_print("cur_layer.show : %i\n",cur_layer->show);
+		//g_print("cur_layer.show : %i\n",cur_layer->show);
 		if(cur_layer)
 			free_image(cur_layer->im);
 		free(cur_layer);

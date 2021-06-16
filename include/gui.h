@@ -98,8 +98,9 @@ void apply_flip_vert(GtkButton *button,gpointer user_data);
 //layer fcts
 
 void merge_from_layers(Stack* Layers, Image* im);
-
 void show_hide_layer(GtkButton *button,gpointer user_data);
+void hide_all_layers(GtkButton * buttonuseless,gpointer user_data );
+void show_all_layers(GtkButton * buttonuseless,gpointer user_data );
 void up_layer(GtkButton *button,gpointer user_data);
 void down_layer(GtkButton *button,gpointer user_data);
 void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_data);

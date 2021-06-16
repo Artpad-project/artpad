@@ -54,7 +54,49 @@ void show_hide_layer(GtkButton *button,gpointer user_data)
 }
 
 
+void hide_all_layers(GtkButton* buttonuseless, gpointer user_data){
+	UserInterface* ui = user_data;
+	Stack * curlayer = ui->Layers;
+	while (!is_stack_empty(curlayer)){
+		Layer * current_layer = (Layer *)curlayer->data;
+		if (current_layer->show){
+		    
+		    GError* err = NULL;
+		    GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/pasvue.png",&err);
+		    if (buf == NULL)
+			errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
+		    GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+		    gtk_button_set_image(GTK_BUTTON(current_layer->button),vue);
+		    current_layer->show = 0;
+	        }
+		curlayer = curlayer->next;
 
+	}
+ 	merge_from_layers(ui->Layers,ui->im);
+    	draw_total_image(user_data);
+}
+
+void show_all_layers(GtkButton* buttonuseless, gpointer user_data){
+	UserInterface* ui = user_data;
+	Stack * curlayer = ui->Layers;
+	while (!is_stack_empty(curlayer)){
+		Layer * current_layer = (Layer *)curlayer->data;
+
+		if (!current_layer->show){
+			GError* err = NULL;
+			GdkPixbuf * buf = gdk_pixbuf_new_from_file("src/gui/icons/vue.png",&err);
+			if (buf == NULL)
+				errx(err->code,"ERROR: image.c: couldn't load pixbuf (%s)",err->message);
+			GtkWidget *vue = gtk_image_new_from_pixbuf(buf);
+			gtk_button_set_image(GTK_BUTTON(current_layer->button),vue);
+			current_layer->show = 1;
+		}
+		curlayer = curlayer->next;
+
+	}
+        merge_from_layers(ui->Layers,ui->im);
+        draw_total_image(user_data);
+}
 
 
 void up_layer(GtkButton *button,gpointer user_data){
@@ -132,8 +174,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     
     merge_from_layers(ui->Layers,ui->im);
 
-    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    draw_total_image(user_data);
 
     prepare_drawarea(user_data);
 
@@ -146,7 +187,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
 void destroy_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
     GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
-    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
+    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
 
     int pos =  gtk_list_box_row_get_index (curlbr);
 
@@ -161,11 +202,9 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     Layer * new = elm_at_pos(&ui->Layers,0);
     if (new != NULL)
     {
-        temp_layer_destroy(new->tp);
 	    set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
     	    merge_from_layers(ui->Layers,ui->im);
-    	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	    draw_total_image(user_data);    	    
     }
 
     else {
@@ -280,13 +319,7 @@ void add_layer(GtkButton *useless,gpointer user_data){
 
     newLayer->show = 1;
     newLayer-> lbr = nbr;
-
-    //ctlr+z and y
-    newLayer->tp = malloc(sizeof(struct temp_layer));
-    newLayer->tp->n = 0;
-    newLayer->tp->layers_z = NULL;
-    newLayer->tp->layers_y = NULL;
-
+    newLayer->button = GTK_BUTTON(button);
     ui->nblayers +=1;
     ui->Layers = push_to_stack(ui->Layers,newLayer);
     set_current_layer(ui->layers,nbr,user_data);
@@ -367,6 +400,13 @@ void merge_from_layers(Stack* Layers,struct Image* im){
 	    }
 	    layers = layers->next;
     }
+}
+
+void apply_to_all_layers(void (*function) (void* ,void*),void* arg1,void* arg2, Stack* Layers){
+	Stack * curlayer = Layers;
+	while (!is_stack_empty(curlayer)){
+		function(arg1,arg2);
+	}
 }
 
 
