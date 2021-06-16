@@ -84,7 +84,7 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="orientation">vertical</property>
-        <property name="position">1030</property>
+        <property name="position">930</property>
         <property name="position-set">True</property>
         <child>
           <object class="GtkFixed" id="everything">
@@ -461,7 +461,7 @@
                             <property name="text" translatable="yes">100</property>
                             <property name="adjustment">height_value</property>
                             <property name="climb-rate">10.01</property>
-                            <property name="value">100</property>
+                            <property name="value">600</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>
@@ -476,7 +476,7 @@
                             <property name="text" translatable="yes">100</property>
                             <property name="adjustment">width_value</property>
                             <property name="climb-rate">10</property>
-                            <property name="value">100</property>
+                            <property name="value">600</property>
                           </object>
                           <packing>
                             <property name="left-attach">0</property>

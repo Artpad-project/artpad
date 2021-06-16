@@ -64,11 +64,16 @@ void color_updated(GtkColorChooser* cc,gpointer user_data){
 // to load a file 
 void on_load(GtkFileChooser *fc,gpointer user_data){
     
-
     UserInterface* ui = user_data;
-    if (!ui->currentLayer)
+    Image* new = load_image((char *)gtk_file_chooser_get_filename (fc));
+    gtk_adjustment_set_value(ui->width_print,new->width);
+    gtk_adjustment_set_value(ui->height_print,new->height);
+    free_image(new);
+    if (!ui->currentLayer){
 	    add_layer(NULL,user_data);
-    ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));    
+    }
+    free_image(ui->currentLayer->im);
+    ui->currentLayer->im = load_image((char *)gtk_file_chooser_get_filename (fc));
     merge_from_layers(ui->Layers,ui->im);
     actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
     gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
@@ -76,17 +81,38 @@ void on_load(GtkFileChooser *fc,gpointer user_data){
  }
 
 
-void on_save(GtkFileChooser *fc,gpointer user_data){
+void on_save(GtkButton *fc,gpointer user_data){
     UserInterface* ui = user_data;
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new(
+        "Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
+        GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),TRUE);
 
-    if (ui->im)  
-    	save_image(ui->im,NULL,NULL);
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), "");
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
+                                      "Untitled document");
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+        char *path;
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	asprintf(&path,"%s",filename);
+	path = strrchr(path,'/');
+	path ++;
+	g_print("%s.%s\n",path,ui->im->file_type);
+	
+	save_image(ui->im,path,NULL);
+        g_free(filename);
+    }
+
+    gtk_widget_destroy(dialog);
 }
 
 
 
 
-//ctrl+z function --- POUR LOWEN---
+//ctrl+z function --- POUR LOWEN---a
 void apply_undo(GtkButton *useless,gpointer user_data){
   UserInterface* ui = user_data;
 
@@ -357,8 +383,8 @@ int main ()
     }
 
     GtkWindow* window = GTK_WINDOW(gtk_builder_get_object(builder, "Main"));
-    GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));  
-    GtkButton* saver =  GTK_BUTTON(gtk_builder_get_object(builder, "Save"));  
+    GtkFileChooser* loader =  GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "loader"));
+    GtkButton* saver =  GTK_BUTTON(gtk_builder_get_object(builder, "Save"));
 
       
     GtkTextBuffer* curser_position = GTK_TEXT_BUFFER(gtk_builder_get_object(builder, "cursor_pos"));
@@ -476,7 +502,7 @@ int main ()
       .maxLayers = 10,
     };
 
-    ui.im = new_image(500,500);
+    //ui.im = new_image(500,500);
     ui.Layers = create_stack();
 
     // Connects event handlers.
@@ -499,8 +525,6 @@ int main ()
     g_signal_connect(FLIPHORI_button,"clicked", G_CALLBACK(apply_flip_hori), &ui);
     g_signal_connect(CB_button, "clicked", G_CALLBACK(apply_color_balance), &ui);
     g_signal_connect(ROT_button, "clicked", G_CALLBACK(apply_rotation), &ui);  
-
-    g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
 
     g_signal_connect(zoom_value, "value_changed" , G_CALLBACK(redraw_all), &ui);
 
@@ -544,10 +568,12 @@ int main ()
     if (ui.im){
 //todo :  fonction de comparaison d'image
     	free_image(ui.im);
+	free(ui.im);
     }
     if (ui.im_zoom){
 //todo :  fonction de comparaison d'image
     	free_image(ui.im_zoom);
+	free(ui.im_zoom);
     }
 
 
@@ -561,7 +587,6 @@ int main ()
 		if(cur_layer)
 			free_image(cur_layer->im);
 		free(cur_layer);
-
     	}
 
     }
