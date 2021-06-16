@@ -2,51 +2,57 @@
 #include <stdlib.h>
 #include "../../include/queue.h"
 
-queue* queue_push(queue* start, Image img)
+queue* queue_push(queue* start, Image *img)
 {
-  queue* q = malloc(sizeof(queue));
-  if (q == NULL)
-    errx(1, "queue.c: couldn't create new queue");
+    queue* q = malloc(sizeof(queue));
+    if (q == NULL)
+        errx(1, "queue.c: couldn't create new queue");
 
-  q->img = img;
-  if (start == NULL)
-  {
-    q->next = q;
-  }
-  else 
-  {
-    q->next = start->next;
-    start->next = q;
-  }
-  return q;
+    q->img = create_copy_image(img);
+    if (start == NULL)
+    {
+        q->next = q;
+    }
+    else
+    {
+        q->next = start->next;
+        start->next = q;
+    }
+    return q;
 }
 
-queue* queue_pop(queue* start, Image *img)
+queue* queue_pop(queue* start, Image **img)
 {
-  if (start == NULL)
-    return NULL;
+    if (start == NULL)
+        return NULL;
 
-  queue *q = start->next;
-  *img = q->img;
-  if (q->next == q)
-  {
-    free(q);
-    return NULL;
-  }
+    queue *q = start->next;
+    while (q->next != start)
+        q = q->next;
 
-  start->next = q->next;
-  free(q);
-  return start;
+    *img = start->img;
+    if (q->next == q)
+    {
+        free(q);
+        return NULL;
+    }
+
+    q->next = start->next;
+    free(start);
+    return q;
 }
 
 void queue_empty(queue** pstart)
 {
-  if (pstart == NULL)
-    errx(1, "Error: pstart is NULL\n");
+    if (pstart == NULL)
+        errx(1, "Error: pstart is NULL\n");
 
-  queue* start = *pstart;
-  while (start)
-    start = queue_pop(start, NULL);
+    queue* start = *pstart;
+    Image *img;
+    while (start) {
+        start = queue_pop(start, &img);
+        free_image(img);
+    }
 
-  *pstart = NULL;
+    *pstart = NULL;
 }
