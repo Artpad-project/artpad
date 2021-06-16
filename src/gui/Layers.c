@@ -174,8 +174,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
     
     merge_from_layers(ui->Layers,ui->im);
 
-    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-    gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+    draw_total_image(user_data);
 
     prepare_drawarea(user_data);
 
@@ -188,7 +187,7 @@ void set_current_layer(GtkListBox *box ,GtkListBoxRow *listboxrow,gpointer user_
 void destroy_layer(GtkButton *button,gpointer user_data){
     UserInterface *ui = user_data;
     GtkListBoxRow *curlbr = GTK_LIST_BOX_ROW(gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET(button))));
-    GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
+    //GtkListBox * lb = GTK_LIST_BOX(gtk_widget_get_parent (GTK_WIDGET(curlbr)));
 
     int pos =  gtk_list_box_row_get_index (curlbr);
 
@@ -205,8 +204,7 @@ void destroy_layer(GtkButton *button,gpointer user_data){
     {
 	    set_current_layer(ui->layers,GTK_LIST_BOX_ROW(gtk_list_box_get_row_at_index (ui->layers,0)),user_data);
     	    merge_from_layers(ui->Layers,ui->im);
-    	    actualise_image(ui->im,0,0,ui->im->width,ui->im->height);
-            gtk_image_set_from_pixbuf(ui->area,ui->im->pb);
+	    draw_total_image(user_data);    	    
     }
 
     else {

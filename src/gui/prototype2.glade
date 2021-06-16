@@ -539,6 +539,7 @@
                                 <property name="height-request">1020</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="above-child">True</property>
                                 <child>
                                   <placeholder/>
                                 </child>
