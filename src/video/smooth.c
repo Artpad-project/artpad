@@ -1,8 +1,12 @@
 /*!
- *  File created on 3/10/2021 (MM/DD/YYYY) by leo.duboin
+ *  File created on 6/15/2021 (MM/DD/YYYY) by leo.duboin
  *  Contributors : leo.duboin
  *
  *  FPS smoothing using Motion interpolation.
+ *  This implementation is the most basic one, as we brute force our way to compute the vector flow.
+ * 
+ *  6/15 : Vector flow
+ *  6/16 : main function + multithreading
  *
  *  Motion interpolation: https://monochrome.sutic.nu/2010/10/12/motion-interpolation.html
  */
@@ -17,27 +21,6 @@
 
 #define BOX_SIZE 3
 #define FLOW_DISTANCE 3
-
-/*
-
-block = crop (firstFrame, x, y, x+s, y+s);
-bestSum = MAX_FLOAT;
-bestPosition = [x,y];
-for (int dx = -d; dx < d; ++dx) {
-    for (int dy = -d; dy < d; ++dy) {
-        correspondingBlock = crop (secondFrame, x+dx, y+dy, x+s+dx, y+s+dy);
-        difference = subtract (block, correspondingBlock);
-        sum = 0
-        foreach pixel p in difference:
-            sum = sum + sqr (p)
-        if (sum < bestSum)
-            bestSum = sum
-            bestPosition = [x+dx,y+dy]
-    }
-}
-opticalFlow (x,y) = bestPosition - [x,y]
-
-*/
 
 #define SQR(x) (x*x)
 
@@ -62,7 +45,6 @@ struct coord compute_vector_flow(Frame f1, int x, int y, Frame f2)
             sum = 0;
             for (int X = x+dx; X < x+BOX_SIZE+dx; X++) {
                 for (int Y = y+dy; Y < y+BOX_SIZE+dy; Y++) {
-                    // FIXME: SEGFAULT y = 712
                     p = DIF_PX(f1.pixels[X][Y], f2.pixels[X][Y]);
                     sum += SQR(SUM_PX(p));
                 }
@@ -107,11 +89,6 @@ void* smooth_worker(void *args)
         Image *im = create_copy_image(&smooth_video.frames[frame]);
         for (int x = 0; x < smooth_video.width; ++x) {
             for (int y = 0; y < smooth_video.height; ++y) {
-                /*
-                 * [xb,yb] = [x,y] - tiVx,y
-                 * [xf,yf] = [x,y] + (1 - ti)Vx,y
-                 * Fi,x,y = (1 - ti)F0,xb,yb + tiF1,xf,yf
-                 */
                 vector_flow = compute_vector_flow(f1, x, y, f2);
                 xb = x - t_i*vector_flow.x;
                 yb = y - t_i*vector_flow.y;
