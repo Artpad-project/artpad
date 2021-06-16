@@ -158,7 +158,7 @@ void apply_flip_hori(GtkButton *button,gpointer user_data){
 		        FlipHorizon(cur_layer->im);
 		}
 	}
-
+	merge_from_layers(ui->Layers, ui->im);
         draw_total_image(user_data);
     }
 }
@@ -180,6 +180,7 @@ void apply_flip_vert(GtkButton *button,gpointer user_data){
 			FlipVertical(cur_layer->im);
 
 		}
+	merge_from_layers(ui->Layers, ui->im);
         draw_total_image(user_data);
     	}
     }
