@@ -52,6 +52,9 @@ new_image(int width,int height) {
  */
 struct Pixel** realloc_image(Image *im, int nRows, int nCols)
 {
+    if (im->width == nCols && im->height == nRows)
+        return im->pixels;
+
     Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
     for (int i = 0; i < nCols; ++i) {
         new_pixels[i] = malloc(nRows * sizeof(Pixel));
@@ -263,7 +266,7 @@ struct Image *copy_image(Image *src, Image *dst){
 
     if (src->width != dst->width || src->height != dst->height)
         realloc_image(dst,src->height,src->width);
-
+  
     dst->file = src->file;
     dst->file_type = src->file_type;
     dst->pb = src->pb;
@@ -273,7 +276,7 @@ struct Image *copy_image(Image *src, Image *dst){
         for (int i = 0; i < dst->width; ++i)
             dst->pixels[i] = malloc(dst->height * sizeof(Pixel));
     }
-
+  
     for(int i = 0;i<src->width;i++)
         for(int j = 0;j<src->height;j++){
             dst->pixels[i][j].red = src->pixels[i][j].red;

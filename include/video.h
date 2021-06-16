@@ -17,4 +17,6 @@ Video create_video(char *path, int w, int h, int fps);
 void save_video(Video video, char *out);
 Video smooth_video(Video video);
 
+typedef Image Frame;
+
 #endif //SRC_VIDEO_H

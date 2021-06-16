@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     int percent = 0;
 
     // https://drive.google.com/open?id=0B3NaVR72FYQcWUFSUVhKWE5UMVU
-    // Local: "teapot.png" 1280 720 25 600 300
+    // Local: "teapot.png" 1280 720 30 600 300
     video = create_video(argv[1], atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 
     sprintf(title,  "out/test_video_%d.mp4", video.frame_count);
