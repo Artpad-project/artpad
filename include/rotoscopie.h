@@ -12,6 +12,6 @@
 #define MAGIC_WAND_THRESHOLD 0.125
 
 ImageMask magic_wand(Image *im, int x, int y);
-void rotoscopie(Video video, int x, int y, int *percent);
+void rotoscopie(Video video, int x, int y);
 
 #endif // ROTOSCOPIE_H_

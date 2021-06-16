@@ -9,16 +9,17 @@ IMG_SRC := 			image/image.c \
 					flip/Flip.c \
 					puissancen/PuissanceN.c \
 					rotation/Rotation.c \
-					utils/utils.c
+					utils/utils.c \
+					rotoscopie/rotoscopie.c \
 
 
 DRAWING_SRC :=		colorimetrie/stack.c \
-					colorimetrie/colorimetrie.c
+					colorimetrie/colorimetrie.c \
 
 GUI_SRC :=			gui/gui.c \
-				
 
-VIDEO_SRC :=		video/video.c	
+VIDEO_SRC :=		video/video.c	\
+					rotoscopie/rotoscopie_video.c \
 
 SRC :=	$(IMG_SRC) \
 		$(GUI_SRC) \
@@ -38,6 +39,6 @@ GTKFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 ## FLAGS
 CC = gcc -g -fsanitize=address
 CPPFLAGS =
-CFLAGS = -Wall -Wextra -Wno-unused-parameter $(GTKFLAGS)
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unknown-pragmas $(GTKFLAGS)
 LDLIB =  $(GTKLIBS) -I$(L_LIBALGO) -ldl -lm
 

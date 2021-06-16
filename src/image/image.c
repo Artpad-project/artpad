@@ -52,6 +52,9 @@ new_image(int width,int height) {
  */
 struct Pixel** realloc_image(Image *im, int nRows, int nCols)
 {
+    if (im->width == nCols && im->height == nRows)
+        return im->pixels;
+
     Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
     for (int i = 0; i < nCols; ++i) {
         new_pixels[i] = malloc(nRows * sizeof(Pixel));
@@ -252,30 +255,29 @@ struct Image *create_copy_image(const struct Image *im);
  * copy an image, and put it into another image. 
  * Save a copy of the original matrix of pixel
  * 
- * @param origin : original image
- * @param copy : copy image
+ * @param src : original image
+ * @param dst : copy image
  * 
  */
-struct Image *copy_image(Image *origin, Image *copy){
+struct Image *copy_image(Image *src, Image *dst){
      
-    if (!copy)
-        return create_copy_image(origin);
+    if (!dst)
+        return create_copy_image(src);
 
-    realloc_image(copy,origin->height,origin->width);
-    copy->file = origin->file;
-    copy->file_type = origin->file_type;
-    copy->pb = origin->pb;
+    realloc_image(dst,src->height,src->width);
+    dst->file = src->file;
+    dst->file_type = src->file_type;
+    dst->pb = src->pb;
 
-
-    for(int i = 0;i<origin->width;i++)
-        for(int j = 0;j<origin->height;j++){
-            copy->pixels[i][j].red = origin->pixels[i][j].red;
-            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
-            copy->pixels[i][j].green = origin->pixels[i][j].green;
-            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
+    for(int i = 0;i<src->width;i++)
+        for(int j = 0;j<src->height;j++){
+            dst->pixels[i][j].red = src->pixels[i][j].red;
+            dst->pixels[i][j].blue = src->pixels[i][j].blue;
+            dst->pixels[i][j].green = src->pixels[i][j].green;
+            dst->pixels[i][j].alpha = src->pixels[i][j].alpha;
         }
 
-    return copy;
+    return dst;
 }
 
 
