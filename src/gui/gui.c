@@ -221,17 +221,6 @@ void apply_swap_fill_mode(GtkRadioButton *useless,gpointer user_data){
 }
 
 
-// Event handler for the "clicked" signal of the copy button.
-void on_start(GtkButton *useless,gpointer user_data)
-{
-    /*UserInterface *ui = user_data;
-    Image* newim = new_image(500,500);
-    merge_from_layers(ui->Layers,newim);
-    actualise_image(newim,0,0,newim->width,newim->height);
-    gtk_image_set_from_pixbuf(ui->area,newim->pb);*/
-}
-
-
 void scroll_callback(GtkWidget *useless,GdkEventScroll* event, gpointer user_data){
     UserInterface *ui = user_data;
     int val = gtk_adjustment_get_value(ui->zoom_value);
@@ -429,10 +418,6 @@ int main ()
     GtkButton* FLIPVERT_button = GTK_BUTTON(gtk_builder_get_object(builder, "flip_vert_go"));
     GtkButton* ROTRIGHT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rot_right_go"));
     GtkButton* ROTLEFT_button = GTK_BUTTON(gtk_builder_get_object(builder, "rot_left_go"));
-
-    GtkButton* start_button = GTK_BUTTON(gtk_builder_get_object(builder, "copy"));
-    //GtkButton* print_ori_button = GTK_BUTTON(gtk_builder_get_object(builder, "Debug_im2"));
-
  
 // ------------------------------ DRAW BUTTONS---------------------------------//
     GtkColorChooser* draw_color = GTK_COLOR_CHOOSER(gtk_builder_get_object(builder, "Colorconar"));
@@ -462,7 +447,6 @@ int main ()
       .zoom_value = zoom_value,
 
       .area = area,
-      .start_button = start_button,
       .curserpos = curser_position,
       .drawbuffer = drawbuffer, 
       .SAT_value = SAT_value_cursor,
@@ -527,8 +511,6 @@ int main ()
     g_signal_connect(brush1,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
     g_signal_connect(brush2,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
     g_signal_connect(brush3,"clicked", G_CALLBACK(apply_swap_draw_mode), &ui);
-
-    g_signal_connect(start_button,"clicked", G_CALLBACK(on_start), &ui);
     g_signal_connect(flood_fill,"clicked", G_CALLBACK(apply_swap_fill_mode), &ui);
 
     g_signal_connect(UNDO_button,"clicked", G_CALLBACK(apply_undo), &ui);
