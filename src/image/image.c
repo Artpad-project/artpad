@@ -7,9 +7,12 @@
  *  Added:
  *  3/9/2021 - image loading
  */
+#define _GNU_SOURCE
+#include "../../include/image.h"
+#include "../../include/utils.h"
 
-#include "image.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 static char * parse_image_path(char *path);
@@ -34,11 +37,16 @@ new_image(int width,int height) {
     struct Pixel **im_pixels = (struct Pixel **)malloc(width * sizeof(struct Pixel *));
     for (int i = 0; i < width; i++) {
         im_pixels[i] = (struct Pixel *)malloc(height * sizeof(struct Pixel));
-        memset(im_pixels[i], 256, height*sizeof(struct Pixel));
+        memset(im_pixels[i],0, height*sizeof(struct Pixel));
     }
     
-    pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height); 
-    *image = (struct Image){"", "jpg", width, height, pb, im_pixels};
+    char *file_type ;
+    int val = asprintf(&file_type,"jpeg");
+    if (val <0){
+    	errx(1,"error while giving png");
+    }
+    pb = gdk_pixbuf_new(GDK_COLORSPACE_RGB,1,8,width,height);
+    *image = (struct Image){NULL, file_type, width, height, pb, im_pixels};
     return image;
 }
 
@@ -52,10 +60,15 @@ new_image(int width,int height) {
  */
 struct Pixel** realloc_image(Image *im, int nRows, int nCols)
 {
+    if (im->width == nCols && im->height == nRows)
+        return im->pixels;
+
     Pixel **new_pixels = malloc(nCols * sizeof(Pixel*));
     for (int i = 0; i < nCols; ++i) {
         new_pixels[i] = malloc(nRows * sizeof(Pixel));
-        free(im->pixels[i]);
+	g_print("%d",i);
+	if (i < im->width)
+        	free(im->pixels[i]);
     }
     
     free(im->pixels);
@@ -82,7 +95,7 @@ load_image_from_pixbuf(GdkPixbuf *pb){
     struct Image *image = malloc(sizeof(struct Image));
     int width = gdk_pixbuf_get_width(pb);
     int height = gdk_pixbuf_get_height(pb);
-    *image = (struct Image) {NULL, "jpg", width, height, pb, NULL};
+    *image = (struct Image) {NULL, NULL, width, height, pb, NULL};
     save_image_pixels(image);
     return image;
 }
@@ -168,6 +181,8 @@ save_image_pixels(struct Image *im) {
     im->pixels = im_pixels;
 }
 
+
+
 /*!
  * Proper way to free an image structure to avoid ay memory leak. 
  * Must call after you're done processing an image.
@@ -178,12 +193,13 @@ void
 free_image(struct Image *image) {
     if(image){
     	for (int x = 0; x < image->width; ++x)
-            free(image->pixels[x]);
+          free(image->pixels[x]);
     	free(image->pixels);
-    	free(image->file);
-    	free(image->file_type);
+    	if (image->file)
+		      free(image->file);
+    	if (image->file_type)
+		      free(image->file_type);
     	//free(image);
-
     }
 }
 
@@ -216,7 +232,7 @@ save_image(struct Image *im, char *out, char *ftype) {
 }
 
 /*!
- * actualise image into a file.
+ * actualise the pixbuff of an image.
  * 
  * @param im the image to sav 
  * */
@@ -246,36 +262,43 @@ set_pixel(guchar *pixels, int rowstride, const struct Pixel px, const int x, con
     pixels[3] = px.alpha;
 }
 
-struct Image *create_copy_image(const struct Image *im);
+struct Image *create_copy_image(Image *im);
 
 /*!
  * copy an image, and put it into another image. 
- * Save a copy of the original matrix of pixel
+
  * 
- * @param origin : original image
- * @param copy : copy image
+ * @param src : original image
+ * @param dst : copy image
  * 
  */
-struct Image *copy_image(Image *origin, Image *copy){
-     
-    if (!copy)
-        return create_copy_image(origin);
 
-    realloc_image(copy,origin->height,origin->width);
-    copy->file = origin->file;
-    copy->file_type = origin->file_type;
-    copy->pb = origin->pb;
+struct Image *copy_image(Image *src, Image *dst){
+    if (!dst)
+        return create_copy_image(src);
 
+    if (src->width != dst->width || src->height != dst->height)
+        realloc_image(dst,src->height,src->width);
+  
+    dst->file = src->file;
+    dst->file_type = src->file_type;
+    dst->pb = src->pb;
 
-    for(int i = 0;i<origin->width;i++)
-        for(int j = 0;j<origin->height;j++){
-            copy->pixels[i][j].red = origin->pixels[i][j].red;
-            copy->pixels[i][j].blue = origin->pixels[i][j].blue;
-            copy->pixels[i][j].green = origin->pixels[i][j].green;
-            copy->pixels[i][j].alpha = origin->pixels[i][j].alpha;
+    if (!dst->pixels) {
+        dst->pixels = malloc(dst->width * sizeof(Pixel*));
+        for (int i = 0; i < dst->width; ++i)
+            dst->pixels[i] = malloc(dst->height * sizeof(Pixel));
+    }
+  
+    for(int i = 0;i<src->width;i++)
+        for(int j = 0;j<src->height;j++){
+            dst->pixels[i][j].red = src->pixels[i][j].red;
+            dst->pixels[i][j].blue = src->pixels[i][j].blue;
+            dst->pixels[i][j].green = src->pixels[i][j].green;
+            dst->pixels[i][j].alpha = src->pixels[i][j].alpha;
         }
 
-    return copy;
+    return dst;
 }
 
 
@@ -285,15 +308,23 @@ struct Image *copy_image(Image *origin, Image *copy){
  * @return A copy of the image
  */
 struct Image *
-create_copy_image(const struct Image *im) {
+create_copy_image(Image *im) {
+    if (!im)
+        return NULL;
+
     struct Image *new_image = malloc(sizeof(struct Image));
     *new_image = (struct Image) {
-        strdup(im->file),
-        strdup(im->file_type),
+        NULL,
+        NULL,
         im->width, im->height,
         NULL,
         NULL
     };
+
+    if (im->file)
+      new_image->file = strdup(im->file);
+    if (im->file_type)
+      new_image->file_type = strdup(im->file_type);
 
     new_image->pb = im->pb;
     new_image->pixels = malloc(new_image->width * sizeof(Pixel*));

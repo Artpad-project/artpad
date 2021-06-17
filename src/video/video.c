@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#include "video.h"
+#include "../../include/video.h"
 
 size_t get_frame_number(char *file)
 {
@@ -39,11 +39,11 @@ Video create_video(char *path, int w, int h, int fps)
 
     // Separate video into frames, or use already existing ones
     if (stat("frames", st) == 0)
-        printf("using already existing frames.\n");
+        printf("Using already existing frames.\n");
     else {
         // Create folder
         char *cmd = malloc(256);
-        sprintf(cmd, "ffmpeg -i %s frames/frame_%%04d.jpg", path);
+        sprintf(cmd, "ffmpeg -i %s -q:v 1 frames/frame_%%04d.jpg", path);
         //cmd = strcat(cmd, "frames/frame_%04d.jpg");
 
         // Separate video into frames
@@ -83,8 +83,12 @@ Video create_video(char *path, int w, int h, int fps)
 
 void free_video(Video video)
 {
-    for(int i = 0; i < video.frame_count; ++i)
-        free_image(&video.frames[i]);
+    for(int i = 0; i < video.frame_count; ++i) {
+        Image image = video.frames[i];
+        for (int x = 0; x < image.width; ++x)
+            free(image.pixels[x]);
+        free(image.pixels);
+    }
     free(video.frames);
 }
 
@@ -94,7 +98,7 @@ void save_video(Video video, char *out)
 
     sprintf(pipestr,
             "ffmpeg -y -f rawvideo -vcodec rawvideo -pix_fmt rgba -s %dx%d "
-            "-r %d -i - -f mp4 -q:v 5 -an -vcodec mpeg4 %s",
+            "-r %d -i - -f mp4 -q:v 1 -an -vcodec mpeg4 %s",
             video.width, video.height, video.fps, out);
 
     FILE *pipeout = popen(pipestr, "w");
