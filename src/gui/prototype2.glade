@@ -318,7 +318,7 @@
                                             <property name="can-focus">True</property>
                                             <property name="text" translatable="yes">1</property>
                                             <property name="adjustment">draw_size</property>
-                                            <property name="value">1</property>
+                                            <property name="value">2</property>
                                           </object>
                                           <packing>
                                             <property name="left-attach">1</property>
@@ -702,7 +702,8 @@
                                   </object>
                                   <packing>
                                     <property name="left-attach">5</property>
-                                    <property name="top-attach">10</property>
+                                    <property name="top-attach">16</property>
+
                                   </packing>
                                 </child>
                                 <child>
@@ -716,7 +717,9 @@
                                   </object>
                                   <packing>
                                     <property name="left-attach">0</property>
-                                    <property name="top-attach">10</property>
+
+                                    <property name="top-attach">16</property>
+
                                     <property name="width">5</property>
                                   </packing>
                                 </child>
@@ -787,7 +790,9 @@
                                   </object>
                                   <packing>
                                     <property name="left-attach">0</property>
-                                    <property name="top-attach">16</property>
+
+                                    <property name="top-attach">10</property>
+
                                     <property name="width">5</property>
                                   </packing>
                                 </child>
@@ -808,7 +813,9 @@
                                   </object>
                                   <packing>
                                     <property name="left-attach">5</property>
-                                    <property name="top-attach">16</property>
+
+                                    <property name="top-attach">10</property>
+
                                   </packing>
                                 </child>
                                 <child>
@@ -1003,7 +1010,8 @@
                                   </object>
                                   <packing>
                                     <property name="left-attach">0</property>
-                                    <property name="top-attach">9</property>
+                                    <property name="top-attach">15</property>
+
                                     <property name="width">6</property>
                                   </packing>
                                 </child>
@@ -1027,7 +1035,8 @@
                                   </object>
                                   <packing>
                                     <property name="left-attach">0</property>
-                                    <property name="top-attach">15</property>
+                                    <property name="top-attach">9</property>
+
                                     <property name="width">6</property>
                                   </packing>
                                 </child>
