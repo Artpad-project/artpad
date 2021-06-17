@@ -19,6 +19,8 @@ All binary files are compiled into `bin/` at the root of the project.
 make artpad
 ./artpad
 ```
+As the GUI currently doesn't support video editing all video related features are only available through tests in `test/`.
+Use `make help` in `test/` to see a list of all currently available tests.
 
 Run the program with the command `./artpad`
 
